@@ -22,6 +22,7 @@ body {
 }
 main { width: 100%; max-width: 1040px; }
 #home { max-width: 560px; margin-left: auto; margin-right: auto; }
+.homewrap > * + * { margin-top: 18px; }
 .layout { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 18px; align-items: start; }
 .layout .side { position: sticky; top: 16px; }
 @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } .layout .side { position: static; } }
@@ -250,3 +251,16 @@ input:disabled, select:disabled { opacity: .6; cursor: not-allowed; }
   .particle.flan { animation: fadeOnly 2.2s forwards; }
   .wheel.flanflash::before { display: none; }
 }
+
+/* profile box */
+.profilerow { display: flex; gap: 16px; align-items: flex-end; }
+.profilefields { flex: 1; min-width: 0; }
+.facepreview { width: 68px; height: 68px; flex: 0 0 68px; }
+.facepreview svg { width: 100%; height: 100%; display: block; }
+.swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+.swatch { width: 38px; height: 38px; min-width: 0; padding: 0; border-radius: 50%; border: 3px solid var(--line); box-shadow: none; }
+.swatch[aria-checked="true"] { border-color: var(--text); transform: scale(1.12); }
+/* vote */
+.votetext { font-weight: 600; }
+.voteCard select { margin-top: 2px; }
+.voteCard button { padding: 10px 14px; }

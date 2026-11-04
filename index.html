@@ -14,22 +14,34 @@
   <h1>Pudding Party</h1>
 
   <!-- HOME -->
-  <section id="home" class="panel stack">
-    <div>
-      <label for="nameInput">Your name</label>
-      <input id="nameInput" type="text" maxlength="16" autocomplete="off" placeholder="Pudding McGee">
-    </div>
-    <div class="row">
-      <button id="createBtn">Create lobby</button>
-    </div>
-    <div class="row">
-      <div>
-        <label for="codeInput">Lobby code</label>
-        <input id="codeInput" type="text" maxlength="4" autocomplete="off" placeholder="ABCD">
+  <div id="home" class="homewrap">
+    <section id="profile" class="panel stack">
+      <h2>Your character</h2>
+      <div class="profilerow">
+        <div class="facepreview" id="facePreview"></div>
+        <div class="profilefields">
+          <label for="nameInput">Your name</label>
+          <input id="nameInput" type="text" maxlength="16" autocomplete="off" placeholder="Pudding McGee">
+        </div>
       </div>
-      <button id="joinBtn" class="ghost">Join lobby</button>
-    </div>
-  </section>
+      <div>
+        <label id="colorLabel">Color</label>
+        <div class="swatches" id="swatches" role="radiogroup" aria-labelledby="colorLabel"></div>
+      </div>
+    </section>
+    <section id="lobbies" class="panel stack">
+      <div class="row">
+        <button id="createBtn">Create lobby</button>
+      </div>
+      <div class="row">
+        <div>
+          <label for="codeInput">Lobby code</label>
+          <input id="codeInput" type="text" maxlength="4" autocomplete="off" placeholder="ABCD">
+        </div>
+        <button id="joinBtn" class="ghost">Join lobby</button>
+      </div>
+    </section>
+  </div>
 
   <!-- GAME -->
   <div id="gameLayout" class="layout hidden">
@@ -48,8 +60,10 @@
             <rect x="20" y="40" width="80" height="75" fill="#ff2a00" opacity="0" id="pudTint"/>
           </g>
           <path d="M28 100 L36 52 Q60 46 84 52 L92 100 Q60 110 28 100Z" fill="none" stroke="#e0a63c" stroke-width="2" stroke-linejoin="round"/>
+          <g id="eyes">
           <circle cx="47" cy="80" r="9" fill="#fff"/><circle cx="73" cy="80" r="9" fill="#fff"/>
           <g class="pupils" id="pupils"><circle cx="47" cy="80" r="4.5" fill="#2a1204"/><circle cx="73" cy="80" r="4.5" fill="#2a1204"/></g>
+          </g>
           <line id="browL" x1="37" y1="68" x2="56" y2="70" stroke="#2a1204" stroke-width="3.2" stroke-linecap="round" opacity="0"/>
           <line id="browR" x1="83" y1="68" x2="64" y2="70" stroke="#2a1204" stroke-width="3.2" stroke-linecap="round" opacity="0"/>
           <path id="pudMouth" d="M54 94 Q60 99 66 94" fill="none" stroke="#b5651d" stroke-width="2.5" stroke-linecap="round"/>
@@ -81,7 +95,24 @@
         <h2>Players</h2>
         <ul class="players" id="lobbyPlayers"></ul>
       </div>
-      <div class="settingsCard">
+      <div class="settingsCard voteCard hidden" id="voteCard">
+        <h3>Extra life vote</h3>
+        <div id="voteIdle">
+          <label for="voteTarget">Give an extra life to</label>
+          <select id="voteTarget"></select>
+          <button id="voteCallBtn" style="margin-top:10px;width:100%">Call vote</button>
+          <div class="sethint">Everyone else still in the match must agree.</div>
+        </div>
+        <div id="voteActive" class="hidden">
+          <div id="voteText" class="votetext"></div>
+          <div class="sethint" id="voteCount"></div>
+          <div class="row" id="voteBtns" style="margin-top:10px">
+            <button id="voteYesBtn">Agree</button>
+            <button id="voteNoBtn" class="ghost">Decline</button>
+          </div>
+        </div>
+      </div>
+      <div class="settingsCard" id="settingsCard">
         <h3>Match settings</h3>
         <div class="setgrid">
           <div><label for="livesInput">Lives</label><input id="livesInput" type="number" min="1" max="10" value="3" inputmode="numeric"></div>

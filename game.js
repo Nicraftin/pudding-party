@@ -8,6 +8,7 @@
   const PUD_MAX_R = 10; // % of wheel the pudding can drift toward the current player
   const DEFAULT_LIVES = 3, DEFAULT_SECS = 15;
   const MAX_RING = 8, MAX_PEOPLE = 16, OVER_MS = 5000, IMPACT_MS = 450, HIT_MS = 1500, EAT_MS = 2300; // HIT/EAT match the CSS animation lengths
+  const VOTE_MS = 20000;
   const RETURN_MS = 1000, JOIN_MS = 500, SLIDE_MS = 450; // RETURN_MS: slow glide back to centre after the final chomp; JOIN_MS matches the joinFade CSS animation
   const CHEW_END = 1500, CHEW_END_FINALE = 1900; // when the pudding stops chewing and starts heading back to the centre
 
@@ -27,12 +28,28 @@
     flan:  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 21 L6.8 9 Q12 7 17.2 9 L19.5 21 Q12 23 4.5 21Z" fill="#ffcf3a" stroke="#b8860b" stroke-width="1.2"/><path d="M6.8 9 Q12 7 17.2 9 L17.7 11.6 Q12 10.4 6.3 11.6Z" fill="#a05a10"/><path d="M12 1.5 L13 4 L15.6 4.3 L13.6 6 L14.2 8.5 L12 7.2 L9.8 8.5 L10.4 6 L8.4 4.3 L11 4Z" fill="#fff3a0" stroke="#d9a400" stroke-width=".6"/></svg>'
   };
 
+  // ---------- Character colors ----------
+  const COLORS = {
+    yellow: { fill: "#ffd23f", stroke: "#e08a00" },
+    orange: { fill: "#ffa24a", stroke: "#c4600a" },
+    pink:   { fill: "#ff9ec4", stroke: "#d6457f" },
+    red:    { fill: "#ff6b6b", stroke: "#c22b2b" },
+    purple: { fill: "#b98af2", stroke: "#7a3fd0" },
+    blue:   { fill: "#7cc4ff", stroke: "#2f82c8" },
+    teal:   { fill: "#5fd8c4", stroke: "#1f9a86" },
+    green:  { fill: "#8fdc6a", stroke: "#4a9a2a" }
+  };
+  const DEFAULT_COLOR = "yellow";
+  let myColor = DEFAULT_COLOR;
+  function colorOf(k) { return COLORS[k] || COLORS[DEFAULT_COLOR]; }
+  try { const sc = localStorage.getItem("pp-color"); if (COLORS[sc]) myColor = sc; } catch (e) {}
+
   // ---------- Modes ----------
   const MODES = { sulka: "Sulka", social: "Social Craft" };
 
   // ---------- DOM ----------
   const $ = id => document.getElementById(id);
-  function show(name) { $("home").classList.toggle("hidden", name !== "home"); $("gameLayout").classList.toggle("hidden", name !== "game"); }
+  function show(name) { $("home").classList.toggle("hidden", name !== "home"); $("gameLayout").classList.toggle("hidden", name !== "game"); $("profile").classList.toggle("hidden", name !== "home"); }
   let toastTimer;
   function toast(msg) {
     const t = $("toast"); t.textContent = msg; t.classList.add("show");
@@ -57,7 +74,7 @@
   let roomCode = "";
 
   // Host-only
-  let turnTimer = null, announceTimer = null, lobbyTimer = null, attackTimer = null, overTimer = null;
+  let voteTimer = null, turnTimer = null, announceTimer = null, lobbyTimer = null, attackTimer = null, overTimer = null;
   let localStart = 0;            // when the lobby countdown ends (0 = not counting)
   let seenAnswer = {};            // playerId -> id of the last answer we already showed a particle for
 
@@ -80,7 +97,7 @@
     peer = null; hostConn = null; state = null; isHost = false; myId = null; seenAnswer = {}; ringSeen = null; seatMove = {};
     document.querySelectorAll(".particle").forEach(p => p.remove());
     Object.keys(conns).forEach(k => delete conns[k]);
-    clearTimeout(attackTimer); clearTimeout(overTimer); attackLocal = null; lastAttackSeq = 0; lastWinSeq = 0;
+    clearTimeout(attackTimer); clearTimeout(overTimer); clearTimeout(voteTimer); attackLocal = null; lastAttackSeq = 0; lastWinSeq = 0;
     document.querySelectorAll(".dmg,.confetti,.fx").forEach(p => p.remove());
     show("home");
   }
@@ -88,6 +105,7 @@
   // ---------- Create lobby (host) ----------
   function createLobby(attempt = 0) {
     myName = cleanName($("nameInput").value);
+    saveProfile();
     roomCode = randCode();
     isHost = true;
     const lives = DEFAULT_LIVES, secs = DEFAULT_SECS;
@@ -98,8 +116,8 @@
         phase: "lobby",
         code: roomCode,
         settings: { lives, turnMs: secs * 1000, lifePts: DEFAULT_LIFE_PTS, mode: "sulka" },
-        players: [{ id: myId, name: myName, lives, alive: true, inRing: false, inMatch: false, pts: 0, segs: [], last: null }],
-        answerSeq: 0, typing: "", announcing: false, attack: null,
+        players: [{ id: myId, name: myName, color: myColor, lives, alive: true, inRing: false, inMatch: false, pts: 0, segs: [], last: null }],
+        answerSeq: 0, vote: null, typing: "", announcing: false, attack: null,
         turn: null, prompt: null, sub: null, used: [], event: "", winner: null, remaining: 0
       };
       broadcast();
@@ -126,13 +144,14 @@
     const code = $("codeInput").value.trim().toUpperCase();
     if (code.length !== 4) { toast("Enter the 4-letter lobby code"); return; }
     myName = cleanName($("nameInput").value);
+    saveProfile();
     roomCode = code;
     isHost = false;
     peer = new Peer();
     peer.on("open", id => {
       myId = id;
       hostConn = peer.connect(PREFIX + code, { reliable: true });
-      hostConn.on("open", () => hostConn.send({ t: "join", name: myName }));
+      hostConn.on("open", () => hostConn.send({ t: "join", name: myName, color: myColor }));
       hostConn.on("data", msg => {
         if (msg.t === "state") {
           state = msg.state;
@@ -164,7 +183,7 @@
       if (state.players.length >= MAX_PEOPLE) { conn.send({ t: "reject", reason: "Lobby is full" }); return; }
       if (!state.players.find(p => p.id === conn.peer)) {
         conns[conn.peer] = conn;
-        state.players.push({ id: conn.peer, name: cleanName(msg.name), lives: state.settings.lives, alive: true, inRing: false, inMatch: false, pts: 0, segs: [], last: null });
+        state.players.push({ id: conn.peer, name: cleanName(msg.name), color: COLORS[msg.color] ? msg.color : DEFAULT_COLOR, lives: state.settings.lives, alive: true, inRing: false, inMatch: false, pts: 0, segs: [], last: null });
       }
       checkLobbyStart();
       broadcast(); render();
@@ -176,7 +195,49 @@
       setRing(conn.peer, !!msg.on);
     } else if (msg.t === "answer") {
       submitAnswer(conn.peer, String(msg.text || ""));
+    } else if (msg.t === "callVote") {
+      callVote(conn.peer, String(msg.target || ""));
+    } else if (msg.t === "vote") {
+      castVote(conn.peer, !!msg.yes);
     }
+  }
+
+  // ---------- Host: extra-life votes ----------
+  function callVote(callerId, targetId) {
+    if (!state || state.phase !== "game") return;
+    if (state.vote) { tell(callerId, "A vote is already in progress"); return; }
+    const caller = state.players.find(p => p.id === callerId), target = state.players.find(p => p.id === targetId);
+    if (!caller || !caller.inMatch || !caller.alive) { tell(callerId, "Only players still in the match can call a vote"); return; }
+    if (!target || !target.inMatch || !target.alive) { tell(callerId, "That player can't get an extra life"); return; }
+    const voters = state.players.filter(p => p.inMatch && p.alive && p.id !== targetId).map(p => p.id);
+    if (!voters.length) return;
+    state.voteSeq = (state.voteSeq || 0) + 1;
+    state.vote = { seq: state.voteSeq, caller: callerId, callerName: caller.name, target: targetId, targetName: target.name, voters, yes: voters.includes(callerId) ? [callerId] : [] };
+    state.event = caller.name + " called a vote: extra life for " + target.name;
+    clearTimeout(voteTimer); voteTimer = setTimeout(() => endVote(false, "The vote timed out"), VOTE_MS);
+    if (!resolveVote()) { state.vote.remainingMs = VOTE_MS; broadcast(); render(); }
+  }
+  function castVote(id, yes) {
+    const v = state && state.vote; if (!v || !v.voters.includes(id) || v.yes.includes(id)) return;
+    if (!yes) { const p = state.players.find(x => x.id === id); endVote(false, (p ? p.name : "Someone") + " declined the extra life vote"); return; }
+    v.yes.push(id);
+    if (!resolveVote()) { broadcast(); render(); }
+  }
+  function resolveVote() { // pass the vote once every eligible voter agrees
+    const v = state && state.vote; if (!v) return false;
+    v.voters = v.voters.filter(id => { const p = state.players.find(x => x.id === id); return p && p.inMatch && p.alive; });
+    v.yes = v.yes.filter(id => v.voters.includes(id));
+    const t = state.players.find(p => p.id === v.target);
+    if (!t || !t.alive) { endVote(false, "Vote cancelled"); return true; }
+    if (v.voters.every(id => v.yes.includes(id))) { t.lives++; endVote(true, v.targetName + " got an extra life!"); return true; }
+    return false;
+  }
+  function endVote(passed, text) {
+    clearTimeout(voteTimer); voteTimer = null;
+    if (!state) return;
+    state.vote = null;
+    if (text) state.event = text;
+    broadcast(); render();
   }
 
   function onGuestLeft(id) {
@@ -190,6 +251,7 @@
     } else {
       p.alive = false; p.lives = 0; p.left = true; p.inRing = false;
       state.event = p.name + " left the game";
+      if (state.vote) { if (state.vote.target === id) endVote(false, "Vote cancelled"); else resolveVote(); }
       if (state.attack && state.attack.id === id) { clearTimeout(attackTimer); state.attack = null; }
       if (state.phase === "over") { broadcast(); render(); return; }
       if (state.turn === id && !state.announcing) { clearTimeout(turnTimer); afterElimination(); return; }
@@ -271,6 +333,7 @@
     if (alive.length <= 1) {
       clearTimeout(turnTimer); clearTimeout(announceTimer); clearTimeout(attackTimer);
       state.announcing = false; state.typing = ""; state.attack = null; state.turn = null;
+      clearTimeout(voteTimer); voteTimer = null; state.vote = null;
       if (!alive[0]) { backToLobby(); return true; }
       state.phase = "over"; // winner animation plays in the arena, then everyone drops back to the lobby
       state.winner = alive[0].name; state.winnerId = alive[0].id; state.winSeq = (state.winSeq || 0) + 1;
@@ -333,6 +396,7 @@
       p.lives = Math.max(0, p.lives - 1);
       if (kill) { p.alive = false; p.inRing = false; p.eaten = true; state.event = "The pudding ate " + p.name + "!"; }
       else state.event = p.name + " lost a life";
+      if (kill && state.vote) { if (state.vote.target === p.id) { endVote(false, "Vote cancelled"); } else resolveVote(); }
       broadcast(); render();
       attackTimer = setTimeout(() => { if (!state || !state.attack) return; state.attack = null; afterElimination(); }, atkDur(state.attack) - IMPACT_MS);
     }, IMPACT_MS);
@@ -361,7 +425,7 @@
   function backToLobby() { // everyone returns to the lobby as a spectator
     if (!isHost || !state) return;
     clearTimeout(overTimer); clearTimeout(announceTimer); clearTimeout(turnTimer); clearTimeout(attackTimer);
-    state.phase = "lobby"; state.attack = null; state.winnerId = null;
+    state.phase = "lobby"; state.attack = null; state.winnerId = null; clearTimeout(voteTimer); voteTimer = null; state.vote = null;
     state.players = state.players.filter(p => !p.left);
     state.players.forEach(p => { p.lives = state.settings.lives; p.alive = true; p.inMatch = false; p.inRing = false; p.pts = 0; p.segs = []; p.last = null; delete p.eaten; });
     state.announcing = false; state.typing = "";
@@ -414,6 +478,35 @@
   }
 
   // ---------- Client actions ----------
+  function sendCallVote() {
+    const target = $("voteTarget").value; if (!target) return;
+    if (isHost) callVote(myId, target); else if (hostConn && hostConn.open) hostConn.send({ t: "callVote", target });
+  }
+  function sendVote(yes) {
+    if (isHost) castVote(myId, yes); else if (hostConn && hostConn.open) hostConn.send({ t: "vote", yes });
+  }
+  function renderVote(game, playing) {
+    const card = $("voteCard"), v = state.vote;
+    card.classList.toggle("hidden", !(game && (playing || v)));
+    if (!game) return;
+    $("voteIdle").classList.toggle("hidden", !!v || !playing);
+    $("voteActive").classList.toggle("hidden", !v);
+    if (!v) {
+      const sel = $("voteTarget"), prev = sel.value;
+      const opts = state.players.filter(p => p.inMatch && p.alive && (state.players.filter(q => q.inMatch && q.alive && q.id !== p.id).length > 0));
+      const key = opts.map(p => p.id + p.name).join("|");
+      if (sel.dataset.key !== key) {
+        sel.dataset.key = key; sel.textContent = "";
+        opts.forEach(p => { const o = el("option", null, p.name + (p.id === myId ? " (you)" : "")); o.value = p.id; sel.appendChild(o); });
+        if (opts.some(p => p.id === prev)) sel.value = prev;
+      }
+      return;
+    }
+    const canVote = v.voters.includes(myId) && !v.yes.includes(myId);
+    $("voteText").textContent = v.callerName + " wants to give " + v.targetName + " an extra life.";
+    $("voteCount").textContent = v.target === myId ? "Waiting for the others to agree… (" + v.yes.length + "/" + v.voters.length + ")" : v.yes.length + "/" + v.voters.length + " agreed. Everyone must agree.";
+    $("voteBtns").classList.toggle("hidden", !canVote);
+  }
   function sendAnswer() {
     const input = $("answerInput");
     const text = input.value;
@@ -432,8 +525,8 @@
   // ---------- Rendering ----------
   function hearts(n) { return n <= 0 ? "—" : n <= 5 ? "♥".repeat(n) : "♥×" + n; }
 
-  const FACE_ALIVE = '<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="#ffd23f" stroke="#e08a00" stroke-width="2"/><circle cx="18" cy="21" r="3.2" fill="#3a1a06"/><circle cx="34" cy="21" r="3.2" fill="#3a1a06"/><path d="M14 31 Q26 44 38 31" fill="none" stroke="#3a1a06" stroke-width="3" stroke-linecap="round"/></svg>';
-  const FACE_DEAD = '<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="#ffd23f" stroke="#e08a00" stroke-width="2"/><path d="M14 17l8 8M22 17l-8 8M30 17l8 8M38 17l-8 8" stroke="#3a1a06" stroke-width="2.6" stroke-linecap="round"/><path d="M17 36 Q26 30 35 36" fill="none" stroke="#3a1a06" stroke-width="3" stroke-linecap="round"/></svg>';
+  const faceAlive = k => { const c = colorOf(k); return '<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="2"/><circle cx="18" cy="21" r="3.2" fill="#3a1a06"/><circle cx="34" cy="21" r="3.2" fill="#3a1a06"/><path d="M14 31 Q26 44 38 31" fill="none" stroke="#3a1a06" stroke-width="3" stroke-linecap="round"/></svg>'; };
+  const faceDead = k => { const c = colorOf(k); return '<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="2"/><path d="M14 17l8 8M22 17l-8 8M30 17l8 8M38 17l-8 8" stroke="#3a1a06" stroke-width="2.6" stroke-linecap="round"/><path d="M17 36 Q26 30 35 36" fill="none" stroke="#3a1a06" stroke-width="3" stroke-linecap="round"/></svg>'; };
 
   const FACE_HURT = '<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="#ff8a5c" stroke="#e08a00" stroke-width="2"/><path d="M13 17l9 4-9 4M39 17l-9 4 9 4" fill="none" stroke="#3a1a06" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 38 Q21 31 26 38 Q31 31 36 38" fill="none" stroke="#3a1a06" stroke-width="2.6" stroke-linecap="round"/></svg>';
   let wheelW = 520, guardFn = null, guardT = 0, jit = { x: 0, y: 0, t: 0 };
@@ -559,7 +652,7 @@
       if (!state.announcing && p.id === state.turn) { seat.classList.add("turn"); lookAngle = a; }
       seat.appendChild(el("div", "bubble hidden"));
       const face = el("div", "face");
-      face.innerHTML = hit && now - atk.start > 200 ? FACE_HURT : p.alive ? FACE_ALIVE : FACE_DEAD;
+      face.innerHTML = hit && now - atk.start > 200 ? FACE_HURT : p.alive ? faceAlive(p.color) : faceDead(p.color);
       if (hit) {
         seat.classList.add(atk.kill ? "eating" : "hurt");
         seat.style.setProperty("--ox", (cs * 22) + "px"); seat.style.setProperty("--oy", (sn * 22) + "px");
@@ -680,7 +773,7 @@
     rb.classList.toggle("ghost", lobby && inRing);
     $("startNowBtn").classList.toggle("hidden", !(isHost && lobby && localStart && state.players.filter(p => p.inRing).length >= 2)); // host can skip the countdown
     $("promptText").textContent = lobby ? (inRing ? "You're in the ring!" : "Join the ring!") : over ? (state.winner || "Nobody") + " wins!" : state.prompt;
-    $("promptSub").textContent = lobby ? "The match starts 15 seconds after at least 2 players join the ring (the host can start it early). Or just spectate." : over ? "Back to the lobby in a moment…" : (state.sub || "");
+    $("promptSub").textContent = lobby ? "The match starts 15 seconds after at least 2 players join the ring (the host can start it early). Or just spectate." : over ? "" : (state.sub || "");
     const ann = game && !!state.announcing;
     const mine = game && state.turn === myId && !ann && !state.attack;
     const cur = state.players.find(p => p.id === state.turn);
@@ -698,8 +791,25 @@
       if (v && v !== state.typing) pushTyping(v);
     }
     $("eventLog").textContent = state.event || "";
+    renderVote(game, playing);
     renderWheel();
     if (over && state.winSeq !== lastWinSeq) { lastWinSeq = state.winSeq; confetti(state.winnerId); setTimeout(() => confetti(state.winnerId), 900); }
+  }
+
+  let nextBlink = Date.now() + 2500, blinkStart = 0, blinkAgain = false;
+  function blinkScale(now) { // 1 = eyes open, ~0.08 = closed; blinks every few seconds, sometimes twice
+    if (!blinkStart) {
+      if (now < nextBlink) return 1;
+      blinkStart = now;
+    }
+    const t = (now - blinkStart) / 160;
+    if (t >= 1) {
+      blinkStart = 0;
+      if (!blinkAgain && Math.random() < 0.2) { blinkAgain = true; nextBlink = now + 120; }
+      else { blinkAgain = false; nextBlink = now + 2500 + Math.random() * 3500; }
+      return 1;
+    }
+    return 1 - 0.92 * Math.sin(t * Math.PI);
   }
 
   // Timer bar + pudding animation (runs every frame so the ram/damage motion is smooth)
@@ -739,6 +849,8 @@
     const sx = pose ? pose.sx : 1, sy = pose ? pose.sy : 1;
     pd.style.transform = "translate(calc(-50% + " + px.toFixed(2) + "px),calc(-50% + " + py.toFixed(2) + "px)) scale(" + sx.toFixed(3) + "," + sy.toFixed(3) + ")";
     setA($("pudTint"), "opacity", (a * 0.4).toFixed(3));
+    const bs = blinkScale(now);
+    setA($("eyes"), "transform", bs < 1 ? "translate(0 80) scale(1 " + bs.toFixed(3) + ") translate(0 -80)" : "");
     const bo = Math.min(1, a * 3).toFixed(2);
     const bl = $("browL"), br = $("browR");
     setA(bl, "opacity", bo); setA(br, "opacity", bo);
@@ -751,6 +863,23 @@
   }
   requestAnimationFrame(frame);
 
+  // ---------- Profile (name + character) ----------
+  function saveProfile() { try { localStorage.setItem("pp-name", $("nameInput").value); localStorage.setItem("pp-color", myColor); } catch (e) {} }
+  function renderProfile() {
+    $("facePreview").innerHTML = faceAlive(myColor);
+    $("swatches").querySelectorAll(".swatch").forEach(b => b.setAttribute("aria-checked", b.dataset.k === myColor ? "true" : "false"));
+  }
+  Object.keys(COLORS).forEach(k => {
+    const b = el("button", "swatch"); b.type = "button"; b.dataset.k = k; b.title = k;
+    b.setAttribute("role", "radio"); b.setAttribute("aria-label", k);
+    b.style.background = COLORS[k].fill;
+    b.onclick = () => { myColor = k; saveProfile(); renderProfile(); };
+    $("swatches").appendChild(b);
+  });
+  try { const sn = localStorage.getItem("pp-name"); if (sn) $("nameInput").value = sn; } catch (e) {}
+  $("nameInput").addEventListener("input", saveProfile);
+  renderProfile();
+
   // ---------- Wire up ----------
   $("createBtn").onclick = () => createLobby();
   $("joinBtn").onclick = joinLobby;
@@ -761,6 +890,9 @@
   $("lifePtsInput").addEventListener("change", applySettings);
   $("modeInput").addEventListener("change", applySettings);
   $("ringBtn").onclick = toggleRing;
+  $("voteCallBtn").onclick = sendCallVote;
+  $("voteYesBtn").onclick = () => sendVote(true);
+  $("voteNoBtn").onclick = () => sendVote(false);
   $("startNowBtn").onclick = () => { if (isHost && state && state.phase === "lobby") startGame(); };
   $("leaveBtn").onclick = teardown;
   $("answerBtn").onclick = sendAnswer;
