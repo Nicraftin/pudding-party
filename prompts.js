@@ -26,3 +26,6 @@
       flan: ["Ninjack Rabbit", "Underneath"]
     })
   ];
+
+  // Easy text-based prompts (edit prompt-list.js)
+  PROMPTS.push(...parsePromptList(PROMPT_LIST));
