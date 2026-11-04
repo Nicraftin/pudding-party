@@ -1,0 +1,768 @@
+(() => {
+  "use strict";
+
+  const PREFIX = "puddingparty-";
+  const ANNOUNCE_MS = 5000;
+  const LOBBY_MS = 15000;
+  const DEFAULT_LIFE_PTS = 500;
+  const PUD_MAX_R = 10; // % of wheel the pudding can drift toward the current player
+  const DEFAULT_LIVES = 3, DEFAULT_SECS = 15;
+  const MAX_RING = 8, MAX_PEOPLE = 16, OVER_MS = 5000, IMPACT_MS = 450, HIT_MS = 1500, EAT_MS = 2300; // HIT/EAT match the CSS animation lengths
+  const RETURN_MS = 1000, JOIN_MS = 800, SLIDE_MS = 450; // RETURN_MS: slow glide back to centre after the final chomp; JOIN_MS matches the joinIn CSS animation
+
+  // ---------- Rarities ----------
+  const RARITIES = {
+    spoon: { name: "Spoon",       pts: 10,  color: "#b8bcc4" },
+    slice: { name: "Slice",       pts: 30,  color: "#8fd3ff" },
+    rare:  { name: "Rare",        pts: 60,  color: "#ff6a6a" },
+    deep:  { name: "Deep Cut",    pts: 85,  color: "#b98af2" },
+    flan:  { name: "Flan-tastic", pts: 120, color: "#ffd23f" }
+  };
+  const ICONS = {
+    spoon: '<svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="7.5" rx="4.2" ry="5.5" fill="#6b6f78"/><rect x="10.8" y="12" width="2.4" height="10" rx="1.2" fill="#6b6f78"/></svg>',
+    slice: '<svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="18" rx="10.5" ry="4" fill="#4aa8e0"/><ellipse cx="12" cy="17.4" rx="8.5" ry="2.8" fill="#bfe6ff"/><path d="M5.5 16.5 L9 7.5 Q12 6 15 7.5 L18.5 16.5 Q12 19 5.5 16.5Z" fill="#ffd98a" stroke="#c8921a" stroke-width="1"/><path d="M9 7.5 Q12 6 15 7.5 L15.7 9.6 Q12 8.6 8.3 9.6Z" fill="#8a4a12"/></svg>',
+    rare:  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 14 Q10 6 15 3 M16 15 Q16 8 15 3" fill="none" stroke="#2f7a2f" stroke-width="1.6" stroke-linecap="round"/><path d="M15 3 Q19 2 21 5 Q17 6 15 3Z" fill="#3fa03f"/><circle cx="8" cy="17.5" r="4.6" fill="#d62d2d"/><circle cx="16.5" cy="18" r="4.6" fill="#d62d2d"/><circle cx="6.6" cy="16" r="1.2" fill="#ff9a9a"/><circle cx="15" cy="16.4" r="1.2" fill="#ff9a9a"/></svg>',
+    deep:  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1 Q17 6 14.6 13.5 H10 Q9 6 12 1Z" fill="#e3e6ea" stroke="#8d939c" stroke-width="1"/><rect x="9.6" y="13.5" width="5" height="9" rx="1.8" fill="#7a3fd0"/><rect x="9.6" y="13.5" width="5" height="1.6" fill="#4d238f"/></svg>',
+    flan:  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 21 L6.8 9 Q12 7 17.2 9 L19.5 21 Q12 23 4.5 21Z" fill="#ffcf3a" stroke="#b8860b" stroke-width="1.2"/><path d="M6.8 9 Q12 7 17.2 9 L17.7 11.6 Q12 10.4 6.3 11.6Z" fill="#a05a10"/><path d="M12 1.5 L13 4 L15.6 4.3 L13.6 6 L14.2 8.5 L12 7.2 L9.8 8.5 L10.4 6 L8.4 4.3 L11 4Z" fill="#fff3a0" stroke="#d9a400" stroke-width=".6"/></svg>'
+  };
+
+  // ---------- Modes ----------
+  const MODES = { sulka: "Sulka", social: "Social Craft" };
+
+  // ---------- DOM ----------
+  const $ = id => document.getElementById(id);
+  function show(name) { $("home").classList.toggle("hidden", name !== "home"); $("gameLayout").classList.toggle("hidden", name !== "game"); }
+  let toastTimer;
+  function toast(msg) {
+    const t = $("toast"); t.textContent = msg; t.classList.add("show");
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
+  }
+  function el(tag, cls, text) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  // ---------- Network state ----------
+  let peer = null, isHost = false, myId = null, myName = "";
+  let hostConn = null;            // guest -> host connection
+  const conns = {};               // host: peerId -> DataConnection
+  let state = null;               // latest game state
+  let localDeadline = 0;
+  let look = null, lastTick = Date.now();
+  const pud = { x: 0, y: 0 };
+  const reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let roomCode = "";
+
+  // Host-only
+  let turnTimer = null, announceTimer = null, lobbyTimer = null, attackTimer = null, overTimer = null;
+  let localStart = 0;            // when the lobby countdown ends (0 = not counting)
+  let seenAnswer = {};            // playerId -> id of the last answer we already showed a particle for
+
+  function randCode() {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+    let c = ""; for (let i = 0; i < 4; i++) c += chars[Math.floor(Math.random() * chars.length)];
+    return c;
+  }
+  function cleanName(n) { return (n || "").trim().slice(0, 16) || "Player" + Math.floor(Math.random() * 90 + 10); }
+
+  function clampInt(v, lo, hi, def) {
+    const n = parseInt(v, 10);
+    return isNaN(n) ? def : Math.min(hi, Math.max(lo, n));
+  }
+
+  function teardown() {
+    clearTimeout(turnTimer); clearTimeout(announceTimer); clearTimeout(lobbyTimer);
+    lobbyTimer = null; localStart = 0; $("answerInput").value = "";
+    try { peer && peer.destroy(); } catch (e) {}
+    peer = null; hostConn = null; state = null; isHost = false; myId = null; seenAnswer = {}; ringSeen = null; seatMove = {};
+    document.querySelectorAll(".particle").forEach(p => p.remove());
+    Object.keys(conns).forEach(k => delete conns[k]);
+    clearTimeout(attackTimer); clearTimeout(overTimer); attackLocal = null; lastAttackSeq = 0; lastWinSeq = 0;
+    document.querySelectorAll(".dmg,.confetti,.fx").forEach(p => p.remove());
+    show("home");
+  }
+
+  // ---------- Create lobby (host) ----------
+  function createLobby(attempt = 0) {
+    myName = cleanName($("nameInput").value);
+    roomCode = randCode();
+    isHost = true;
+    const lives = DEFAULT_LIVES, secs = DEFAULT_SECS;
+    peer = new Peer(PREFIX + roomCode);
+    peer.on("open", id => {
+      myId = id;
+      state = {
+        phase: "lobby",
+        code: roomCode,
+        settings: { lives, turnMs: secs * 1000, lifePts: DEFAULT_LIFE_PTS, mode: "sulka" },
+        players: [{ id: myId, name: myName, lives, alive: true, inRing: false, inMatch: false, pts: 0, segs: [], last: null }],
+        answerSeq: 0, typing: "", announcing: false, attack: null,
+        turn: null, prompt: null, sub: null, used: [], event: "", winner: null, remaining: 0
+      };
+      broadcast();
+      render();
+    });
+    peer.on("connection", conn => {
+      conn.on("data", msg => onHostMessage(conn, msg));
+      conn.on("close", () => onGuestLeft(conn.peer));
+      conn.on("error", () => onGuestLeft(conn.peer));
+    });
+    peer.on("error", err => {
+      if (err.type === "unavailable-id" && attempt < 5) {
+        try { peer.destroy(); } catch (e) {}
+        createLobby(attempt + 1);
+      } else {
+        toast("Connection problem: " + err.type);
+        teardown();
+      }
+    });
+  }
+
+  // ---------- Join lobby (guest) ----------
+  function joinLobby() {
+    const code = $("codeInput").value.trim().toUpperCase();
+    if (code.length !== 4) { toast("Enter the 4-letter lobby code"); return; }
+    myName = cleanName($("nameInput").value);
+    roomCode = code;
+    isHost = false;
+    peer = new Peer();
+    peer.on("open", id => {
+      myId = id;
+      hostConn = peer.connect(PREFIX + code, { reliable: true });
+      hostConn.on("open", () => hostConn.send({ t: "join", name: myName }));
+      hostConn.on("data", msg => {
+        if (msg.t === "state") {
+          state = msg.state;
+          localDeadline = Date.now() + state.remaining;
+          localStart = state.startIn != null ? Date.now() + state.startIn : 0;
+          render();
+        } else if (msg.t === "reject") {
+          toast(msg.reason);
+          teardown();
+        } else if (msg.t === "msg") {
+          toast(msg.text);
+          if (msg.shake) shakeInput();
+        } else if (msg.t === "typing") {
+          if (state) { state.typing = msg.text; updateBubbles(); }
+        }
+      });
+      hostConn.on("close", () => { toast("Host disconnected"); teardown(); });
+      hostConn.on("error", () => { toast("Lost connection to host"); teardown(); });
+    });
+    peer.on("error", err => {
+      toast(err.type === "peer-unavailable" ? "No lobby with that code" : "Connection problem: " + err.type);
+      teardown();
+    });
+  }
+
+  // ---------- Host: message handling ----------
+  function onHostMessage(conn, msg) {
+    if (msg.t === "join") {
+      if (state.players.length >= MAX_PEOPLE) { conn.send({ t: "reject", reason: "Lobby is full" }); return; }
+      if (!state.players.find(p => p.id === conn.peer)) {
+        conns[conn.peer] = conn;
+        state.players.push({ id: conn.peer, name: cleanName(msg.name), lives: state.settings.lives, alive: true, inRing: false, inMatch: false, pts: 0, segs: [], last: null });
+      }
+      checkLobbyStart();
+      broadcast(); render();
+    } else if (msg.t === "typing") {
+      if (state.phase !== "game" || state.announcing || state.turn !== conn.peer) return;
+      state.typing = String(msg.text || "").slice(0, 40);
+      relayTyping(conn.peer); updateBubbles();
+    } else if (msg.t === "ring") {
+      setRing(conn.peer, !!msg.on);
+    } else if (msg.t === "answer") {
+      submitAnswer(conn.peer, String(msg.text || ""));
+    }
+  }
+
+  function onGuestLeft(id) {
+    delete conns[id];
+    if (!state) return;
+    const p = state.players.find(x => x.id === id);
+    if (!p) return;
+    if (state.phase === "lobby" || !p.inMatch) {
+      state.players = state.players.filter(x => x.id !== id);
+      checkLobbyStart();
+    } else {
+      p.alive = false; p.lives = 0; p.left = true; p.inRing = false;
+      state.event = p.name + " left the game";
+      if (state.attack && state.attack.id === id) { clearTimeout(attackTimer); state.attack = null; }
+      if (state.phase === "over") { broadcast(); render(); return; }
+      if (state.turn === id && !state.announcing) { clearTimeout(turnTimer); afterElimination(); return; }
+      if (checkWinner()) return;
+      if (state.turn === id) state.turn = nextAlive(id);
+    }
+    broadcast(); render();
+  }
+
+  // ---------- Host: game logic ----------
+  function checkLobbyStart() {
+    if (!isHost || !state || state.phase !== "lobby") return;
+    if (state.players.filter(p => p.inRing).length >= 2) {
+      if (!lobbyTimer) {
+        localStart = Date.now() + LOBBY_MS;
+        lobbyTimer = setTimeout(() => { lobbyTimer = null; localStart = 0; if (state && state.phase === "lobby") startGame(); }, LOBBY_MS);
+      }
+    } else {
+      clearTimeout(lobbyTimer); lobbyTimer = null; localStart = 0;
+    }
+  }
+
+  function startGame() {
+    if (!isHost || state.players.filter(p => p.inRing).length < 2) return;
+    clearTimeout(announceTimer); clearTimeout(lobbyTimer); lobbyTimer = null; localStart = 0;
+    state.players.forEach(p => { p.inMatch = p.inRing; p.alive = p.inRing; p.lives = state.settings.lives; p.pts = 0; p.segs = []; p.last = null; delete p.left; delete p.eaten; });
+    state.phase = "game";
+    state.announcing = false; state.typing = "";
+    state.winner = null;
+    state.event = "";
+    state.turn = state.players.find(p => p.inMatch).id; state.attack = null;
+    newRound();
+    announceRound();
+  }
+
+  function newRound() {
+    const pool = PROMPTS.filter(p => p.modes.includes(state.settings.mode));
+    const choices = pool.length > 1 ? pool.filter(p => p.text !== state.prompt) : pool;
+    const pick = choices[Math.floor(Math.random() * choices.length)];
+    state.prompt = pick.text;
+    state.sub = pick.sub;
+    state.used = [];
+    state.players.forEach(p => { p.last = null; });
+  }
+
+  function startTurn() {
+    clearTimeout(turnTimer);
+    state.announcing = false; state.typing = "";
+    state.remaining = state.settings.turnMs;
+    localDeadline = Date.now() + state.settings.turnMs;
+    turnTimer = setTimeout(onTimeout, state.settings.turnMs);
+    broadcast(); render();
+  }
+
+  function announceRound() {
+    clearTimeout(turnTimer); clearTimeout(announceTimer);
+    state.announcing = true; state.typing = "";
+    state.remaining = state.settings.turnMs;
+    localDeadline = Date.now() + state.settings.turnMs;
+    broadcast(); render();
+    announceTimer = setTimeout(() => {
+      if (!state || state.phase !== "game") return;
+      startTurn();
+    }, ANNOUNCE_MS);
+  }
+
+  function nextAlive(fromId) {
+    const ps = state.players;
+    let i = ps.findIndex(p => p.id === fromId);
+    for (let n = 0; n < ps.length; n++) {
+      i = (i + 1) % ps.length;
+      if (ps[i].inMatch && ps[i].alive) return ps[i].id;
+    }
+    return fromId;
+  }
+
+  function checkWinner() {
+    const alive = state.players.filter(p => p.inMatch && p.alive);
+    if (alive.length <= 1) {
+      clearTimeout(turnTimer); clearTimeout(announceTimer); clearTimeout(attackTimer);
+      state.announcing = false; state.typing = ""; state.attack = null; state.turn = null;
+      if (!alive[0]) { backToLobby(); return true; }
+      state.phase = "over"; // winner animation plays in the arena, then everyone drops back to the lobby
+      state.winner = alive[0].name; state.winnerId = alive[0].id; state.winSeq = (state.winSeq || 0) + 1;
+      broadcast(); render();
+      overTimer = setTimeout(backToLobby, OVER_MS);
+      return true;
+    }
+    return false;
+  }
+
+  function submitAnswer(id, raw) {
+    if (!state || state.phase !== "game" || state.announcing || state.attack || state.turn !== id) return;
+    const prompt = PROMPTS.find(p => p.text === state.prompt);
+    if (!raw.trim()) return;
+    const ans = prompt.match ? prompt.match(raw, state.used) : prompt.normalize(raw);
+    const player = state.players.find(p => p.id === id);
+    if (!ans || !prompt.answers.includes(ans)) { tell(id, "Not a valid answer", true); return; }
+    if (state.used.includes(ans)) { tell(id, ans + " was already used", true); return; }
+    state.used.push(ans);
+    const rKey = (prompt.rarity && prompt.rarity[ans]) || "spoon";
+    const R = RARITIES[rKey];
+    state.answerSeq = (state.answerSeq || 0) + 1;
+    player.last = { text: ans, r: rKey, id: state.answerSeq };
+    const LP = state.settings.lifePts;
+    player.segs = player.segs || [];
+    player.segs.push({ r: rKey, pts: R.pts });
+    let gained = 0;
+    while (segSum(player.segs) >= LP) { player.lives++; takeFront(player.segs, LP); gained++; } // no cap: the bar never sits full
+    player.pts = segSum(player.segs);
+    state.event = player.name + " said " + ans + " — " + R.name + " +" + R.pts + " pts" + (gained ? (gained > 1 ? " · +" + gained + " lives!" : " · extra life!") : "");
+    state.turn = nextAlive(id);
+    if (state.used.length >= prompt.answers.length) {
+      newRound();
+      state.event += " — all answers used, new round!";
+      announceRound();
+    } else {
+      startTurn();
+    }
+  }
+
+  function segSum(segs) { return segs.reduce((t, s) => t + s.pts, 0); }
+  function takeFront(segs, amt) {
+    while (amt > 0 && segs.length) {
+      if (segs[0].pts <= amt) { amt -= segs[0].pts; segs.shift(); }
+      else { segs[0].pts -= amt; amt = 0; }
+    }
+  }
+
+  function onTimeout() {
+    const p = state.players.find(x => x.id === state.turn);
+    if (!p) return;
+    const kill = p.lives <= 1; // last life: the pudding eats them
+    const finale = kill && state.players.filter(x => x.inMatch && x.alive && x.id !== p.id).length <= 1; // this bite ends the match
+    state.attackSeq = (state.attackSeq || 0) + 1;
+    state.attack = { id: p.id, kill, finale, seq: state.attackSeq };
+    state.event = p.name + " ran out of time!";
+    broadcast(); render();
+    attackTimer = setTimeout(() => { // moment of impact
+      if (!state || !state.attack) return;
+      p.lives = Math.max(0, p.lives - 1);
+      if (kill) { p.alive = false; p.inRing = false; p.eaten = true; state.event = "The pudding ate " + p.name + "!"; }
+      else state.event = p.name + " lost a life";
+      broadcast(); render();
+      attackTimer = setTimeout(() => { if (!state || !state.attack) return; state.attack = null; afterElimination(); }, atkDur(state.attack) - IMPACT_MS);
+    }, IMPACT_MS);
+  }
+
+  function afterElimination() {
+    if (checkWinner()) return;
+    newRound();
+    state.turn = nextAlive(state.turn);
+    announceRound();
+  }
+
+  function applySettings() {
+    if (!isHost || !state || state.phase !== "lobby") return;
+    const lives = clampInt($("livesInput").value, 1, 10, state.settings.lives);
+    const secs = clampInt($("secsInput").value, 3, 60, state.settings.turnMs / 1000);
+    const lifePts = clampInt($("lifePtsInput").value, 10, 5000, state.settings.lifePts);
+    const mode = MODES[$("modeInput").value] ? $("modeInput").value : state.settings.mode;
+    state.settings = { lives, turnMs: secs * 1000, lifePts, mode };
+    state.players.forEach(p => { p.lives = lives; });
+    $("livesInput").value = lives; $("secsInput").value = secs;
+    $("lifePtsInput").value = lifePts; $("modeInput").value = mode;
+    broadcast(); render();
+  }
+
+  function backToLobby() { // everyone returns to the lobby as a spectator
+    if (!isHost || !state) return;
+    clearTimeout(overTimer); clearTimeout(announceTimer); clearTimeout(turnTimer); clearTimeout(attackTimer);
+    state.phase = "lobby"; state.attack = null; state.winnerId = null;
+    state.players = state.players.filter(p => !p.left);
+    state.players.forEach(p => { p.lives = state.settings.lives; p.alive = true; p.inMatch = false; p.inRing = false; p.pts = 0; p.segs = []; p.last = null; delete p.eaten; });
+    state.announcing = false; state.typing = "";
+    state.turn = null; state.used = []; state.event = ""; state.winner = null;
+    checkLobbyStart();
+    broadcast(); render();
+  }
+
+  function setRing(id, on) {
+    if (!isHost || !state || state.phase !== "lobby") return;
+    const p = state.players.find(x => x.id === id); if (!p) return;
+    if (on && !p.inRing && state.players.filter(x => x.inRing).length >= MAX_RING) { tell(id, "The ring is full"); return; }
+    p.inRing = on;
+    checkLobbyStart(); broadcast(); render();
+  }
+  function toggleRing() {
+    const p = state && state.players.find(x => x.id === myId);
+    if (!p || state.phase !== "lobby") return;
+    if (isHost) setRing(myId, !p.inRing);
+    else if (hostConn && hostConn.open) hostConn.send({ t: "ring", on: !p.inRing });
+  }
+
+  function tell(id, text, shake) {
+    if (id === myId) { toast(text); if (shake) shakeInput(); return; }
+    const c = conns[id]; if (c && c.open) c.send({ t: "msg", text, shake });
+  }
+
+  function relayTyping(exceptId) {
+    const payload = { t: "typing", text: state.typing };
+    Object.keys(conns).forEach(id => { const c = conns[id]; if (id !== exceptId && c.open) c.send(payload); });
+  }
+
+  function pushTyping(text) {
+    if (!state || state.phase !== "game" || state.announcing || state.turn !== myId) return;
+    state.typing = text.slice(0, 40);
+    updateBubbles();
+    if (isHost) relayTyping(null);
+    else if (hostConn && hostConn.open) hostConn.send({ t: "typing", text: state.typing });
+  }
+
+  function broadcast() {
+    if (!isHost || !state) return;
+    if (state.phase === "game") {
+      // remaining is computed relative to when the turn started on the host
+      state.remaining = Math.max(0, localDeadline - Date.now());
+    }
+    state.startIn = (state.phase === "lobby" && localStart) ? Math.max(0, localStart - Date.now()) : null;
+    const payload = { t: "state", state };
+    Object.values(conns).forEach(c => { if (c.open) c.send(payload); });
+  }
+
+  // ---------- Client actions ----------
+  function sendAnswer() {
+    const input = $("answerInput");
+    const text = input.value;
+    if (!text.trim() || !state || state.phase !== "game" || state.announcing || state.turn !== myId) return;
+    input.value = "";
+    pushTyping("");
+    if (isHost) submitAnswer(myId, text);
+    else if (hostConn && hostConn.open) hostConn.send({ t: "answer", text });
+  }
+
+  function shakeInput() {
+    const i = $("answerInput");
+    i.classList.remove("shake"); void i.offsetWidth; i.classList.add("shake");
+  }
+
+  // ---------- Rendering ----------
+  function hearts(n) { return n <= 0 ? "—" : n <= 5 ? "♥".repeat(n) : "♥×" + n; }
+
+  const FACE_ALIVE = '<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="#ffd23f" stroke="#e08a00" stroke-width="2"/><circle cx="18" cy="21" r="3.2" fill="#3a1a06"/><circle cx="34" cy="21" r="3.2" fill="#3a1a06"/><path d="M14 31 Q26 44 38 31" fill="none" stroke="#3a1a06" stroke-width="3" stroke-linecap="round"/></svg>';
+  const FACE_DEAD = '<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="#ffd23f" stroke="#e08a00" stroke-width="2"/><path d="M14 17l8 8M22 17l-8 8M30 17l8 8M38 17l-8 8" stroke="#3a1a06" stroke-width="2.6" stroke-linecap="round"/><path d="M17 36 Q26 30 35 36" fill="none" stroke="#3a1a06" stroke-width="3" stroke-linecap="round"/></svg>';
+
+  const FACE_HURT = '<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="#ff8a5c" stroke="#e08a00" stroke-width="2"/><path d="M13 17l9 4-9 4M39 17l-9 4 9 4" fill="none" stroke="#3a1a06" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 38 Q21 31 26 38 Q31 31 36 38" fill="none" stroke="#3a1a06" stroke-width="2.6" stroke-linecap="round"/></svg>';
+  let seatOff = {}, seatPct = {}, attackLocal = null, lastAttackSeq = 0, lastWinSeq = 0;
+  let ringSeen = null, seatMove = {}; // ringSeen: playerId -> when they joined the ring (null = not primed yet)
+  function atkDur(at) { return at.kill ? EAT_MS + (at.finale ? RETURN_MS : 0) : HIT_MS; }
+  function activeAtk() { return attackLocal && Date.now() - attackLocal.start < atkDur(attackLocal) ? attackLocal : null; }
+  function startAttack(at) {
+    attackLocal = { id: at.id, kill: at.kill, finale: at.finale, start: Date.now(), sx: pud.x, sy: pud.y };
+    setTimeout(() => {
+      const sp = seatPct[at.id]; if (!sp) return;
+      const d = el("div", "dmg", at.kill ? "CHOMP!" : "−1 ♥"); d.style.left = sp.left; d.style.top = sp.top;
+      d.addEventListener("animationend", () => d.remove()); $("wheel").appendChild(d);
+    }, IMPACT_MS);
+  }
+  function confetti(id) {
+    const sp = seatPct[id]; if (!sp) return;
+    const cols = Object.values(RARITIES).map(r => r.color);
+    for (let i = 0; i < 28; i++) {
+      const c = el("div", "confetti"); c.style.left = sp.left; c.style.top = sp.top; c.style.background = cols[i % cols.length];
+      c.style.setProperty("--cx", Math.round((Math.random() * 2 - 1) * 140) + "px");
+      c.style.setProperty("--cy", Math.round(-40 - Math.random() * 150) + "px");
+      c.style.setProperty("--r", Math.round(Math.random() * 720) + "deg");
+      c.addEventListener("animationend", () => c.remove()); $("wheel").appendChild(c);
+    }
+  }
+  function flanBurst(f) { // extra fireworks for a Flan-tastic answer
+    const w = $("wheel");
+    const add = (cls, setup) => {
+      const d = el("div", "fx " + cls); d.style.left = f.left; d.style.top = f.top; if (setup) setup(d);
+      d.addEventListener("animationend", () => d.remove()); setTimeout(() => d.remove(), 2600); w.appendChild(d);
+    };
+    add("flanglow"); add("flanring");
+    if (!reduceMotion) {
+      add("flanring r2");
+      const cols = ["#fff3a0", "#ffd23f", "#ffb02e", "#ffffff"];
+      for (let i = 0; i < 18; i++) {
+        const ang = i / 18 * Math.PI * 2 + Math.random() * .35, dist = 70 + Math.random() * 70, sz = 10 + Math.round(Math.random() * 10);
+        add("sparkle", d => {
+          d.style.setProperty("--sx", Math.round(Math.cos(ang) * dist) + "px"); d.style.setProperty("--sy", Math.round(Math.sin(ang) * dist) + "px");
+          d.style.background = cols[i % cols.length]; d.style.width = d.style.height = sz + "px"; d.style.animationDelay = Math.round(Math.random() * 120) + "ms";
+        });
+      }
+    }
+    const pd = $("pudding"); pd.classList.remove("delight"); void pd.offsetWidth; pd.classList.add("delight"); // pudding is delighted
+    setTimeout(() => pd.classList.remove("delight"), 900);
+    w.classList.remove("flanflash"); void w.offsetWidth; w.classList.add("flanflash");
+    setTimeout(() => w.classList.remove("flanflash"), 750);
+  }
+  function joinFx(left, top) { // ripples where a new player lands in the ring
+    const w = $("wheel");
+    [.35, .5].forEach(delay => {
+      const d = el("div", "fx joinring"); d.style.left = left; d.style.top = top; d.style.animationDelay = delay + "s";
+      d.addEventListener("animationend", () => d.remove()); setTimeout(() => d.remove(), 2200); w.appendChild(d);
+    });
+  }
+  function slidePos(m, now) { // where a seat currently is while sliding to its new spot
+    const u = Math.min(1, (now - m.t0) / SLIDE_MS), e = 1 - Math.pow(1 - u, 3);
+    return { x: m.fx + (m.tx - m.fx) * e, y: m.fy + (m.ty - m.fy) * e };
+  }
+  function ramPose(at, now) { // where the angry pudding is during its attack
+    const t = now - at.start, off = seatOff[at.id] || { x: 0, y: 0 };
+    const tx = off.x * 0.8, ty = off.y * 0.8, len = Math.hypot(tx, ty) || 1;
+    const wx = at.sx - tx / len * 3, wy = at.sy - ty / len * 3;
+    const L = (p, q, u) => p + (q - p) * u, out = u => 1 - Math.pow(1 - u, 3), inn = u => u * u * u;
+    let x, y, sx = 1, sy = 1, open = 0;
+    if (t < 250) { const u = out(t / 250); x = L(at.sx, wx, u); y = L(at.sy, wy, u); sx = 1 + .08 * u; sy = 1 - .08 * u; }
+    else if (t < IMPACT_MS) { const u = inn((t - 250) / (IMPACT_MS - 250)); x = L(wx, tx, u); y = L(wy, ty, u); sx = 1.08 - .2 * u; sy = .92 + .2 * u; }
+    else if (!at.kill) { const u = Math.min(1, (t - IMPACT_MS) / 650); x = L(tx, 0, out(u)); y = L(ty, 0, out(u)); const q = Math.max(0, 1 - u * 3); sx = 1 + .18 * q; sy = 1 - .18 * q; }
+    else if (t < 1900) { x = tx; y = ty; const m = .5 + .5 * Math.sin((t - IMPACT_MS) / 1450 * Math.PI * 6); open = .3 + .7 * m; sx = 1 + .1 * m; sy = 1 - .08 * m; }
+    else if (!at.finale) { const u = out((t - 1900) / (EAT_MS - 1900)); x = L(tx, 0, u); y = L(ty, 0, u); }
+    else { // match-ending bite: glide back to the centre slowly instead of snapping there
+      const u = Math.min(1, (t - 1900) / (EAT_MS + RETURN_MS - 1900)), e = u < .5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2, b = Math.sin(u * Math.PI);
+      x = L(tx, 0, e); y = L(ty, 0, e); sx = 1 - .05 * b; sy = 1 + .05 * b;
+    }
+    return { x, y, sx, sy, open };
+  }
+  function bubbleGuard() { // true if a pudding centred at (x,y) % would overlap a visible text bubble
+    const w = $("wheel").getBoundingClientRect();
+    const bs = [...$("wheel").querySelectorAll(".bubble:not(.hidden)")].map(b => b.getBoundingClientRect());
+    return (x, y) => w.width > 0 && bs.some(r => {
+      const l = (r.left - w.left) / w.width * 100 - 1.5, rt = (r.right - w.left) / w.width * 100 + 1.5;
+      const t = (r.top - w.top) / w.height * 100 - 1.5, b = (r.bottom - w.top) / w.height * 100 + 1.5;
+      return 50 + x + 15 > l && 50 + x - 15 < rt && 50 + y + 15.5 > t && 50 + y - 15.5 < b;
+    });
+  }
+
+  function renderWheel() {
+    const wheel = $("wheel");
+    wheel.querySelectorAll(".seat").forEach(s => s.remove());
+    const ps = state.players.filter(p => state.phase === "lobby" ? p.inRing : p.inMatch), n = ps.length;
+    const myIdx = Math.max(0, ps.findIndex(p => p.id === myId));
+    let lookAngle = null;
+    const LP = state.settings.lifePts, fresh = [], atk = activeAtk(), now = Date.now();
+    seatOff = {}; seatPct = {};
+    const inLobby = state.phase === "lobby"; let prime = false;
+    if (inLobby && !ringSeen) { ringSeen = {}; prime = true; } // players already in the ring when we arrive don't animate
+    ps.forEach((p, i) => {
+      const a = Math.PI / 2 + 2 * Math.PI * (i - myIdx) / n; // me at the bottom
+      const R = 38, cs = Math.cos(a), sn = Math.sin(a);
+      const X = 50 + R * cs, Y = 50 + R * sn, leftS = X + "%", topS = Y + "%";
+      const seat = el("div", "seat");
+      seat.dataset.id = p.id;
+      // when the ring re-spaces (someone joins/leaves), seats glide to their new spots
+      let m = seatMove[p.id], px = X, py = Y, slideMs = 0;
+      if (!m) m = seatMove[p.id] = { fx: X, fy: Y, tx: X, ty: Y, t0: 0 };
+      else if (Math.abs(m.tx - X) > .01 || Math.abs(m.ty - Y) > .01) { const c = slidePos(m, now); m = seatMove[p.id] = { fx: c.x, fy: c.y, tx: X, ty: Y, t0: now }; }
+      if (now - m.t0 < SLIDE_MS) { const c = slidePos(m, now); px = c.x; py = c.y; slideMs = Math.round(SLIDE_MS - (now - m.t0)); }
+      seat.style.left = px + "%";
+      seat.style.top = py + "%";
+      if (slideMs) requestAnimationFrame(() => requestAnimationFrame(() => {
+        const tr = " " + slideMs + "ms cubic-bezier(.33,1,.68,1)";
+        seat.style.transition = "left" + tr + ", top" + tr; seat.style.left = leftS; seat.style.top = topS;
+      }));
+      if (inLobby) { // joining-the-ring animation
+        if (!(p.id in ringSeen)) { ringSeen[p.id] = prime ? 0 : now; if (!prime) joinFx(leftS, topS); }
+        const jt = ringSeen[p.id];
+        if (jt && now - jt < JOIN_MS) { seat.classList.add("joining"); seat.style.setProperty("--jd", "-" + (now - jt) + "ms"); }
+      }
+      seatOff[p.id] = { x: R * cs, y: R * sn }; seatPct[p.id] = { left: leftS, top: topS };
+      const hit = atk && atk.id === p.id;
+      if (p.id === myId) seat.classList.add("me");
+      if (!p.alive && !hit) seat.classList.add("dead");
+      if (p.eaten && !hit) seat.classList.add("eaten");
+      if (state.phase === "over" && p.id === state.winnerId) seat.classList.add("winner");
+      if (!state.announcing && p.id === state.turn) { seat.classList.add("turn"); lookAngle = a; }
+      seat.appendChild(el("div", "bubble hidden"));
+      const face = el("div", "face");
+      face.innerHTML = hit && now - atk.start > 200 ? FACE_HURT : p.alive ? FACE_ALIVE : FACE_DEAD;
+      if (hit) {
+        seat.classList.add(atk.kill ? "eating" : "hurt");
+        seat.style.setProperty("--ox", (cs * 22) + "px"); seat.style.setProperty("--oy", (sn * 22) + "px");
+        seat.style.setProperty("--ix", (-cs * 40) + "px"); seat.style.setProperty("--iy", (-sn * 40) + "px");
+        face.style.animationDelay = "-" + (now - atk.start) + "ms"; // keep the animation in sync across re-renders
+      }
+      seat.appendChild(face);
+      seat.appendChild(el("div", "pname", p.name));
+      seat.appendChild(el("div", "hearts", hearts(p.lives)));
+      const bar = el("div", "pts");
+      (p.segs || []).forEach(sg => {
+        const d = el("div");
+        d.style.width = Math.min(100, sg.pts / LP * 100) + "%";
+        d.style.background = (RARITIES[sg.r] || RARITIES.spoon).color;
+        bar.appendChild(d);
+      });
+      bar.title = (p.pts || 0) + "/" + LP + " pts";
+      seat.appendChild(bar);
+      seat.appendChild(el("div", "ptstxt", (p.pts || 0) + "/" + LP));
+      wheel.appendChild(seat);
+      if (p.last) {
+        if (seenAnswer[p.id] !== p.last.id) {
+          if (RARITIES[p.last.r]) fresh.push({ r: p.last.r, left: leftS, top: topS, dx: Math.round((Math.random() * 2 - 1) * 34) });
+          seenAnswer[p.id] = p.last.id;
+        }
+      } else delete seenAnswer[p.id];
+    });
+    if (ringSeen) Object.keys(ringSeen).forEach(id => { if (!ps.some(p => p.id === id)) delete ringSeen[id]; }); // leaving + rejoining animates again
+    fresh.forEach(f => {
+      const pt = el("div", "particle" + (f.r === "flan" ? " flan" : ""));
+      const ic = el("span"); ic.innerHTML = ICONS[f.r]; pt.appendChild(ic);
+      const rn = el("span", "rname", RARITIES[f.r].name + (f.r === "flan" ? "!" : "")); rn.style.color = RARITIES[f.r].color; pt.appendChild(rn);
+      pt.style.setProperty("--dx", f.dx + "px");
+      pt.style.left = f.left; pt.style.top = f.top;
+      pt.addEventListener("animationend", () => pt.remove());
+      wheel.appendChild(pt);
+      if (f.r === "flan") flanBurst(f);
+    });
+    look = lookAngle == null ? null : { x: Math.cos(lookAngle), y: Math.sin(lookAngle) };
+    const dx = look ? look.x * 4 : 0, dy = look ? look.y * 4 : 0;
+    $("pupils").style.transform = "translate(" + dx.toFixed(2) + "px," + dy.toFixed(2) + "px)";
+    updateBubbles();
+  }
+
+  function updateBubbles() {
+    if (!state) return;
+    $("wheel").querySelectorAll(".seat").forEach(s => {
+      const b = s.querySelector(".bubble");
+      if (state.attack && state.attack.id === s.dataset.id) { b.classList.add("hidden"); return; }
+      const active = state.phase === "game" && !state.announcing && s.dataset.id === state.turn;
+      const pl = state.players.find(x => x.id === s.dataset.id);
+      b.style.removeProperty("--bt"); b.style.removeProperty("--bc"); b.classList.remove("flanb");
+      b.title = "";
+      if (active) {
+        b.classList.remove("hidden");
+        const t = state.typing || "";
+        b.textContent = "";
+        b.appendChild(el("span", null, t ? (t.length > 16 ? "…" + t.slice(-15) : t) : "…"));
+        b.classList.toggle("empty", !t);
+      } else if (state.phase === "game" && !state.announcing && pl && pl.last && RARITIES[pl.last.r]) {
+        const R = RARITIES[pl.last.r];
+        b.classList.remove("hidden", "empty");
+        b.style.setProperty("--bt", R.color); b.style.setProperty("--bc", R.color); b.classList.toggle("flanb", pl.last.r === "flan");
+        b.title = pl.last.text + " · " + R.name + " · " + R.pts + " pts";
+        b.textContent = "";
+        b.appendChild(el("span", null, pl.last.text));
+      } else {
+        b.classList.add("hidden");
+      }
+    });
+  }
+
+  function fillPlayers(ul) {
+    ul.textContent = "";
+    const live = state.phase !== "lobby";
+    state.players.forEach((p, i) => {
+      const li = el("li");
+      if (p.id === myId) li.classList.add("me");
+      if (state.phase === "game" && p.id === state.turn) li.classList.add("turn");
+      if (live && p.inMatch && !p.alive) li.classList.add("dead");
+      li.appendChild(el("span", "name", p.name));
+      const meta = el("span", "meta");
+      if (i === 0) meta.appendChild(el("span", "tag", "host"));
+      if (live && p.inMatch && p.alive) meta.appendChild(el("span", "hearts", hearts(p.lives)));
+      else if (!live && p.inRing) meta.appendChild(el("span", "tag on", "in ring"));
+      else meta.appendChild(el("span", "tag", live && p.inMatch ? (p.eaten ? "eaten" : "out") : "spectating"));
+      li.appendChild(meta);
+      ul.appendChild(li);
+    });
+  }
+
+  function lobbyLine() {
+    if (state.players.filter(p => p.inRing).length < 2) return "Waiting for 2 players in the ring…";
+    if (!localStart) return "Starting…";
+    return "Starting in " + Math.ceil(Math.max(0, localStart - Date.now()) / 1000) + "s";
+  }
+
+  function render() {
+    if (!state) return;
+    if (state.attack && state.attack.seq !== lastAttackSeq) { lastAttackSeq = state.attack.seq; startAttack(state.attack); }
+    if (state.phase !== "game") { seenAnswer = {}; document.querySelectorAll(".particle").forEach(p => p.remove()); }
+    if (state.phase !== "lobby") { ringSeen = null; seatMove = {}; }
+    show("game");
+    const lobby = state.phase === "lobby", game = state.phase === "game", over = state.phase === "over";
+    const me = state.players.find(p => p.id === myId);
+    const playing = game && !!me && me.inMatch && me.alive;
+    $("lobbyCode").textContent = state.code;
+    fillPlayers($("lobbyPlayers"));
+    ["livesInput","secsInput","lifePtsInput","modeInput"].forEach(i => { $(i).disabled = !isHost || !lobby; });
+    if (document.activeElement !== $("livesInput")) $("livesInput").value = state.settings.lives;
+    if (document.activeElement !== $("secsInput")) $("secsInput").value = state.settings.turnMs / 1000;
+    if (document.activeElement !== $("lifePtsInput")) $("lifePtsInput").value = state.settings.lifePts;
+    if (document.activeElement !== $("modeInput")) $("modeInput").value = state.settings.mode;
+    $("setHint").textContent = !isHost ? "Only the host can change these." : lobby ? "You're the host. Settings lock once the match starts." : "Settings are locked during the match.";
+    const rb = $("ringBtn"), inRing = !!(me && me.inRing);
+    rb.textContent = lobby ? (inRing ? "Leave ring (just watch)" : "Join the ring") : over ? "Match ending…" : playing ? "You're in the match" : "Spectating until the match ends";
+    rb.disabled = !lobby || (!inRing && state.players.filter(p => p.inRing).length >= MAX_RING);
+    rb.classList.toggle("ghost", lobby && inRing);
+    $("startNowBtn").classList.toggle("hidden", !(isHost && lobby && localStart && state.players.filter(p => p.inRing).length >= 2)); // host can skip the countdown
+    $("promptText").textContent = lobby ? (inRing ? "You're in the ring!" : "Join the ring!") : over ? (state.winner || "Nobody") + " wins!" : state.prompt;
+    $("promptSub").textContent = lobby ? "The match starts 15 seconds after at least 2 players join the ring (the host can start it early). Or just spectate." : over ? "Back to the lobby in a moment…" : (state.sub || "");
+    const ann = game && !!state.announcing;
+    const mine = game && state.turn === myId && !ann && !state.attack;
+    const cur = state.players.find(p => p.id === state.turn);
+    $("turnLine").textContent = lobby ? lobbyLine() : over ? "" : ann ? "Get ready…" : mine ? "Your turn!" : (cur ? cur.name + "'s turn" : "");
+    $("answerRow").classList.toggle("hidden", !playing);
+    $("answerBtn").disabled = !mine;
+    $("answerInput").placeholder = mine ? "Type your answer" : "Prepare your answer…";
+    if (!game) $("answerInput").value = "";
+    $("announce").classList.toggle("hidden", !ann);
+    $("annTheme").textContent = state.prompt || "";
+    $("annSub").textContent = state.sub || "";
+    if (mine) {
+      if (document.activeElement !== $("answerInput")) $("answerInput").focus({ preventScroll: true });
+      const v = $("answerInput").value;
+      if (v && v !== state.typing) pushTyping(v);
+    }
+    $("eventLog").textContent = state.event || "";
+    renderWheel();
+    if (over && state.winSeq !== lastWinSeq) { lastWinSeq = state.winSeq; confetti(state.winnerId); setTimeout(() => confetti(state.winnerId), 900); }
+  }
+
+  // Timer bar + pudding animation
+  setInterval(() => {
+    if (!state) return;
+    const inGame = state.phase === "game", inLobby = state.phase === "lobby";
+    const now = Date.now(), dt = Math.min(0.2, (now - lastTick) / 1000); lastTick = now;
+    const left = Math.max(0, localDeadline - now), total = state.settings.turnMs;
+    const ann = !inGame || !!state.announcing;
+    let frac = 0;
+    if (inGame) frac = ann ? 1 : left / total;
+    else if (inLobby) { frac = localStart ? Math.max(0, localStart - now) / LOBBY_MS : 0; $("turnLine").textContent = lobbyLine(); }
+    $("timerFill").style.transform = "scaleX(" + frac + ")";
+    $("timer").classList.toggle("low", inGame && !ann && left < Math.min(3000, total * 0.3));
+
+    // Pudding: drifts toward the current player (never into their text bubble), then rams them when time is up
+    const atk = activeAtk(), pd = $("pudding");
+    let a = 0, pose = null;
+    if (atk) { a = 1; pose = ramPose(atk, now); pud.x = pose.x; pud.y = pose.y; }
+    else {
+      const pr = ann ? 0 : Math.min(1, Math.max(0, 1 - left / total));
+      a = pr < 0.4 ? 0 : Math.pow((pr - 0.4) / 0.6, 1.4); // calm for the first 40% of the turn
+      let tx = (look && !ann) ? look.x * PUD_MAX_R : 0, ty = (look && !ann) ? look.y * PUD_MAX_R : 0;
+      const hitFn = bubbleGuard();
+      if (tx || ty) { let sc = 1; while (sc > 0.05 && hitFn(tx * sc, ty * sc)) sc -= 0.1; sc = Math.max(0, sc); tx *= sc; ty *= sc; }
+      const k = 1 - Math.exp(-dt * (hitFn(pud.x, pud.y) ? 3 : 0.15 + 0.5 * a));
+      pud.x += (tx - pud.x) * k; pud.y += (ty - pud.y) * k;
+    }
+    const j = (!reduceMotion && !atk && a > 0.6) ? (a - 0.6) * 1.5 : 0;
+    pd.classList.toggle("ram", !!atk);
+    pd.style.transform = pose ? "translate(-50%,-50%) scale(" + pose.sx.toFixed(3) + "," + pose.sy.toFixed(3) + ")" : "";
+    pd.style.left = (50 + pud.x + (Math.random() - 0.5) * j) + "%";
+    pd.style.top = (50 + pud.y + (Math.random() - 0.5) * j) + "%";
+    $("pudTint").setAttribute("opacity", (a * 0.4).toFixed(3));
+    const bo = Math.min(1, a * 3).toFixed(2);
+    const bl = $("browL"), br = $("browR");
+    bl.setAttribute("opacity", bo); br.setAttribute("opacity", bo);
+    const yo = (68 - a * 2).toFixed(1), yi = (70 + a * 7).toFixed(1);
+    bl.setAttribute("y1", yo); bl.setAttribute("y2", yi); br.setAttribute("y1", yo); br.setAttribute("y2", yi);
+    const open = pose ? pose.open : 0;
+    $("pudMouth").setAttribute("d", open > 0.05 ? "M50 91 Q60 " + (91 + 24 * open).toFixed(1) + " 70 91 Z"
+      : state.phase === "over" ? "M54 98 Q60 92 66 98" : "M54 94 Q60 " + (99 - 17 * a).toFixed(1) + " 66 94");
+    $("pudMouth").setAttribute("fill", open > 0.05 ? "#6b2606" : "none");
+  }, 50);
+
+  // ---------- Wire up ----------
+  $("createBtn").onclick = () => createLobby();
+  $("joinBtn").onclick = joinLobby;
+  $("codeInput").addEventListener("input", e => { e.target.value = e.target.value.toUpperCase(); });
+  $("codeInput").addEventListener("keydown", e => { if (e.key === "Enter") joinLobby(); });
+  $("livesInput").addEventListener("change", applySettings);
+  $("secsInput").addEventListener("change", applySettings);
+  $("lifePtsInput").addEventListener("change", applySettings);
+  $("modeInput").addEventListener("change", applySettings);
+  $("ringBtn").onclick = toggleRing;
+  $("startNowBtn").onclick = () => { if (isHost && state && state.phase === "lobby") startGame(); };
+  $("leaveBtn").onclick = teardown;
+  $("answerBtn").onclick = sendAnswer;
+  $("answerInput").addEventListener("input", e => pushTyping(e.target.value));
+  $("answerInput").addEventListener("keydown", e => { if (e.key === "Enter") sendAnswer(); });
+  $("lobbyCode").onclick = () => {
+    if (navigator.clipboard) navigator.clipboard.writeText(roomCode).then(() => toast("Code copied")).catch(() => {});
+  };
+  window.addEventListener("beforeunload", () => { try { peer && peer.destroy(); } catch (e) {} });
+})();
