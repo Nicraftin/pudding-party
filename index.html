@@ -42,7 +42,7 @@
     margin-top: 18px;
   }
   label { display: block; font-size: .95rem; color: var(--muted); margin-bottom: 6px; }
-  input[type=text], input[type=number] {
+  input[type=text], input[type=number], select {
     width: 100%;
     font: inherit;
     font-size: 1.15rem;
@@ -53,7 +53,7 @@
     padding: 12px 14px;
     outline: none;
   }
-  input[type=text]:focus-visible, input[type=number]:focus-visible { border-color: var(--puff); }
+  input[type=text]:focus-visible, input[type=number]:focus-visible, select:focus-visible { border-color: var(--puff); }
   button {
     font: inherit;
     font-weight: 600;
@@ -124,23 +124,28 @@
   .pudding svg { width: 100%; height: auto; display: block; overflow: visible; animation: wobble 2.4s ease-in-out infinite; }
   .pupils { transition: transform .35s cubic-bezier(.3,1.4,.5,1); }
   @keyframes wobble { 0%,100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg) scale(1.03,.97); } }
-  .seat { position: absolute; transform: translate(-50%, -50%); width: 84px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .seat { position: absolute; z-index: 2; transform: translate(-50%, -50%); width: 84px; display: flex; flex-direction: column; align-items: center; text-align: center; }
   .seat svg { width: 52px; height: 52px; display: block; }
   .seat .pname { font-size: .9rem; font-weight: 600; max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .seat.me .pname::after { content: " (you)"; color: var(--muted); font-size: .8em; }
   .seat .hearts { font-size: .8rem; letter-spacing: 1px; }
   .seat.dead { opacity: .4; filter: grayscale(.8); }
+  .seat.turn { z-index: 3; }
   .seat.turn svg { animation: hop 1.6s ease-in-out infinite; filter: drop-shadow(0 0 8px var(--puff)); }
   .seat.turn .pname { color: var(--puff); }
   @keyframes hop { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
   .bubble {
     position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
-    background: var(--bc, var(--text)); color: #3a1a06; font-family: "DM Mono", monospace; font-weight: 500;
-    display: flex; align-items: center; gap: 5px;
+    background: #2a1204; color: var(--bt, var(--text)); border: 2px solid var(--line);
+    font-family: "DM Mono", monospace; font-weight: 500;
     padding: 4px 10px; border-radius: 12px; white-space: nowrap; font-size: .95rem;
     min-width: 36px; text-align: center; box-shadow: 0 2px 0 rgba(0,0,0,.25); z-index: 3;
   }
-  .bubble::after { content: ""; position: absolute; left: 50%; top: 100%; margin-left: -6px; border: 6px solid transparent; border-top-color: var(--bc, var(--text)); }
+  .bubble span { display: block; max-width: 170px; overflow: hidden; text-overflow: ellipsis; }
+  .bubble::after {
+    content: ""; position: absolute; left: 50%; bottom: -7px; width: 10px; height: 10px; margin-left: -5px;
+    background: #2a1204; border-right: 2px solid var(--line); border-bottom: 2px solid var(--line); transform: rotate(45deg);
+  }
   .bubble.empty { animation: blink 1s infinite; }
   @keyframes blink { 50% { opacity: .5; } }
   .announce {
@@ -152,16 +157,24 @@
   .announce .label { font-size: .95rem; letter-spacing: 3px; color: var(--puff); font-weight: 600; }
   .announce .theme { font-size: 2rem; font-weight: 700; line-height: 1.15; margin: 6px 0; }
   .announce .asub { color: var(--muted); margin: 0 0 14px; }
-  .bubble svg { width: 16px; height: 16px; flex: none; }
-  .seat .pts { width: 56px; height: 5px; background: var(--bg-deep); border-radius: 99px; overflow: hidden; margin-top: 3px; }
-  .seat .pts > div { height: 100%; background: #ffd23f; border-radius: 99px; }
-  .seat .ptstxt { font-family: "DM Mono", monospace; font-size: .62rem; color: var(--muted); }
-  .setrow { display: flex; gap: 10px; }
+  .seat .pts { display: flex; width: 64px; height: 8px; background: var(--bg-deep); border-radius: 99px; overflow: hidden; margin-top: 3px; }
+  .seat .pts > div { height: 100%; flex: none; box-shadow: inset -1px 0 0 rgba(0,0,0,.35); }
+  .seat .ptstxt { font-family: "Fredoka", system-ui, sans-serif; font-weight: 600; font-size: .95rem; line-height: 1.1; color: var(--text); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .particle { position: absolute; z-index: 4; width: 30px; height: 30px; margin: -15px 0 0 -15px; pointer-events: none; transform: translate(0, -112px); animation: floatUp 1.7s ease-out forwards; }
+  .particle svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 2px 3px rgba(0,0,0,.45)); }
+  @keyframes floatUp {
+    0% { opacity: 0; transform: translate(0, -100px) scale(.6); }
+    15% { opacity: 1; transform: translate(0, -108px) scale(1.15); }
+    100% { opacity: 0; transform: translate(0, -150px) scale(1); }
+  }
+  @keyframes fadeOnly { 0% { opacity: 0; } 15% { opacity: 1; } 100% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .particle { animation: fadeOnly 1.7s forwards; } }
+  .setrow { display: flex; gap: 10px; align-items: flex-end; }
   .setrow > div { flex: 1; }
   @keyframes pop { from { transform: scale(.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   @media (max-width: 480px) {
     .seat { width: 68px; } .seat svg { width: 40px; height: 40px; } .seat .pname { font-size: .8rem; max-width: 68px; }
-    .bubble { font-size: .8rem; padding: 3px 8px; } .announce .theme { font-size: 1.5rem; }
+    .bubble { font-size: .8rem; padding: 3px 8px; } .bubble span { max-width: 130px; } .seat .ptstxt { font-size: .85rem; } .announce .theme { font-size: 1.5rem; }
   }
   @media (prefers-reduced-motion: reduce) { .pudding svg, .seat.turn svg, .bubble.empty, .announce { animation: none; } .pupils { transition: none; } }
   .hidden { display: none !important; }
@@ -198,14 +211,29 @@
       <div class="code" id="lobbyCode" title="Copy code"></div>
     </div>
     <p class="settings" id="lobbySettings"></p>
-    <div class="setrow hidden" id="settingsEdit">
-      <div>
-        <label for="livesInput">Lives</label>
-        <input id="livesInput" type="number" min="1" max="10" value="3" inputmode="numeric">
+    <div class="stack hidden" id="settingsEdit">
+      <div class="setrow">
+        <div>
+          <label for="livesInput">Lives</label>
+          <input id="livesInput" type="number" min="1" max="10" value="3" inputmode="numeric">
+        </div>
+        <div>
+          <label for="secsInput">Seconds to answer</label>
+          <input id="secsInput" type="number" min="3" max="60" value="10" inputmode="numeric">
+        </div>
       </div>
-      <div>
-        <label for="secsInput">Seconds to answer</label>
-        <input id="secsInput" type="number" min="3" max="60" value="10" inputmode="numeric">
+      <div class="setrow">
+        <div>
+          <label for="lifePtsInput">Extra life score</label>
+          <input id="lifePtsInput" type="number" min="10" max="5000" step="10" value="400" inputmode="numeric">
+        </div>
+        <div>
+          <label for="modeInput">Mode</label>
+          <select id="modeInput">
+            <option value="sulka">Sulka</option>
+            <option value="social">Social Craft</option>
+          </select>
+        </div>
       </div>
     </div>
     <div>
@@ -274,7 +302,7 @@
 
   const PREFIX = "puddingparty-";
   const ANNOUNCE_MS = 5000;
-  const POINTS_FOR_LIFE = 400;
+  const DEFAULT_LIFE_PTS = 400;
   const PUD_MAX_R = 10; // % of wheel the pudding can drift toward the current player
   const DEFAULT_LIVES = 3, DEFAULT_SECS = 10;
   const MAX_PLAYERS = 8;
@@ -286,7 +314,7 @@
     slice: { name: "Slice",       pts: 30,  color: "#8fd3ff" },
     rare:  { name: "Rare",        pts: 60,  color: "#ff6a6a" },
     deep:  { name: "Deep Cut",    pts: 85,  color: "#b98af2" },
-    flan:  { name: "Flan-tastic", pts: 100, color: "#ffd23f" }
+    flan:  { name: "Flan-tastic", pts: 120, color: "#ffd23f" }
   };
   const ICONS = {
     spoon: '<svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="7.5" rx="4.2" ry="5.5" fill="#6b6f78"/><rect x="10.8" y="12" width="2.4" height="10" rx="1.2" fill="#6b6f78"/></svg>',
@@ -296,9 +324,24 @@
     flan:  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 21 L6.8 9 Q12 7 17.2 9 L19.5 21 Q12 23 4.5 21Z" fill="#ffcf3a" stroke="#b8860b" stroke-width="1.2"/><path d="M6.8 9 Q12 7 17.2 9 L17.7 11.6 Q12 10.4 6.3 11.6Z" fill="#a05a10"/><path d="M12 1.5 L13 4 L15.6 4.3 L13.6 6 L14.2 8.5 L12 7.2 L9.8 8.5 L10.4 6 L8.4 4.3 L11 4Z" fill="#fff3a0" stroke="#d9a400" stroke-width=".6"/></svg>'
   };
 
-  // ---------- Prompts (swap this out for custom categories later) ----------
+  // ---------- Modes ----------
+  const MODES = { sulka: "Sulka", social: "Social Craft" };
+
+  // ---------- Prompts ----------
+  // modes: which game modes can use the prompt. tiers: { rarityKey: [answers...] }
+  function answerKey(s) {
+    return String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/&/g, " and ").replace(/\band\b/g, "n").replace(/[^a-z0-9]/g, "");
+  }
+  function tieredPrompt(text, sub, modes, tiers) {
+    const answers = [], rarity = {}, lookup = {};
+    Object.keys(tiers).forEach(r => tiers[r].forEach(a => { answers.push(a); rarity[a] = r; lookup[answerKey(a)] = a; }));
+    return { text, sub, modes, answers, rarity,
+      normalize(raw) { return lookup[answerKey(raw)] || raw.trim().toLowerCase(); } };
+  }
+
   const PROMPTS = [
-    { text: "Numbers 1 through 10", sub: "Each number can only be used once.",
+    { text: "Numbers 1 through 10", sub: "Each number can only be used once.", modes: ["sulka", "social"],
       answers: ["1","2","3","4","5","6","7","8","9","10"],
       // two numbers per rarity (testing)
       rarity: { "5":"spoon","6":"spoon", "4":"slice","7":"slice", "3":"rare","8":"rare", "2":"deep","9":"deep", "1":"flan","10":"flan" },
@@ -307,7 +350,19 @@
         if (t in WORDS) return String(WORDS[t]);
         if (/^\d+$/.test(t)) return String(parseInt(t, 10));
         return t;
-      } }
+      } },
+    tieredPrompt("Name a Kultisti Game", "Each game can only be used once.", ["sulka"], {
+      spoon: ["Sulka", "Frogfall"],
+      slice: ["Curseball", "Raide", "Dice of Dusk", "Planetaario", "Epolevne", "Steptile", "lineoff", "Taulu"],
+      rare: ["Hop Owl", "Had", "lose95", "Planetwo", "Cog Owl", "Lonely People Potion Shop",
+             "Don't Eat My Mind You Stupid Monsters!",
+             "River the Dinosaur and the Mysterious Portal that Ate the Entire Existence",
+             "Out Twogether", "Dice Catcher", "Rusty Wind Blows", "NullCat", "Virus Village", "Snaklipse",
+             "Katti", "Pipe Skull", "Cats n Wires", "Kissa", "Onward Blocks", "Skele Magic", "Juurru"],
+      deep: ["Midnight Cartridge", "Pack a Block", "Past The Lamp Town", "Loihtija", "maskless",
+             "Two Creatures and the Fence of Stone", "00", "0 = 0 = 0", "Roborazzi", "0", "OOO", "bababox-x", "orld"],
+      flan: ["Ninjack Rabbit", "Underneath"]
+    })
   ];
 
   // ---------- DOM ----------
@@ -339,7 +394,7 @@
 
   // Host-only
   let turnTimer = null, announceTimer = null;
-  let promptIdx = 0;
+  let seenAnswer = {};            // playerId -> id of the last answer we already showed a particle for
 
   function randCode() {
     const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ";
@@ -356,7 +411,8 @@
   function teardown() {
     clearTimeout(turnTimer); clearTimeout(announceTimer);
     try { peer && peer.destroy(); } catch (e) {}
-    peer = null; hostConn = null; state = null; isHost = false; myId = null;
+    peer = null; hostConn = null; state = null; isHost = false; myId = null; seenAnswer = {};
+    document.querySelectorAll(".particle").forEach(p => p.remove());
     Object.keys(conns).forEach(k => delete conns[k]);
     show("home");
   }
@@ -373,9 +429,9 @@
       state = {
         phase: "lobby",
         code: roomCode,
-        settings: { lives, turnMs: secs * 1000 },
-        players: [{ id: myId, name: myName, lives, alive: true, pts: 0, last: null }],
-        typing: "", announcing: false,
+        settings: { lives, turnMs: secs * 1000, lifePts: DEFAULT_LIFE_PTS, mode: "sulka" },
+        players: [{ id: myId, name: myName, lives, alive: true, pts: 0, segs: [], last: null }],
+        answerSeq: 0, typing: "", announcing: false,
         turn: null, prompt: null, sub: null, used: [], event: "", winner: null, remaining: 0
       };
       broadcast();
@@ -440,7 +496,7 @@
       if (state.players.length >= MAX_PLAYERS) { conn.send({ t: "reject", reason: "Lobby is full" }); return; }
       if (!state.players.find(p => p.id === conn.peer)) {
         conns[conn.peer] = conn;
-        state.players.push({ id: conn.peer, name: cleanName(msg.name), lives: state.settings.lives, alive: true, pts: 0, last: null });
+        state.players.push({ id: conn.peer, name: cleanName(msg.name), lives: state.settings.lives, alive: true, pts: 0, segs: [], last: null });
       }
       broadcast(); render();
     } else if (msg.t === "typing") {
@@ -473,20 +529,22 @@
   function startGame() {
     if (!isHost || state.players.length < 2) return;
     clearTimeout(announceTimer);
-    state.players.forEach(p => { p.lives = state.settings.lives; p.alive = true; p.pts = 0; p.last = null; delete p.left; });
+    state.players.forEach(p => { p.lives = state.settings.lives; p.alive = true; p.pts = 0; p.segs = []; p.last = null; delete p.left; });
     state.phase = "game";
     state.announcing = false; state.typing = "";
     state.winner = null;
     state.event = "";
     state.turn = state.players[0].id;
     newRound();
-    startTurn();
+    announceRound();
   }
 
   function newRound() {
-    promptIdx = Math.floor(Math.random() * PROMPTS.length);
-    state.prompt = PROMPTS[promptIdx].text;
-    state.sub = PROMPTS[promptIdx].sub;
+    const pool = PROMPTS.filter(p => p.modes.includes(state.settings.mode));
+    const choices = pool.length > 1 ? pool.filter(p => p.text !== state.prompt) : pool;
+    const pick = choices[Math.floor(Math.random() * choices.length)];
+    state.prompt = pick.text;
+    state.sub = pick.sub;
     state.used = [];
     state.players.forEach(p => { p.last = null; });
   }
@@ -547,11 +605,15 @@
     state.used.push(ans);
     const rKey = (prompt.rarity && prompt.rarity[ans]) || "spoon";
     const R = RARITIES[rKey];
-    player.last = { text: ans, r: rKey };
-    player.pts = (player.pts || 0) + R.pts;
+    state.answerSeq = (state.answerSeq || 0) + 1;
+    player.last = { text: ans, r: rKey, id: state.answerSeq };
+    const LP = state.settings.lifePts;
+    player.segs = player.segs || [];
+    player.segs.push({ r: rKey, pts: R.pts });
     let gained = 0;
-    while (player.pts >= POINTS_FOR_LIFE && player.lives < state.settings.lives) { player.lives++; player.pts -= POINTS_FOR_LIFE; gained++; }
-    player.pts = Math.min(player.pts, POINTS_FOR_LIFE);
+    while (segSum(player.segs) >= LP && player.lives < state.settings.lives) { player.lives++; takeFront(player.segs, LP); gained++; }
+    trimEnd(player.segs, LP);
+    player.pts = segSum(player.segs);
     state.event = player.name + " said " + ans + " — " + R.name + " +" + R.pts + " pts" + (gained ? " · life regained!" : "");
     state.turn = nextAlive(id);
     if (state.used.length >= prompt.answers.length) {
@@ -560,6 +622,22 @@
       announceRound();
     } else {
       startTurn();
+    }
+  }
+
+  function segSum(segs) { return segs.reduce((t, s) => t + s.pts, 0); }
+  function takeFront(segs, amt) {
+    while (amt > 0 && segs.length) {
+      if (segs[0].pts <= amt) { amt -= segs[0].pts; segs.shift(); }
+      else { segs[0].pts -= amt; amt = 0; }
+    }
+  }
+  function trimEnd(segs, cap) {
+    let extra = segSum(segs) - cap;
+    while (extra > 0 && segs.length) {
+      const last = segs[segs.length - 1];
+      if (last.pts <= extra) { extra -= last.pts; segs.pop(); }
+      else { last.pts -= extra; extra = 0; }
     }
   }
 
@@ -583,9 +661,12 @@
     if (!isHost || !state || state.phase !== "lobby") return;
     const lives = clampInt($("livesInput").value, 1, 10, state.settings.lives);
     const secs = clampInt($("secsInput").value, 3, 60, state.settings.turnMs / 1000);
-    state.settings = { lives, turnMs: secs * 1000 };
+    const lifePts = clampInt($("lifePtsInput").value, 10, 5000, state.settings.lifePts);
+    const mode = MODES[$("modeInput").value] ? $("modeInput").value : state.settings.mode;
+    state.settings = { lives, turnMs: secs * 1000, lifePts, mode };
     state.players.forEach(p => { p.lives = lives; });
     $("livesInput").value = lives; $("secsInput").value = secs;
+    $("lifePtsInput").value = lifePts; $("modeInput").value = mode;
     broadcast(); render();
   }
 
@@ -594,7 +675,7 @@
     state.phase = "lobby";
     state.players = state.players.filter(p => !p.left);
     clearTimeout(announceTimer);
-    state.players.forEach(p => { p.lives = state.settings.lives; p.alive = true; p.pts = 0; p.last = null; });
+    state.players.forEach(p => { p.lives = state.settings.lives; p.alive = true; p.pts = 0; p.segs = []; p.last = null; });
     state.announcing = false; state.typing = "";
     state.turn = null; state.used = []; state.event = ""; state.winner = null;
     broadcast(); render();
@@ -656,6 +737,8 @@
     const ps = state.players, n = ps.length;
     const myIdx = Math.max(0, ps.findIndex(p => p.id === myId));
     let lookAngle = null;
+    const LP = state.settings.lifePts;
+    const fresh = [];
     ps.forEach((p, i) => {
       const a = Math.PI / 2 + 2 * Math.PI * (i - myIdx) / n; // me at the bottom
       const R = 38;
@@ -671,12 +754,30 @@
       seat.appendChild(face);
       seat.appendChild(el("div", "pname", p.name));
       seat.appendChild(el("div", "hearts", hearts(p.lives)));
-      const bar = el("div", "pts"); const fill = el("div");
-      fill.style.width = Math.min(100, (p.pts || 0) / POINTS_FOR_LIFE * 100) + "%";
-      bar.appendChild(fill); bar.title = (p.pts || 0) + "/" + POINTS_FOR_LIFE + " pts";
+      const bar = el("div", "pts");
+      (p.segs || []).forEach(s => {
+        const d = el("div");
+        d.style.width = Math.min(100, s.pts / LP * 100) + "%";
+        d.style.background = (RARITIES[s.r] || RARITIES.spoon).color;
+        bar.appendChild(d);
+      });
+      bar.title = (p.pts || 0) + "/" + LP + " pts";
       seat.appendChild(bar);
-      seat.appendChild(el("div", "ptstxt", (p.pts || 0) + "/" + POINTS_FOR_LIFE));
+      seat.appendChild(el("div", "ptstxt", (p.pts || 0) + "/" + LP));
       wheel.appendChild(seat);
+      if (p.last) {
+        if (seenAnswer[p.id] !== p.last.id) {
+          if (RARITIES[p.last.r]) fresh.push({ r: p.last.r, left: seat.style.left, top: seat.style.top });
+          seenAnswer[p.id] = p.last.id;
+        }
+      } else delete seenAnswer[p.id];
+    });
+    fresh.forEach(f => {
+      const pt = el("div", "particle");
+      pt.innerHTML = ICONS[f.r];
+      pt.style.left = f.left; pt.style.top = f.top;
+      pt.addEventListener("animationend", () => pt.remove());
+      wheel.appendChild(pt);
     });
     look = lookAngle == null ? null : { x: Math.cos(lookAngle), y: Math.sin(lookAngle) };
     const dx = look ? look.x * 4 : 0;
@@ -691,19 +792,20 @@
       const b = s.querySelector(".bubble");
       const active = state.phase === "game" && !state.announcing && s.dataset.id === state.turn;
       const pl = state.players.find(x => x.id === s.dataset.id);
-      b.style.removeProperty("--bc");
+      b.style.removeProperty("--bt");
       b.title = "";
       if (active) {
         b.classList.remove("hidden");
         const t = state.typing || "";
-        b.textContent = t ? (t.length > 14 ? "…" + t.slice(-13) : t) : "…";
+        b.textContent = "";
+        b.appendChild(el("span", null, t ? (t.length > 16 ? "…" + t.slice(-15) : t) : "…"));
         b.classList.toggle("empty", !t);
       } else if (state.phase === "game" && !state.announcing && pl && pl.last && RARITIES[pl.last.r]) {
         const R = RARITIES[pl.last.r];
         b.classList.remove("hidden", "empty");
-        b.style.setProperty("--bc", R.color);
-        b.title = R.name + " · " + R.pts + " pts";
-        b.innerHTML = ICONS[pl.last.r];
+        b.style.setProperty("--bt", R.color);
+        b.title = pl.last.text + " · " + R.name + " · " + R.pts + " pts";
+        b.textContent = "";
         b.appendChild(el("span", null, pl.last.text));
       } else {
         b.classList.add("hidden");
@@ -728,16 +830,19 @@
 
   function render() {
     if (!state) return;
+    if (state.phase !== "game") { seenAnswer = {}; document.querySelectorAll(".particle").forEach(p => p.remove()); }
     if (state.phase === "lobby") {
       show("lobby");
       $("lobbyCode").textContent = state.code;
       fillPlayers($("lobbyPlayers"));
       const L = state.settings.lives;
-      $("lobbySettings").textContent = L + (L === 1 ? " life" : " lives") + " · " + (state.settings.turnMs / 1000) + "s to answer";
+      $("lobbySettings").textContent = MODES[state.settings.mode] + " · " + L + (L === 1 ? " life" : " lives") + " · " + (state.settings.turnMs / 1000) + "s to answer · " + state.settings.lifePts + " pts per extra life";
       $("lobbySettings").classList.toggle("hidden", isHost);
       $("settingsEdit").classList.toggle("hidden", !isHost);
       if (document.activeElement !== $("livesInput")) $("livesInput").value = L;
       if (document.activeElement !== $("secsInput")) $("secsInput").value = state.settings.turnMs / 1000;
+      if (document.activeElement !== $("lifePtsInput")) $("lifePtsInput").value = state.settings.lifePts;
+      if (document.activeElement !== $("modeInput")) $("modeInput").value = state.settings.mode;
       $("startBtn").classList.toggle("hidden", !isHost);
       $("startBtn").disabled = state.players.length < 2;
       $("lobbyHint").textContent = isHost
@@ -778,7 +883,8 @@
 
     // Pudding: drift toward the current player, getting angrier as the turn runs down
     const now = Date.now(); const dt = Math.min(0.2, (now - lastTick) / 1000); lastTick = now;
-    const a = ann ? 0 : Math.pow(Math.min(1, Math.max(0, 1 - left / total)), 1.2);
+    const pr = ann ? 0 : Math.min(1, Math.max(0, 1 - left / total));
+    const a = pr < 0.4 ? 0 : Math.pow((pr - 0.4) / 0.6, 1.4); // calm for the first 40% of the turn
     const tx = (look && !ann) ? look.x * PUD_MAX_R : 0, ty = (look && !ann) ? look.y * PUD_MAX_R : 0;
     const k = 1 - Math.exp(-dt * (0.15 + 0.5 * a));
     pud.x += (tx - pud.x) * k; pud.y += (ty - pud.y) * k;
@@ -803,6 +909,8 @@
   $("startBtn").onclick = startGame;
   $("livesInput").addEventListener("change", applySettings);
   $("secsInput").addEventListener("change", applySettings);
+  $("lifePtsInput").addEventListener("change", applySettings);
+  $("modeInput").addEventListener("change", applySettings);
   $("againBtn").onclick = backToLobby;
   $("leaveBtn").onclick = teardown;
   $("leaveBtn2").onclick = teardown;
