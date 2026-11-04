@@ -106,14 +106,6 @@
   .timer > div { height: 100%; width: 100%; background: var(--good); border-radius: 99px; transform-origin: left; }
   .timer.low > div { background: var(--coral); }
   .turnline { text-align: center; font-size: 1.25rem; font-weight: 600; margin: 8px 0 12px; min-height: 1.6em; }
-  .used { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 14px 0 4px; min-height: 30px; }
-  .used span {
-    font-family: "DM Mono", monospace;
-    background: var(--bg-deep);
-    border-radius: 99px;
-    padding: 3px 12px;
-    color: var(--muted);
-  }
   .log { text-align: center; color: var(--muted); min-height: 1.5em; margin-top: 10px; }
   .toast {
     position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
@@ -128,26 +120,27 @@
   .settings { color: var(--muted); font-size: .95rem; margin: 0; }
   /* Wheel */
   .wheel { position: relative; width: 100%; max-width: 520px; aspect-ratio: 1 / 1; margin: 56px auto 8px; }
-  .pudding { position: absolute; left: 50%; top: 50%; width: 26%; min-width: 96px; transform: translate(-50%, -50%); animation: wobble 2.4s ease-in-out infinite; }
-  .pudding svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .pudding { position: absolute; left: 50%; top: 50%; width: 44%; transform: translate(-50%, -50%); z-index: 1; }
+  .pudding svg { width: 100%; height: auto; display: block; overflow: visible; animation: wobble 2.4s ease-in-out infinite; }
   .pupils { transition: transform .35s cubic-bezier(.3,1.4,.5,1); }
-  @keyframes wobble { 0%,100% { transform: translate(-50%,-50%) rotate(-2deg); } 50% { transform: translate(-50%,-50%) rotate(2deg) scale(1.03,.97); } }
+  @keyframes wobble { 0%,100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg) scale(1.03,.97); } }
   .seat { position: absolute; transform: translate(-50%, -50%); width: 84px; display: flex; flex-direction: column; align-items: center; text-align: center; }
   .seat svg { width: 52px; height: 52px; display: block; }
   .seat .pname { font-size: .9rem; font-weight: 600; max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .seat.me .pname::after { content: " (you)"; color: var(--muted); font-size: .8em; }
   .seat .hearts { font-size: .8rem; letter-spacing: 1px; }
   .seat.dead { opacity: .4; filter: grayscale(.8); }
-  .seat.turn svg { animation: hop .8s ease-in-out infinite; filter: drop-shadow(0 0 8px var(--puff)); }
+  .seat.turn svg { animation: hop 1.6s ease-in-out infinite; filter: drop-shadow(0 0 8px var(--puff)); }
   .seat.turn .pname { color: var(--puff); }
-  @keyframes hop { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+  @keyframes hop { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
   .bubble {
     position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
-    background: var(--text); color: #3a1a06; font-family: "DM Mono", monospace; font-weight: 500;
+    background: var(--bc, var(--text)); color: #3a1a06; font-family: "DM Mono", monospace; font-weight: 500;
+    display: flex; align-items: center; gap: 5px;
     padding: 4px 10px; border-radius: 12px; white-space: nowrap; font-size: .95rem;
     min-width: 36px; text-align: center; box-shadow: 0 2px 0 rgba(0,0,0,.25); z-index: 3;
   }
-  .bubble::after { content: ""; position: absolute; left: 50%; top: 100%; margin-left: -6px; border: 6px solid transparent; border-top-color: var(--text); }
+  .bubble::after { content: ""; position: absolute; left: 50%; top: 100%; margin-left: -6px; border: 6px solid transparent; border-top-color: var(--bc, var(--text)); }
   .bubble.empty { animation: blink 1s infinite; }
   @keyframes blink { 50% { opacity: .5; } }
   .announce {
@@ -159,15 +152,18 @@
   .announce .label { font-size: .95rem; letter-spacing: 3px; color: var(--puff); font-weight: 600; }
   .announce .theme { font-size: 2rem; font-weight: 700; line-height: 1.15; margin: 6px 0; }
   .announce .asub { color: var(--muted); margin: 0 0 14px; }
-  .announce .count { width: 60%; height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; }
-  .announce .count > div { height: 100%; background: var(--puff); border-radius: 99px; animation: drain 3s linear forwards; transform-origin: left; }
-  @keyframes drain { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+  .bubble svg { width: 16px; height: 16px; flex: none; }
+  .seat .pts { width: 56px; height: 5px; background: var(--bg-deep); border-radius: 99px; overflow: hidden; margin-top: 3px; }
+  .seat .pts > div { height: 100%; background: #ffd23f; border-radius: 99px; }
+  .seat .ptstxt { font-family: "DM Mono", monospace; font-size: .62rem; color: var(--muted); }
+  .setrow { display: flex; gap: 10px; }
+  .setrow > div { flex: 1; }
   @keyframes pop { from { transform: scale(.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   @media (max-width: 480px) {
     .seat { width: 68px; } .seat svg { width: 40px; height: 40px; } .seat .pname { font-size: .8rem; max-width: 68px; }
     .bubble { font-size: .8rem; padding: 3px 8px; } .announce .theme { font-size: 1.5rem; }
   }
-  @media (prefers-reduced-motion: reduce) { .pudding, .seat.turn svg, .bubble.empty, .announce, .announce .count > div { animation: none; } .pupils { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .pudding svg, .seat.turn svg, .bubble.empty, .announce { animation: none; } .pupils { transition: none; } }
   .hidden { display: none !important; }
   .winner { text-align: center; font-size: 2rem; font-weight: 700; color: var(--puff); margin: 8px 0 16px; }
   @media (prefers-reduced-motion: reduce) { .shake { animation: none; } .toast { transition: none; } }
@@ -182,16 +178,6 @@
     <div>
       <label for="nameInput">Your name</label>
       <input id="nameInput" type="text" maxlength="16" autocomplete="off" placeholder="Pudding McGee">
-    </div>
-    <div class="row">
-      <div>
-        <label for="livesInput">Lives</label>
-        <input id="livesInput" type="number" min="1" max="10" value="3" inputmode="numeric">
-      </div>
-      <div>
-        <label for="secsInput">Seconds to answer</label>
-        <input id="secsInput" type="number" min="3" max="60" value="10" inputmode="numeric">
-      </div>
     </div>
     <div class="row">
       <button id="createBtn">Create lobby</button>
@@ -212,6 +198,16 @@
       <div class="code" id="lobbyCode" title="Copy code"></div>
     </div>
     <p class="settings" id="lobbySettings"></p>
+    <div class="setrow hidden" id="settingsEdit">
+      <div>
+        <label for="livesInput">Lives</label>
+        <input id="livesInput" type="number" min="1" max="10" value="3" inputmode="numeric">
+      </div>
+      <div>
+        <label for="secsInput">Seconds to answer</label>
+        <input id="secsInput" type="number" min="3" max="60" value="10" inputmode="numeric">
+      </div>
+    </div>
     <div>
       <h2>Players</h2>
       <ul class="players" id="lobbyPlayers"></ul>
@@ -231,28 +227,31 @@
     <div class="turnline" id="turnLine"></div>
     <div class="wheel" id="wheel">
       <div class="pudding" id="pudding">
-        <svg viewBox="0 0 120 120" aria-hidden="true">
-          <ellipse cx="60" cy="102" rx="54" ry="10" fill="#ffe9c7"/>
-          <path d="M28 100 L36 52 Q60 46 84 52 L92 100 Q60 110 28 100Z" fill="#ffd98a" stroke="#e0a63c" stroke-width="2"/>
-          <path d="M33 60 C33 40 87 40 87 60 C87 66 82 66 81 60 C80 70 74 70 73 62 C70 68 64 68 63 61 C61 70 54 70 53 61 C50 67 44 67 43 60 C41 67 34 67 33 60Z" fill="#b5651d"/>
-          <circle cx="60" cy="42" r="6" fill="#e03a3a"/><circle cx="58" cy="40" r="1.8" fill="#ff9a9a"/>
+        <svg viewBox="10 40 100 72" aria-hidden="true">
+          <defs><clipPath id="pudClip"><path d="M28 100 L36 52 Q60 46 84 52 L92 100 Q60 110 28 100Z"/></clipPath></defs>
+          <path d="M28 100 L36 52 Q60 46 84 52 L92 100 Q60 110 28 100Z" fill="#ffd98a"/>
+          <g clip-path="url(#pudClip)">
+            <path d="M20 40 H100 V60 L87 60 C87 66 82 66 81 60 C80 70 74 70 73 62 C70 68 64 68 63 61 C61 70 54 70 53 61 C50 67 44 67 43 60 C41 67 34 67 33 60 L20 60Z" fill="#b5651d"/>
+            <rect x="20" y="40" width="80" height="75" fill="#ff2a00" opacity="0" id="pudTint"/>
+          </g>
+          <path d="M28 100 L36 52 Q60 46 84 52 L92 100 Q60 110 28 100Z" fill="none" stroke="#e0a63c" stroke-width="2" stroke-linejoin="round"/>
           <circle cx="47" cy="80" r="9" fill="#fff"/><circle cx="73" cy="80" r="9" fill="#fff"/>
           <g class="pupils" id="pupils"><circle cx="47" cy="80" r="4.5" fill="#2a1204"/><circle cx="73" cy="80" r="4.5" fill="#2a1204"/></g>
-          <path d="M54 93 Q60 98 66 93" fill="none" stroke="#b5651d" stroke-width="2.5" stroke-linecap="round"/>
+          <line id="browL" x1="37" y1="68" x2="56" y2="70" stroke="#2a1204" stroke-width="3.2" stroke-linecap="round" opacity="0"/>
+          <line id="browR" x1="83" y1="68" x2="64" y2="70" stroke="#2a1204" stroke-width="3.2" stroke-linecap="round" opacity="0"/>
+          <path id="pudMouth" d="M54 94 Q60 99 66 94" fill="none" stroke="#b5651d" stroke-width="2.5" stroke-linecap="round"/>
         </svg>
       </div>
       <div class="announce hidden" id="announce">
         <div class="label">NEW THEME</div>
         <div class="theme" id="annTheme"></div>
         <p class="asub" id="annSub"></p>
-        <div class="count"><div></div></div>
       </div>
     </div>
     <div class="row" id="answerRow">
       <input id="answerInput" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type your answer" aria-label="Your answer">
       <button id="answerBtn" style="flex:0 0 auto">Submit</button>
     </div>
-    <div class="used" id="usedList"></div>
     <div class="log" id="eventLog"></div>
   </section>
 
@@ -274,15 +273,35 @@
   "use strict";
 
   const PREFIX = "puddingparty-";
-  const ANNOUNCE_MS = 3000;
+  const ANNOUNCE_MS = 5000;
+  const POINTS_FOR_LIFE = 400;
+  const PUD_MAX_R = 10; // % of wheel the pudding can drift toward the current player
   const DEFAULT_LIVES = 3, DEFAULT_SECS = 10;
   const MAX_PLAYERS = 8;
   const WORDS = { one:1, two:2, three:3, four:4, five:5, six:6, seven:7, eight:8, nine:9, ten:10 };
+
+  // ---------- Rarities ----------
+  const RARITIES = {
+    spoon: { name: "Spoon",       pts: 10,  color: "#b8bcc4" },
+    slice: { name: "Slice",       pts: 30,  color: "#8fd3ff" },
+    rare:  { name: "Rare",        pts: 60,  color: "#ff6a6a" },
+    deep:  { name: "Deep Cut",    pts: 85,  color: "#b98af2" },
+    flan:  { name: "Flan-tastic", pts: 100, color: "#ffd23f" }
+  };
+  const ICONS = {
+    spoon: '<svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="7.5" rx="4.2" ry="5.5" fill="#6b6f78"/><rect x="10.8" y="12" width="2.4" height="10" rx="1.2" fill="#6b6f78"/></svg>',
+    slice: '<svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="18" rx="10.5" ry="4" fill="#4aa8e0"/><ellipse cx="12" cy="17.4" rx="8.5" ry="2.8" fill="#bfe6ff"/><path d="M5.5 16.5 L9 7.5 Q12 6 15 7.5 L18.5 16.5 Q12 19 5.5 16.5Z" fill="#ffd98a" stroke="#c8921a" stroke-width="1"/><path d="M9 7.5 Q12 6 15 7.5 L15.7 9.6 Q12 8.6 8.3 9.6Z" fill="#8a4a12"/></svg>',
+    rare:  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 14 Q10 6 15 3 M16 15 Q16 8 15 3" fill="none" stroke="#2f7a2f" stroke-width="1.6" stroke-linecap="round"/><path d="M15 3 Q19 2 21 5 Q17 6 15 3Z" fill="#3fa03f"/><circle cx="8" cy="17.5" r="4.6" fill="#d62d2d"/><circle cx="16.5" cy="18" r="4.6" fill="#d62d2d"/><circle cx="6.6" cy="16" r="1.2" fill="#ff9a9a"/><circle cx="15" cy="16.4" r="1.2" fill="#ff9a9a"/></svg>',
+    deep:  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1 Q17 6 14.6 13.5 H10 Q9 6 12 1Z" fill="#e3e6ea" stroke="#8d939c" stroke-width="1"/><rect x="9.6" y="13.5" width="5" height="9" rx="1.8" fill="#7a3fd0"/><rect x="9.6" y="13.5" width="5" height="1.6" fill="#4d238f"/></svg>',
+    flan:  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 21 L6.8 9 Q12 7 17.2 9 L19.5 21 Q12 23 4.5 21Z" fill="#ffcf3a" stroke="#b8860b" stroke-width="1.2"/><path d="M6.8 9 Q12 7 17.2 9 L17.7 11.6 Q12 10.4 6.3 11.6Z" fill="#a05a10"/><path d="M12 1.5 L13 4 L15.6 4.3 L13.6 6 L14.2 8.5 L12 7.2 L9.8 8.5 L10.4 6 L8.4 4.3 L11 4Z" fill="#fff3a0" stroke="#d9a400" stroke-width=".6"/></svg>'
+  };
 
   // ---------- Prompts (swap this out for custom categories later) ----------
   const PROMPTS = [
     { text: "Numbers 1 through 10", sub: "Each number can only be used once.",
       answers: ["1","2","3","4","5","6","7","8","9","10"],
+      // two numbers per rarity (testing)
+      rarity: { "5":"spoon","6":"spoon", "4":"slice","7":"slice", "3":"rare","8":"rare", "2":"deep","9":"deep", "1":"flan","10":"flan" },
       normalize(raw) {
         const t = raw.trim().toLowerCase();
         if (t in WORDS) return String(WORDS[t]);
@@ -313,6 +332,9 @@
   const conns = {};               // host: peerId -> DataConnection
   let state = null;               // latest game state
   let localDeadline = 0;
+  let look = null, lastTick = Date.now();
+  const pud = { x: 0, y: 0 };
+  const reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
   let roomCode = "";
 
   // Host-only
@@ -344,8 +366,7 @@
     myName = cleanName($("nameInput").value);
     roomCode = randCode();
     isHost = true;
-    const lives = clampInt($("livesInput").value, 1, 10, DEFAULT_LIVES);
-    const secs = clampInt($("secsInput").value, 3, 60, DEFAULT_SECS);
+    const lives = DEFAULT_LIVES, secs = DEFAULT_SECS;
     peer = new Peer(PREFIX + roomCode);
     peer.on("open", id => {
       myId = id;
@@ -353,7 +374,7 @@
         phase: "lobby",
         code: roomCode,
         settings: { lives, turnMs: secs * 1000 },
-        players: [{ id: myId, name: myName, lives, alive: true }],
+        players: [{ id: myId, name: myName, lives, alive: true, pts: 0, last: null }],
         typing: "", announcing: false,
         turn: null, prompt: null, sub: null, used: [], event: "", winner: null, remaining: 0
       };
@@ -419,7 +440,7 @@
       if (state.players.length >= MAX_PLAYERS) { conn.send({ t: "reject", reason: "Lobby is full" }); return; }
       if (!state.players.find(p => p.id === conn.peer)) {
         conns[conn.peer] = conn;
-        state.players.push({ id: conn.peer, name: cleanName(msg.name), lives: state.settings.lives, alive: true });
+        state.players.push({ id: conn.peer, name: cleanName(msg.name), lives: state.settings.lives, alive: true, pts: 0, last: null });
       }
       broadcast(); render();
     } else if (msg.t === "typing") {
@@ -452,7 +473,7 @@
   function startGame() {
     if (!isHost || state.players.length < 2) return;
     clearTimeout(announceTimer);
-    state.players.forEach(p => { p.lives = state.settings.lives; p.alive = true; delete p.left; });
+    state.players.forEach(p => { p.lives = state.settings.lives; p.alive = true; p.pts = 0; p.last = null; delete p.left; });
     state.phase = "game";
     state.announcing = false; state.typing = "";
     state.winner = null;
@@ -467,6 +488,7 @@
     state.prompt = PROMPTS[promptIdx].text;
     state.sub = PROMPTS[promptIdx].sub;
     state.used = [];
+    state.players.forEach(p => { p.last = null; });
   }
 
   function startTurn() {
@@ -523,7 +545,14 @@
     if (!prompt.answers.includes(ans)) { tell(id, "Not a valid answer", true); return; }
     if (state.used.includes(ans)) { tell(id, ans + " was already used", true); return; }
     state.used.push(ans);
-    state.event = player.name + " said " + ans;
+    const rKey = (prompt.rarity && prompt.rarity[ans]) || "spoon";
+    const R = RARITIES[rKey];
+    player.last = { text: ans, r: rKey };
+    player.pts = (player.pts || 0) + R.pts;
+    let gained = 0;
+    while (player.pts >= POINTS_FOR_LIFE && player.lives < state.settings.lives) { player.lives++; player.pts -= POINTS_FOR_LIFE; gained++; }
+    player.pts = Math.min(player.pts, POINTS_FOR_LIFE);
+    state.event = player.name + " said " + ans + " — " + R.name + " +" + R.pts + " pts" + (gained ? " · life regained!" : "");
     state.turn = nextAlive(id);
     if (state.used.length >= prompt.answers.length) {
       newRound();
@@ -550,12 +579,22 @@
     announceRound();
   }
 
+  function applySettings() {
+    if (!isHost || !state || state.phase !== "lobby") return;
+    const lives = clampInt($("livesInput").value, 1, 10, state.settings.lives);
+    const secs = clampInt($("secsInput").value, 3, 60, state.settings.turnMs / 1000);
+    state.settings = { lives, turnMs: secs * 1000 };
+    state.players.forEach(p => { p.lives = lives; });
+    $("livesInput").value = lives; $("secsInput").value = secs;
+    broadcast(); render();
+  }
+
   function backToLobby() {
     if (!isHost) return;
     state.phase = "lobby";
     state.players = state.players.filter(p => !p.left);
     clearTimeout(announceTimer);
-    state.players.forEach(p => { p.lives = state.settings.lives; p.alive = true; });
+    state.players.forEach(p => { p.lives = state.settings.lives; p.alive = true; p.pts = 0; p.last = null; });
     state.announcing = false; state.typing = "";
     state.turn = null; state.used = []; state.event = ""; state.winner = null;
     broadcast(); render();
@@ -632,10 +671,16 @@
       seat.appendChild(face);
       seat.appendChild(el("div", "pname", p.name));
       seat.appendChild(el("div", "hearts", hearts(p.lives)));
+      const bar = el("div", "pts"); const fill = el("div");
+      fill.style.width = Math.min(100, (p.pts || 0) / POINTS_FOR_LIFE * 100) + "%";
+      bar.appendChild(fill); bar.title = (p.pts || 0) + "/" + POINTS_FOR_LIFE + " pts";
+      seat.appendChild(bar);
+      seat.appendChild(el("div", "ptstxt", (p.pts || 0) + "/" + POINTS_FOR_LIFE));
       wheel.appendChild(seat);
     });
-    const dx = lookAngle == null ? 0 : Math.cos(lookAngle) * 4;
-    const dy = lookAngle == null ? 0 : Math.sin(lookAngle) * 4;
+    look = lookAngle == null ? null : { x: Math.cos(lookAngle), y: Math.sin(lookAngle) };
+    const dx = look ? look.x * 4 : 0;
+    const dy = look ? look.y * 4 : 0;
     $("pupils").style.transform = "translate(" + dx.toFixed(2) + "px," + dy.toFixed(2) + "px)";
     updateBubbles();
   }
@@ -645,11 +690,24 @@
     $("wheel").querySelectorAll(".seat").forEach(s => {
       const b = s.querySelector(".bubble");
       const active = state.phase === "game" && !state.announcing && s.dataset.id === state.turn;
-      b.classList.toggle("hidden", !active);
-      if (!active) return;
-      const t = state.typing || "";
-      b.textContent = t ? (t.length > 14 ? "…" + t.slice(-13) : t) : "…";
-      b.classList.toggle("empty", !t);
+      const pl = state.players.find(x => x.id === s.dataset.id);
+      b.style.removeProperty("--bc");
+      b.title = "";
+      if (active) {
+        b.classList.remove("hidden");
+        const t = state.typing || "";
+        b.textContent = t ? (t.length > 14 ? "…" + t.slice(-13) : t) : "…";
+        b.classList.toggle("empty", !t);
+      } else if (state.phase === "game" && !state.announcing && pl && pl.last && RARITIES[pl.last.r]) {
+        const R = RARITIES[pl.last.r];
+        b.classList.remove("hidden", "empty");
+        b.style.setProperty("--bc", R.color);
+        b.title = R.name + " · " + R.pts + " pts";
+        b.innerHTML = ICONS[pl.last.r];
+        b.appendChild(el("span", null, pl.last.text));
+      } else {
+        b.classList.add("hidden");
+      }
     });
   }
 
@@ -676,6 +734,10 @@
       fillPlayers($("lobbyPlayers"));
       const L = state.settings.lives;
       $("lobbySettings").textContent = L + (L === 1 ? " life" : " lives") + " · " + (state.settings.turnMs / 1000) + "s to answer";
+      $("lobbySettings").classList.toggle("hidden", isHost);
+      $("settingsEdit").classList.toggle("hidden", !isHost);
+      if (document.activeElement !== $("livesInput")) $("livesInput").value = L;
+      if (document.activeElement !== $("secsInput")) $("secsInput").value = state.settings.turnMs / 1000;
       $("startBtn").classList.toggle("hidden", !isHost);
       $("startBtn").disabled = state.players.length < 2;
       $("lobbyHint").textContent = isHost
@@ -695,8 +757,6 @@
       $("annSub").textContent = state.sub || "";
       if (mine) { if (document.activeElement !== $("answerInput")) $("answerInput").focus({ preventScroll: true }); }
       else $("answerInput").value = "";
-      const used = $("usedList"); used.textContent = "";
-      state.used.forEach(u => used.appendChild(el("span", null, u)));
       $("eventLog").textContent = state.event || "";
       renderWheel();
     } else if (state.phase === "over") {
@@ -715,6 +775,24 @@
     const ann = !!state.announcing;
     $("timerFill").style.transform = "scaleX(" + (ann ? 1 : left / total) + ")";
     $("timer").classList.toggle("low", !ann && left < Math.min(3000, total * 0.3));
+
+    // Pudding: drift toward the current player, getting angrier as the turn runs down
+    const now = Date.now(); const dt = Math.min(0.2, (now - lastTick) / 1000); lastTick = now;
+    const a = ann ? 0 : Math.pow(Math.min(1, Math.max(0, 1 - left / total)), 1.2);
+    const tx = (look && !ann) ? look.x * PUD_MAX_R : 0, ty = (look && !ann) ? look.y * PUD_MAX_R : 0;
+    const k = 1 - Math.exp(-dt * (0.15 + 0.5 * a));
+    pud.x += (tx - pud.x) * k; pud.y += (ty - pud.y) * k;
+    const j = (!reduceMotion && a > 0.6) ? (a - 0.6) * 1.5 : 0;
+    const pd = $("pudding");
+    pd.style.left = (50 + pud.x + (Math.random() - 0.5) * j) + "%";
+    pd.style.top = (50 + pud.y + (Math.random() - 0.5) * j) + "%";
+    $("pudTint").setAttribute("opacity", (a * 0.4).toFixed(3));
+    const bo = Math.min(1, a * 3).toFixed(2);
+    const bl = $("browL"), br = $("browR");
+    bl.setAttribute("opacity", bo); br.setAttribute("opacity", bo);
+    const yo = (68 - a * 2).toFixed(1), yi = (70 + a * 7).toFixed(1);
+    bl.setAttribute("y1", yo); bl.setAttribute("y2", yi); br.setAttribute("y1", yo); br.setAttribute("y2", yi);
+    $("pudMouth").setAttribute("d", "M54 94 Q60 " + (99 - 17 * a).toFixed(1) + " 66 94");
   }, 50);
 
   // ---------- Wire up ----------
@@ -723,6 +801,8 @@
   $("codeInput").addEventListener("input", e => { e.target.value = e.target.value.toUpperCase(); });
   $("codeInput").addEventListener("keydown", e => { if (e.key === "Enter") joinLobby(); });
   $("startBtn").onclick = startGame;
+  $("livesInput").addEventListener("change", applySettings);
+  $("secsInput").addEventListener("change", applySettings);
   $("againBtn").onclick = backToLobby;
   $("leaveBtn").onclick = teardown;
   $("leaveBtn2").onclick = teardown;
