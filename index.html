@@ -98,10 +98,11 @@
     font-size: 2rem;
     font-weight: 700;
     text-align: center;
-    margin: 4px 0 4px;
+    margin: 4px 0 14px;
     line-height: 1.15;
   }
-  .sub { text-align: center; color: var(--muted); margin-bottom: 14px; }
+  .sub { text-align: center; color: var(--muted); margin: -10px 0 14px; }
+  .sub:empty, .announce .asub:empty { display: none; }
   .timer { height: 14px; background: var(--bg-deep); border-radius: 99px; overflow: hidden; margin-bottom: 8px; }
   .timer > div { height: 100%; width: 100%; background: var(--good); border-radius: 99px; transform-origin: left; }
   .timer.low > div { background: var(--coral); }
@@ -117,7 +118,20 @@
   .shake { animation: shake .3s; }
   @keyframes shake { 20% { transform: translateX(-6px); } 60% { transform: translateX(6px); } }
 
-  .settings { color: var(--muted); font-size: .95rem; margin: 0; }
+  .lobbybox { margin-top: 18px; padding-top: 18px; border-top: 2px solid var(--line); }
+  .lobbyhead { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .lobbybox .code { font-size: 2rem; letter-spacing: 6px; }
+  .codelabel { font-size: .85rem; color: var(--muted); }
+  .lobbybox h2 { font-size: 1.1rem; margin-bottom: 8px; }
+  ul.players.compact { grid-template-columns: 1fr 1fr; }
+  ul.players.compact li { padding: 7px 12px; font-size: 1rem; }
+  .settingsCard { background: rgba(255,176,46,.1); border: 2px dashed var(--puff); border-radius: 18px; padding: 14px 16px 12px; }
+  .settingsCard h3 { margin: 0 0 10px; font-size: .85rem; letter-spacing: 2.5px; text-transform: uppercase; color: var(--puff); }
+  .setgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .setgrid input, .setgrid select { font-size: 1rem; padding: 9px 12px; }
+  .sethint { font-size: .85rem; color: var(--muted); margin-top: 10px; }
+  input:disabled, select:disabled { opacity: .6; cursor: not-allowed; }
+  @media (max-width: 480px) { ul.players.compact { grid-template-columns: 1fr; } }
   /* Wheel */
   .wheel { position: relative; width: 100%; max-width: 520px; aspect-ratio: 1 / 1; margin: 56px auto 8px; }
   .pudding { position: absolute; left: 50%; top: 50%; width: 44%; transform: translate(-50%, -50%); z-index: 1; }
@@ -136,7 +150,7 @@
   @keyframes hop { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
   .bubble {
     position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
-    background: #2a1204; color: var(--bt, var(--text)); border: 2px solid var(--line);
+    background: #2a1204; color: var(--bt, var(--text)); border: 2px solid var(--bc, var(--line));
     font-family: "DM Mono", monospace; font-weight: 500;
     padding: 4px 10px; border-radius: 12px; white-space: nowrap; font-size: .95rem;
     min-width: 36px; text-align: center; box-shadow: 0 2px 0 rgba(0,0,0,.25); z-index: 3;
@@ -144,10 +158,8 @@
   .bubble span { display: block; max-width: 170px; overflow: hidden; text-overflow: ellipsis; }
   .bubble::after {
     content: ""; position: absolute; left: 50%; bottom: -7px; width: 10px; height: 10px; margin-left: -5px;
-    background: #2a1204; border-right: 2px solid var(--line); border-bottom: 2px solid var(--line); transform: rotate(45deg);
+    background: #2a1204; border-right: 2px solid var(--bc, var(--line)); border-bottom: 2px solid var(--bc, var(--line)); transform: rotate(45deg);
   }
-  .bubble.empty { animation: blink 1s infinite; }
-  @keyframes blink { 50% { opacity: .5; } }
   .announce {
     position: absolute; inset: 8%; z-index: 5; border-radius: 26px;
     background: rgba(51,19,3,.94); border: 2px solid var(--puff);
@@ -160,12 +172,15 @@
   .seat .pts { display: flex; width: 64px; height: 8px; background: var(--bg-deep); border-radius: 99px; overflow: hidden; margin-top: 3px; }
   .seat .pts > div { height: 100%; flex: none; box-shadow: inset -1px 0 0 rgba(0,0,0,.35); }
   .seat .ptstxt { font-family: "Fredoka", system-ui, sans-serif; font-weight: 600; font-size: .95rem; line-height: 1.1; color: var(--text); white-space: nowrap; font-variant-numeric: tabular-nums; }
-  .particle { position: absolute; z-index: 4; width: 30px; height: 30px; margin: -15px 0 0 -15px; pointer-events: none; transform: translate(0, -112px); animation: floatUp 1.7s ease-out forwards; }
-  .particle svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 2px 3px rgba(0,0,0,.45)); }
+  .particle { position: absolute; z-index: 4; display: flex; align-items: center; gap: 5px; width: max-content; pointer-events: none; white-space: nowrap;
+    background: rgba(42,18,4,.88); border-radius: 99px; padding: 3px 11px 3px 6px;
+    transform: translate(calc(-50% + var(--dx, 0px)), calc(-50% - 112px)); animation: floatUp 1.7s ease-out forwards; }
+  .particle svg { width: 24px; height: 24px; display: block; filter: drop-shadow(0 2px 3px rgba(0,0,0,.45)); }
+  .particle .rname { font-weight: 700; font-size: .9rem; }
   @keyframes floatUp {
-    0% { opacity: 0; transform: translate(0, -100px) scale(.6); }
-    15% { opacity: 1; transform: translate(0, -108px) scale(1.15); }
-    100% { opacity: 0; transform: translate(0, -150px) scale(1); }
+    0% { opacity: 0; transform: translate(calc(-50% + var(--dx, 0px)), calc(-50% - 100px)) scale(.6); }
+    15% { opacity: 1; transform: translate(calc(-50% + var(--dx, 0px)), calc(-50% - 108px)) scale(1.1); }
+    100% { opacity: 0; transform: translate(calc(-50% + var(--dx, 0px)), calc(-50% - 150px)) scale(1); }
   }
   @keyframes fadeOnly { 0% { opacity: 0; } 15% { opacity: 1; } 100% { opacity: 0; } }
   @media (prefers-reduced-motion: reduce) { .particle { animation: fadeOnly 1.7s forwards; } }
@@ -176,7 +191,7 @@
     .seat { width: 68px; } .seat svg { width: 40px; height: 40px; } .seat .pname { font-size: .8rem; max-width: 68px; }
     .bubble { font-size: .8rem; padding: 3px 8px; } .bubble span { max-width: 130px; } .seat .ptstxt { font-size: .85rem; } .announce .theme { font-size: 1.5rem; }
   }
-  @media (prefers-reduced-motion: reduce) { .pudding svg, .seat.turn svg, .bubble.empty, .announce { animation: none; } .pupils { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .pudding svg, .seat.turn svg, .announce { animation: none; } .pupils { transition: none; } }
   .hidden { display: none !important; }
   .winner { text-align: center; font-size: 2rem; font-weight: 700; color: var(--puff); margin: 8px 0 16px; }
   @media (prefers-reduced-motion: reduce) { .shake { animation: none; } .toast { transition: none; } }
@@ -202,49 +217,6 @@
       </div>
       <button id="joinBtn" class="ghost">Join lobby</button>
     </div>
-  </section>
-
-  <!-- LOBBY -->
-  <section id="lobby" class="panel stack hidden">
-    <div>
-      <p style="margin-bottom:0">Lobby code (click to copy)</p>
-      <div class="code" id="lobbyCode" title="Copy code"></div>
-    </div>
-    <p class="settings" id="lobbySettings"></p>
-    <div class="stack hidden" id="settingsEdit">
-      <div class="setrow">
-        <div>
-          <label for="livesInput">Lives</label>
-          <input id="livesInput" type="number" min="1" max="10" value="3" inputmode="numeric">
-        </div>
-        <div>
-          <label for="secsInput">Seconds to answer</label>
-          <input id="secsInput" type="number" min="3" max="60" value="10" inputmode="numeric">
-        </div>
-      </div>
-      <div class="setrow">
-        <div>
-          <label for="lifePtsInput">Extra life score</label>
-          <input id="lifePtsInput" type="number" min="10" max="5000" step="10" value="400" inputmode="numeric">
-        </div>
-        <div>
-          <label for="modeInput">Mode</label>
-          <select id="modeInput">
-            <option value="sulka">Sulka</option>
-            <option value="social">Social Craft</option>
-          </select>
-        </div>
-      </div>
-    </div>
-    <div>
-      <h2>Players</h2>
-      <ul class="players" id="lobbyPlayers"></ul>
-    </div>
-    <div class="row">
-      <button id="startBtn" class="hidden">Start game</button>
-      <button id="leaveBtn" class="ghost">Leave</button>
-    </div>
-    <p id="lobbyHint"></p>
   </section>
 
   <!-- GAME -->
@@ -281,6 +253,29 @@
       <button id="answerBtn" style="flex:0 0 auto">Submit</button>
     </div>
     <div class="log" id="eventLog"></div>
+    <div class="lobbybox stack hidden" id="lobbyBox">
+      <div class="lobbyhead">
+        <div>
+          <div class="codelabel">Lobby code (click to copy)</div>
+          <div class="code" id="lobbyCode" title="Copy code"></div>
+        </div>
+        <button id="leaveBtn" class="ghost">Leave</button>
+      </div>
+      <div>
+        <h2>Players</h2>
+        <ul class="players compact" id="lobbyPlayers"></ul>
+      </div>
+      <div class="settingsCard">
+        <h3>Match settings</h3>
+        <div class="setgrid">
+          <div><label for="livesInput">Lives</label><input id="livesInput" type="number" min="1" max="10" value="3" inputmode="numeric"></div>
+          <div><label for="secsInput">Seconds to answer</label><input id="secsInput" type="number" min="3" max="60" value="10" inputmode="numeric"></div>
+          <div><label for="lifePtsInput">Extra life score</label><input id="lifePtsInput" type="number" min="10" max="5000" step="10" value="400" inputmode="numeric"></div>
+          <div><label for="modeInput">Mode</label><select id="modeInput"><option value="sulka">Sulka</option><option value="social">Social Craft</option></select></div>
+        </div>
+        <div class="sethint" id="setHint"></div>
+      </div>
+    </div>
   </section>
 
   <!-- GAME OVER -->
@@ -302,6 +297,7 @@
 
   const PREFIX = "puddingparty-";
   const ANNOUNCE_MS = 5000;
+  const LOBBY_MS = 15000;
   const DEFAULT_LIFE_PTS = 400;
   const PUD_MAX_R = 10; // % of wheel the pudding can drift toward the current player
   const DEFAULT_LIVES = 3, DEFAULT_SECS = 10;
@@ -341,7 +337,7 @@
   }
 
   const PROMPTS = [
-    { text: "Numbers 1 through 10", sub: "Each number can only be used once.", modes: ["sulka", "social"],
+    { text: "Numbers 1 through 10", sub: "", modes: ["sulka", "social"],
       answers: ["1","2","3","4","5","6","7","8","9","10"],
       // two numbers per rarity (testing)
       rarity: { "5":"spoon","6":"spoon", "4":"slice","7":"slice", "3":"rare","8":"rare", "2":"deep","9":"deep", "1":"flan","10":"flan" },
@@ -351,7 +347,7 @@
         if (/^\d+$/.test(t)) return String(parseInt(t, 10));
         return t;
       } },
-    tieredPrompt("Name a Kultisti Game", "Each game can only be used once.", ["sulka"], {
+    tieredPrompt("Games made by Kultisti", "", ["sulka"], {
       spoon: ["Sulka", "Frogfall"],
       slice: ["Curseball", "Raide", "Dice of Dusk", "Planetaario", "Epolevne", "Steptile", "lineoff", "Taulu"],
       rare: ["Hop Owl", "Had", "lose95", "Planetwo", "Cog Owl", "Lonely People Potion Shop",
@@ -367,7 +363,7 @@
 
   // ---------- DOM ----------
   const $ = id => document.getElementById(id);
-  const screens = ["home","lobby","game","over"];
+  const screens = ["home","game","over"];
   function show(name) { screens.forEach(s => $(s).classList.toggle("hidden", s !== name)); }
   let toastTimer;
   function toast(msg) {
@@ -393,7 +389,8 @@
   let roomCode = "";
 
   // Host-only
-  let turnTimer = null, announceTimer = null;
+  let turnTimer = null, announceTimer = null, lobbyTimer = null;
+  let localStart = 0;            // when the lobby countdown ends (0 = not counting)
   let seenAnswer = {};            // playerId -> id of the last answer we already showed a particle for
 
   function randCode() {
@@ -409,7 +406,8 @@
   }
 
   function teardown() {
-    clearTimeout(turnTimer); clearTimeout(announceTimer);
+    clearTimeout(turnTimer); clearTimeout(announceTimer); clearTimeout(lobbyTimer);
+    lobbyTimer = null; localStart = 0; $("answerInput").value = "";
     try { peer && peer.destroy(); } catch (e) {}
     peer = null; hostConn = null; state = null; isHost = false; myId = null; seenAnswer = {};
     document.querySelectorAll(".particle").forEach(p => p.remove());
@@ -469,6 +467,7 @@
         if (msg.t === "state") {
           state = msg.state;
           localDeadline = Date.now() + state.remaining;
+          localStart = state.startIn != null ? Date.now() + state.startIn : 0;
           render();
         } else if (msg.t === "reject") {
           toast(msg.reason);
@@ -498,6 +497,7 @@
         conns[conn.peer] = conn;
         state.players.push({ id: conn.peer, name: cleanName(msg.name), lives: state.settings.lives, alive: true, pts: 0, segs: [], last: null });
       }
+      checkLobbyStart();
       broadcast(); render();
     } else if (msg.t === "typing") {
       if (state.phase !== "game" || state.announcing || state.turn !== conn.peer) return;
@@ -515,6 +515,7 @@
     if (!p) return;
     if (state.phase === "lobby" || state.phase === "over") {
       state.players = state.players.filter(x => x.id !== id);
+      checkLobbyStart();
     } else {
       p.alive = false; p.lives = 0; p.left = true;
       state.event = p.name + " left the game";
@@ -526,9 +527,21 @@
   }
 
   // ---------- Host: game logic ----------
+  function checkLobbyStart() {
+    if (!isHost || !state || state.phase !== "lobby") return;
+    if (state.players.length >= 2) {
+      if (!lobbyTimer) {
+        localStart = Date.now() + LOBBY_MS;
+        lobbyTimer = setTimeout(() => { lobbyTimer = null; localStart = 0; if (state && state.phase === "lobby") startGame(); }, LOBBY_MS);
+      }
+    } else {
+      clearTimeout(lobbyTimer); lobbyTimer = null; localStart = 0;
+    }
+  }
+
   function startGame() {
     if (!isHost || state.players.length < 2) return;
-    clearTimeout(announceTimer);
+    clearTimeout(announceTimer); clearTimeout(lobbyTimer); lobbyTimer = null; localStart = 0;
     state.players.forEach(p => { p.lives = state.settings.lives; p.alive = true; p.pts = 0; p.segs = []; p.last = null; delete p.left; });
     state.phase = "game";
     state.announcing = false; state.typing = "";
@@ -678,6 +691,7 @@
     state.players.forEach(p => { p.lives = state.settings.lives; p.alive = true; p.pts = 0; p.segs = []; p.last = null; });
     state.announcing = false; state.typing = "";
     state.turn = null; state.used = []; state.event = ""; state.winner = null;
+    checkLobbyStart();
     broadcast(); render();
   }
 
@@ -705,6 +719,7 @@
       // remaining is computed relative to when the turn started on the host
       state.remaining = Math.max(0, localDeadline - Date.now());
     }
+    state.startIn = (state.phase === "lobby" && localStart) ? Math.max(0, localStart - Date.now()) : null;
     const payload = { t: "state", state };
     Object.values(conns).forEach(c => { if (c.open) c.send(payload); });
   }
@@ -713,7 +728,7 @@
   function sendAnswer() {
     const input = $("answerInput");
     const text = input.value;
-    if (!text.trim() || !state || state.turn !== myId) return;
+    if (!text.trim() || !state || state.phase !== "game" || state.announcing || state.turn !== myId) return;
     input.value = "";
     pushTyping("");
     if (isHost) submitAnswer(myId, text);
@@ -767,14 +782,16 @@
       wheel.appendChild(seat);
       if (p.last) {
         if (seenAnswer[p.id] !== p.last.id) {
-          if (RARITIES[p.last.r]) fresh.push({ r: p.last.r, left: seat.style.left, top: seat.style.top });
+          if (RARITIES[p.last.r]) fresh.push({ r: p.last.r, left: seat.style.left, top: seat.style.top, dx: Math.round((Math.random() * 2 - 1) * 34) });
           seenAnswer[p.id] = p.last.id;
         }
       } else delete seenAnswer[p.id];
     });
     fresh.forEach(f => {
       const pt = el("div", "particle");
-      pt.innerHTML = ICONS[f.r];
+      const ic = el("span"); ic.innerHTML = ICONS[f.r]; pt.appendChild(ic);
+      const rn = el("span", "rname", RARITIES[f.r].name); rn.style.color = RARITIES[f.r].color; pt.appendChild(rn);
+      pt.style.setProperty("--dx", f.dx + "px");
       pt.style.left = f.left; pt.style.top = f.top;
       pt.addEventListener("animationend", () => pt.remove());
       wheel.appendChild(pt);
@@ -792,7 +809,7 @@
       const b = s.querySelector(".bubble");
       const active = state.phase === "game" && !state.announcing && s.dataset.id === state.turn;
       const pl = state.players.find(x => x.id === s.dataset.id);
-      b.style.removeProperty("--bt");
+      b.style.removeProperty("--bt"); b.style.removeProperty("--bc");
       b.title = "";
       if (active) {
         b.classList.remove("hidden");
@@ -803,7 +820,7 @@
       } else if (state.phase === "game" && !state.announcing && pl && pl.last && RARITIES[pl.last.r]) {
         const R = RARITIES[pl.last.r];
         b.classList.remove("hidden", "empty");
-        b.style.setProperty("--bt", R.color);
+        b.style.setProperty("--bt", R.color); b.style.setProperty("--bc", R.color);
         b.title = pl.last.text + " · " + R.name + " · " + R.pts + " pts";
         b.textContent = "";
         b.appendChild(el("span", null, pl.last.text));
@@ -828,40 +845,49 @@
     });
   }
 
+  function lobbyLine() {
+    if (state.players.length < 2) return "Waiting for another player…";
+    if (!localStart) return "Starting…";
+    return "Starting in " + Math.ceil(Math.max(0, localStart - Date.now()) / 1000) + "s";
+  }
+
   function render() {
     if (!state) return;
     if (state.phase !== "game") { seenAnswer = {}; document.querySelectorAll(".particle").forEach(p => p.remove()); }
-    if (state.phase === "lobby") {
-      show("lobby");
-      $("lobbyCode").textContent = state.code;
-      fillPlayers($("lobbyPlayers"));
-      const L = state.settings.lives;
-      $("lobbySettings").textContent = MODES[state.settings.mode] + " · " + L + (L === 1 ? " life" : " lives") + " · " + (state.settings.turnMs / 1000) + "s to answer · " + state.settings.lifePts + " pts per extra life";
-      $("lobbySettings").classList.toggle("hidden", isHost);
-      $("settingsEdit").classList.toggle("hidden", !isHost);
-      if (document.activeElement !== $("livesInput")) $("livesInput").value = L;
-      if (document.activeElement !== $("secsInput")) $("secsInput").value = state.settings.turnMs / 1000;
-      if (document.activeElement !== $("lifePtsInput")) $("lifePtsInput").value = state.settings.lifePts;
-      if (document.activeElement !== $("modeInput")) $("modeInput").value = state.settings.mode;
-      $("startBtn").classList.toggle("hidden", !isHost);
-      $("startBtn").disabled = state.players.length < 2;
-      $("lobbyHint").textContent = isHost
-        ? (state.players.length < 2 ? "Share the code with friends. You need at least 2 players." : "Ready when you are.")
-        : "Waiting for the host to start the game…";
-    } else if (state.phase === "game") {
+    if (state.phase === "lobby" || state.phase === "game") {
       show("game");
-      $("promptText").textContent = state.prompt;
-      $("promptSub").textContent = state.sub;
-      const ann = !!state.announcing;
-      const mine = state.turn === myId && !ann;
+      const lobby = state.phase === "lobby";
+      $("lobbyBox").classList.toggle("hidden", !lobby);
+      if (lobby) {
+        $("lobbyCode").textContent = state.code;
+        fillPlayers($("lobbyPlayers"));
+        const L = state.settings.lives;
+        const ids = ["livesInput","secsInput","lifePtsInput","modeInput"];
+        ids.forEach(i => { $(i).disabled = !isHost; });
+        if (document.activeElement !== $("livesInput")) $("livesInput").value = L;
+        if (document.activeElement !== $("secsInput")) $("secsInput").value = state.settings.turnMs / 1000;
+        if (document.activeElement !== $("lifePtsInput")) $("lifePtsInput").value = state.settings.lifePts;
+        if (document.activeElement !== $("modeInput")) $("modeInput").value = state.settings.mode;
+        $("setHint").textContent = isHost ? "You're the host. Settings lock once the match starts." : "Only the host can change these.";
+        $("answerInput").value = "";
+      }
+      $("promptText").textContent = lobby ? "Join the ring!" : state.prompt;
+      $("promptSub").textContent = lobby ? "The match starts 15 seconds after at least 2 players are here." : (state.sub || "");
+      const ann = !lobby && !!state.announcing;
+      const mine = !lobby && state.turn === myId && !ann;
       const cur = state.players.find(p => p.id === state.turn);
-      $("turnLine").textContent = ann ? "Get ready…" : mine ? "Your turn!" : (cur ? cur.name + "'s turn" : "");
-      $("answerRow").classList.toggle("hidden", !mine);
+      $("turnLine").textContent = lobby ? lobbyLine() : ann ? "Get ready…" : mine ? "Your turn!" : (cur ? cur.name + "'s turn" : "");
+      $("answerRow").classList.toggle("hidden", lobby);
+      $("answerBtn").disabled = !mine;
+      $("answerInput").placeholder = mine ? "Type your answer" : "Prepare your answer…";
       $("announce").classList.toggle("hidden", !ann);
       $("annTheme").textContent = state.prompt || "";
       $("annSub").textContent = state.sub || "";
-      if (mine) { if (document.activeElement !== $("answerInput")) $("answerInput").focus({ preventScroll: true }); }
-      else $("answerInput").value = "";
+      if (mine) {
+        if (document.activeElement !== $("answerInput")) $("answerInput").focus({ preventScroll: true });
+        const v = $("answerInput").value;
+        if (v && v !== state.typing) pushTyping(v);
+      }
       $("eventLog").textContent = state.event || "";
       renderWheel();
     } else if (state.phase === "over") {
@@ -874,12 +900,16 @@
 
   // Timer bar animation
   setInterval(() => {
-    if (!state || state.phase !== "game") return;
+    if (!state || (state.phase !== "game" && state.phase !== "lobby")) return;
+    const inGame = state.phase === "game";
     const left = Math.max(0, localDeadline - Date.now());
     const total = state.settings.turnMs;
-    const ann = !!state.announcing;
-    $("timerFill").style.transform = "scaleX(" + (ann ? 1 : left / total) + ")";
-    $("timer").classList.toggle("low", !ann && left < Math.min(3000, total * 0.3));
+    const ann = !inGame || !!state.announcing;
+    let frac;
+    if (inGame) frac = ann ? 1 : left / total;
+    else { frac = localStart ? Math.max(0, localStart - Date.now()) / LOBBY_MS : 0; $("turnLine").textContent = lobbyLine(); }
+    $("timerFill").style.transform = "scaleX(" + frac + ")";
+    $("timer").classList.toggle("low", inGame && !ann && left < Math.min(3000, total * 0.3));
 
     // Pudding: drift toward the current player, getting angrier as the turn runs down
     const now = Date.now(); const dt = Math.min(0.2, (now - lastTick) / 1000); lastTick = now;
@@ -906,7 +936,6 @@
   $("joinBtn").onclick = joinLobby;
   $("codeInput").addEventListener("input", e => { e.target.value = e.target.value.toUpperCase(); });
   $("codeInput").addEventListener("keydown", e => { if (e.key === "Enter") joinLobby(); });
-  $("startBtn").onclick = startGame;
   $("livesInput").addEventListener("change", applySettings);
   $("secsInput").addEventListener("change", applySettings);
   $("lifePtsInput").addEventListener("change", applySettings);
