@@ -28,32 +28,8 @@
     flan:  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 21 L6.8 9 Q12 7 17.2 9 L19.5 21 Q12 23 4.5 21Z" fill="#ffcf3a" stroke="#b8860b" stroke-width="1.2"/><path d="M6.8 9 Q12 7 17.2 9 L17.7 11.6 Q12 10.4 6.3 11.6Z" fill="#a05a10"/><path d="M12 1.5 L13 4 L15.6 4.3 L13.6 6 L14.2 8.5 L12 7.2 L9.8 8.5 L10.4 6 L8.4 4.3 L11 4Z" fill="#fff3a0" stroke="#d9a400" stroke-width=".6"/></svg>'
   };
 
-  // ---------- Character colors ----------
-  const COLORS = {
-    yellow: { fill: "#ffd23f", stroke: "#e08a00" },
-    orange: { fill: "#ffa24a", stroke: "#c4600a" },
-    pink:   { fill: "#ff9ec4", stroke: "#d6457f" },
-    red:    { fill: "#ff6b6b", stroke: "#c22b2b" },
-    purple: { fill: "#b98af2", stroke: "#7a3fd0" },
-    blue:   { fill: "#7cc4ff", stroke: "#2f82c8" },
-    teal:   { fill: "#5fd8c4", stroke: "#1f9a86" },
-    green:  { fill: "#8fdc6a", stroke: "#4a9a2a" }
-  };
-  const DEFAULT_COLOR = "yellow";
-  let myColor = DEFAULT_COLOR;
-  function colorOf(k) { return COLORS[k] || COLORS[DEFAULT_COLOR]; }
-  try { const sc = localStorage.getItem("pp-color"); if (COLORS[sc]) myColor = sc; } catch (e) {}
-
-  // ---------- Character expressions ----------
-  const FACES = {
-    smile:  { label: ":)", mouth: '<path d="M14 31 Q26 44 38 31" fill="none" stroke="#3a1a06" stroke-width="3" stroke-linecap="round"/>' },
-    sad:    { label: ":(", mouth: '<path d="M15 39 Q26 28 37 39" fill="none" stroke="#3a1a06" stroke-width="3" stroke-linecap="round"/>' },
-    tongue: { label: ":P", mouth: '<path d="M25 34 L25 41 Q25 46.5 30.5 46.5 Q36 46.5 36 41 L36 33" fill="#ff7a9c" stroke="#3a1a06" stroke-width="2.2" stroke-linejoin="round"/><path d="M14 31 Q26 38 38 31" fill="none" stroke="#3a1a06" stroke-width="3" stroke-linecap="round"/>' },
-    grin:   { label: ":D", mouth: '<path d="M13 30 Q26 52 39 30 Z" fill="#3a1a06" stroke="#3a1a06" stroke-width="2.4" stroke-linejoin="round"/><path d="M19.5 41.5 Q26 36 32.5 41.5 Q26 45.5 19.5 41.5Z" fill="#ff7a9c"/>' }
-  };
-  const DEFAULT_FACE = "smile";
-  let myFace = DEFAULT_FACE;
-  try { const sf = localStorage.getItem("pp-face"); if (FACES[sf]) myFace = sf; } catch (e) {}
+  // ---------- Character (colors, faces, profile UI live in character.js) ----------
+  const { COLORS, FACES, DEFAULT_COLOR, DEFAULT_FACE, FACE_HURT, colorOf, faceAlive, faceDead } = Character;
 
   // ---------- Modes ----------
   const MODES = { sulka: "Sulka", social: "Social Craft" };
@@ -118,7 +94,7 @@
   // ---------- Create lobby (host) ----------
   function createLobby(attempt = 0) {
     myName = cleanName($("nameInput").value);
-    saveProfile();
+    Character.save();
     roomCode = randCode();
     isHost = true;
     const lives = DEFAULT_LIVES, secs = DEFAULT_SECS;
@@ -129,7 +105,7 @@
         phase: "lobby",
         code: roomCode, hostId: myId,
         settings: { lives, turnMs: secs * 1000, lifePts: DEFAULT_LIFE_PTS, mode: "sulka" },
-        players: [{ id: myId, name: myName, color: myColor, face: myFace, lives, alive: true, inRing: false, inMatch: false, pts: 0, segs: [], last: null }],
+        players: [{ id: myId, name: myName, color: Character.color, face: Character.face, lives, alive: true, inRing: false, inMatch: false, pts: 0, segs: [], last: null }],
         answerSeq: 0, vote: null, typing: "", announcing: false, attack: null,
         turn: null, prompt: null, sub: null, used: [], event: "", winner: null, remaining: 0
       };
@@ -162,7 +138,7 @@
     const code = $("codeInput").value.trim().toUpperCase();
     if (code.length !== 4) { toast("Enter the 4-letter lobby code"); return; }
     myName = cleanName($("nameInput").value);
-    saveProfile();
+    Character.save();
     roomCode = code;
     isHost = false;
     peer = new Peer();
@@ -180,7 +156,7 @@
     conn.on("open", () => {
       if (conn !== hostConn) return;
       migrating = false; clearTimeout(migrateTimer);
-      conn.send({ t: "join", name: myName, color: myColor, face: myFace });
+      conn.send({ t: "join", name: myName, color: Character.color, face: Character.face });
     });
     conn.on("data", msg => {
       if (conn !== hostConn) return;
@@ -638,10 +614,6 @@
   // ---------- Rendering ----------
   function hearts(n) { return n <= 0 ? "—" : n <= 5 ? "♥".repeat(n) : "♥×" + n; }
 
-  const faceAlive = (k, f) => { const c = colorOf(k), fc = FACES[f] || FACES[DEFAULT_FACE]; return '<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="2"/><circle cx="18" cy="21" r="3.2" fill="#3a1a06"/><circle cx="34" cy="21" r="3.2" fill="#3a1a06"/>' + fc.mouth + '</svg>'; };
-  const faceDead = k => { const c = colorOf(k); return '<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="2"/><path d="M14 17l8 8M22 17l-8 8M30 17l8 8M38 17l-8 8" stroke="#3a1a06" stroke-width="2.6" stroke-linecap="round"/><path d="M17 36 Q26 30 35 36" fill="none" stroke="#3a1a06" stroke-width="3" stroke-linecap="round"/></svg>'; };
-
-  const FACE_HURT = '<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="#ff8a5c" stroke="#e08a00" stroke-width="2"/><path d="M13 17l9 4-9 4M39 17l-9 4 9 4" fill="none" stroke="#3a1a06" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 38 Q21 31 26 38 Q31 31 36 38" fill="none" stroke="#3a1a06" stroke-width="2.6" stroke-linecap="round"/></svg>';
   let wheelW = 520, guardFn = null, guardT = 0, jit = { x: 0, y: 0, t: 0 };
   const attrCache = new Map();
   function setA(node, name, val) { const k = node.id + name; if (attrCache.get(k) !== val) { attrCache.set(k, val); node.setAttribute(name, val); } } // skip redundant SVG writes (each one forces a repaint)
@@ -978,29 +950,7 @@
   }
   requestAnimationFrame(frame);
 
-  // ---------- Profile (name + character) ----------
-  function saveProfile() { try { localStorage.setItem("pp-name", $("nameInput").value); localStorage.setItem("pp-color", myColor); localStorage.setItem("pp-face", myFace); } catch (e) {} }
-  function renderProfile() {
-    $("facePreview").innerHTML = faceAlive(myColor, myFace);
-    $("faceOpts").querySelectorAll(".facebtn").forEach(b => { b.setAttribute("aria-checked", b.dataset.k === myFace ? "true" : "false"); b.innerHTML = faceAlive(myColor, b.dataset.k); });
-    $("swatches").querySelectorAll(".swatch").forEach(b => b.setAttribute("aria-checked", b.dataset.k === myColor ? "true" : "false"));
-  }
-  Object.keys(COLORS).forEach(k => {
-    const b = el("button", "swatch"); b.type = "button"; b.dataset.k = k; b.title = k;
-    b.setAttribute("role", "radio"); b.setAttribute("aria-label", k);
-    b.style.background = COLORS[k].fill;
-    b.onclick = () => { myColor = k; saveProfile(); renderProfile(); };
-    $("swatches").appendChild(b);
-  });
-  Object.keys(FACES).forEach(k => {
-    const b = el("button", "facebtn"); b.type = "button"; b.dataset.k = k; b.title = FACES[k].label;
-    b.setAttribute("role", "radio"); b.setAttribute("aria-label", FACES[k].label);
-    b.onclick = () => { myFace = k; saveProfile(); renderProfile(); };
-    $("faceOpts").appendChild(b);
-  });
-  try { const sn = localStorage.getItem("pp-name"); if (sn) $("nameInput").value = sn; } catch (e) {}
-  $("nameInput").addEventListener("input", saveProfile);
-  renderProfile();
+  Character.init();
 
   // ---------- Wire up ----------
   $("createBtn").onclick = () => createLobby();

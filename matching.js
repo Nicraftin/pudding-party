@@ -51,7 +51,7 @@
     String(text).split(/\r?\n/).forEach(raw => {
       const line = raw.trim();
       if (!line || line.startsWith("//")) return;
-      if (line.startsWith("#")) { finish(); cur = { text: line.replace(/^#+\s*/, ""), sub: "", modes: ["sulka"], tiers: {} }; tier = null; return; }
+      if (line.startsWith("#")) { finish(); cur = { text: line.replace(/^#+\s*/, ""), sub: "", modes: ["sulka", "social"], tiers: {} }; tier = null; return; }
       if (!cur) return;
       const opt = line.match(/^(sub|modes?)\s*:\s*(.*)$/i);
       if (opt) { if (opt[1].toLowerCase() === "sub") cur.sub = opt[2]; else cur.modes = opt[2].split(",").map(s => s.trim().toLowerCase()).filter(Boolean); return; }
