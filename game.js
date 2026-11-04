@@ -8,7 +8,8 @@
   const PUD_MAX_R = 10; // % of wheel the pudding can drift toward the current player
   const DEFAULT_LIVES = 3, DEFAULT_SECS = 15;
   const MAX_RING = 8, MAX_PEOPLE = 16, OVER_MS = 5000, IMPACT_MS = 450, HIT_MS = 1500, EAT_MS = 2300; // HIT/EAT match the CSS animation lengths
-  const RETURN_MS = 1000, JOIN_MS = 800, SLIDE_MS = 450; // RETURN_MS: slow glide back to centre after the final chomp; JOIN_MS matches the joinIn CSS animation
+  const RETURN_MS = 1000, JOIN_MS = 500, SLIDE_MS = 450; // RETURN_MS: slow glide back to centre after the final chomp; JOIN_MS matches the joinFade CSS animation
+  const CHEW_END = 1500, CHEW_END_FINALE = 1900; // when the pudding stops chewing and starts heading back to the centre
 
   // ---------- Rarities ----------
   const RARITIES = {
@@ -435,6 +436,9 @@
   const FACE_DEAD = '<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="#ffd23f" stroke="#e08a00" stroke-width="2"/><path d="M14 17l8 8M22 17l-8 8M30 17l8 8M38 17l-8 8" stroke="#3a1a06" stroke-width="2.6" stroke-linecap="round"/><path d="M17 36 Q26 30 35 36" fill="none" stroke="#3a1a06" stroke-width="3" stroke-linecap="round"/></svg>';
 
   const FACE_HURT = '<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="#ff8a5c" stroke="#e08a00" stroke-width="2"/><path d="M13 17l9 4-9 4M39 17l-9 4 9 4" fill="none" stroke="#3a1a06" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 38 Q21 31 26 38 Q31 31 36 38" fill="none" stroke="#3a1a06" stroke-width="2.6" stroke-linecap="round"/></svg>';
+  let wheelW = 520, guardFn = null, guardT = 0, jit = { x: 0, y: 0, t: 0 };
+  const attrCache = new Map();
+  function setA(node, name, val) { const k = node.id + name; if (attrCache.get(k) !== val) { attrCache.set(k, val); node.setAttribute(name, val); } } // skip redundant SVG writes (each one forces a repaint)
   let seatOff = {}, seatPct = {}, attackLocal = null, lastAttackSeq = 0, lastWinSeq = 0;
   let ringSeen = null, seatMove = {}; // ringSeen: playerId -> when they joined the ring (null = not primed yet)
   function atkDur(at) { return at.kill ? EAT_MS + (at.finale ? RETURN_MS : 0) : HIT_MS; }
@@ -481,13 +485,6 @@
     w.classList.remove("flanflash"); void w.offsetWidth; w.classList.add("flanflash");
     setTimeout(() => w.classList.remove("flanflash"), 750);
   }
-  function joinFx(left, top) { // ripples where a new player lands in the ring
-    const w = $("wheel");
-    [.35, .5].forEach(delay => {
-      const d = el("div", "fx joinring"); d.style.left = left; d.style.top = top; d.style.animationDelay = delay + "s";
-      d.addEventListener("animationend", () => d.remove()); setTimeout(() => d.remove(), 2200); w.appendChild(d);
-    });
-  }
   function slidePos(m, now) { // where a seat currently is while sliding to its new spot
     const u = Math.min(1, (now - m.t0) / SLIDE_MS), e = 1 - Math.pow(1 - u, 3);
     return { x: m.fx + (m.tx - m.fx) * e, y: m.fy + (m.ty - m.fy) * e };
@@ -497,17 +494,18 @@
     const tx = off.x * 0.8, ty = off.y * 0.8, len = Math.hypot(tx, ty) || 1;
     const wx = at.sx - tx / len * 3, wy = at.sy - ty / len * 3;
     const L = (p, q, u) => p + (q - p) * u, out = u => 1 - Math.pow(1 - u, 3), inn = u => u * u * u;
-    let x, y, sx = 1, sy = 1, open = 0;
+    let x, y, sx = 1, sy = 1, open = 0, anger = 1;
+    const back = at.finale ? CHEW_END_FINALE : CHEW_END; // when the post-chomp glide back to the centre begins
     if (t < 250) { const u = out(t / 250); x = L(at.sx, wx, u); y = L(at.sy, wy, u); sx = 1 + .08 * u; sy = 1 - .08 * u; }
     else if (t < IMPACT_MS) { const u = inn((t - 250) / (IMPACT_MS - 250)); x = L(wx, tx, u); y = L(wy, ty, u); sx = 1.08 - .2 * u; sy = .92 + .2 * u; }
     else if (!at.kill) { const u = Math.min(1, (t - IMPACT_MS) / 650); x = L(tx, 0, out(u)); y = L(ty, 0, out(u)); const q = Math.max(0, 1 - u * 3); sx = 1 + .18 * q; sy = 1 - .18 * q; }
-    else if (t < 1900) { x = tx; y = ty; const m = .5 + .5 * Math.sin((t - IMPACT_MS) / 1450 * Math.PI * 6); open = .3 + .7 * m; sx = 1 + .1 * m; sy = 1 - .08 * m; }
-    else if (!at.finale) { const u = out((t - 1900) / (EAT_MS - 1900)); x = L(tx, 0, u); y = L(ty, 0, u); }
+    else if (t < back) { x = tx; y = ty; const m = .5 + .5 * Math.sin((t - IMPACT_MS) / 1450 * Math.PI * 6); open = .3 + .7 * m; sx = 1 + .1 * m; sy = 1 - .08 * m; }
+    else if (!at.finale) { const r = Math.min(1, (t - back) / (EAT_MS - back)), u = out(r); x = L(tx, 0, u); y = L(ty, 0, u); anger = 1 - r; }
     else { // match-ending bite: glide back to the centre slowly instead of snapping there
-      const u = Math.min(1, (t - 1900) / (EAT_MS + RETURN_MS - 1900)), e = u < .5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2, b = Math.sin(u * Math.PI);
-      x = L(tx, 0, e); y = L(ty, 0, e); sx = 1 - .05 * b; sy = 1 + .05 * b;
+      const r = Math.min(1, (t - back) / (EAT_MS + RETURN_MS - back)), e = r < .5 ? 2 * r * r : 1 - Math.pow(-2 * r + 2, 2) / 2, b = Math.sin(r * Math.PI);
+      x = L(tx, 0, e); y = L(ty, 0, e); sx = 1 - .05 * b; sy = 1 + .05 * b; anger = 1 - r;
     }
-    return { x, y, sx, sy, open };
+    return { x, y, sx, sy, open, anger };
   }
   function bubbleGuard() { // true if a pudding centred at (x,y) % would overlap a visible text bubble
     const w = $("wheel").getBoundingClientRect();
@@ -521,6 +519,7 @@
 
   function renderWheel() {
     const wheel = $("wheel");
+    wheelW = wheel.offsetWidth || wheelW;
     wheel.querySelectorAll(".seat").forEach(s => s.remove());
     const ps = state.players.filter(p => state.phase === "lobby" ? p.inRing : p.inMatch), n = ps.length;
     const myIdx = Math.max(0, ps.findIndex(p => p.id === myId));
@@ -546,8 +545,8 @@
         const tr = " " + slideMs + "ms cubic-bezier(.33,1,.68,1)";
         seat.style.transition = "left" + tr + ", top" + tr; seat.style.left = leftS; seat.style.top = topS;
       }));
-      if (inLobby) { // joining-the-ring animation
-        if (!(p.id in ringSeen)) { ringSeen[p.id] = prime ? 0 : now; if (!prime) joinFx(leftS, topS); }
+      if (inLobby) { // joining-the-ring fade-in
+        if (!(p.id in ringSeen)) ringSeen[p.id] = prime ? 0 : now;
         const jt = ringSeen[p.id];
         if (jt && now - jt < JOIN_MS) { seat.classList.add("joining"); seat.style.setProperty("--jd", "-" + (now - jt) + "ms"); }
       }
@@ -565,7 +564,7 @@
         seat.classList.add(atk.kill ? "eating" : "hurt");
         seat.style.setProperty("--ox", (cs * 22) + "px"); seat.style.setProperty("--oy", (sn * 22) + "px");
         seat.style.setProperty("--ix", (-cs * 40) + "px"); seat.style.setProperty("--iy", (-sn * 40) + "px");
-        face.style.animationDelay = "-" + (now - atk.start) + "ms"; // keep the animation in sync across re-renders
+        face.style.setProperty("--ad", "-" + (now - atk.start) + "ms"); // keep the animation in sync across re-renders
       }
       seat.appendChild(face);
       seat.appendChild(el("div", "pname", p.name));
@@ -703,8 +702,10 @@
     if (over && state.winSeq !== lastWinSeq) { lastWinSeq = state.winSeq; confetti(state.winnerId); setTimeout(() => confetti(state.winnerId), 900); }
   }
 
-  // Timer bar + pudding animation
-  setInterval(() => {
+  // Timer bar + pudding animation (runs every frame so the ram/damage motion is smooth)
+  let lastTurnLine = "";
+  function frame() {
+    requestAnimationFrame(frame); // schedule first so an error can't kill the loop
     if (!state) return;
     const inGame = state.phase === "game", inLobby = state.phase === "lobby";
     const now = Date.now(), dt = Math.min(0.2, (now - lastTick) / 1000); lastTick = now;
@@ -712,39 +713,43 @@
     const ann = !inGame || !!state.announcing;
     let frac = 0;
     if (inGame) frac = ann ? 1 : left / total;
-    else if (inLobby) { frac = localStart ? Math.max(0, localStart - now) / LOBBY_MS : 0; $("turnLine").textContent = lobbyLine(); }
+    else if (inLobby) { frac = localStart ? Math.max(0, localStart - now) / LOBBY_MS : 0; const ll = lobbyLine(); if (ll !== lastTurnLine) { lastTurnLine = ll; $("turnLine").textContent = ll; } }
     $("timerFill").style.transform = "scaleX(" + frac + ")";
     $("timer").classList.toggle("low", inGame && !ann && left < Math.min(3000, total * 0.3));
 
     // Pudding: drifts toward the current player (never into their text bubble), then rams them when time is up
     const atk = activeAtk(), pd = $("pudding");
     let a = 0, pose = null;
-    if (atk) { a = 1; pose = ramPose(atk, now); pud.x = pose.x; pud.y = pose.y; }
+    if (atk) { pose = ramPose(atk, now); a = pose.anger; pud.x = pose.x; pud.y = pose.y; }
     else {
       const pr = ann ? 0 : Math.min(1, Math.max(0, 1 - left / total));
       a = pr < 0.4 ? 0 : Math.pow((pr - 0.4) / 0.6, 1.4); // calm for the first 40% of the turn
       let tx = (look && !ann) ? look.x * PUD_MAX_R : 0, ty = (look && !ann) ? look.y * PUD_MAX_R : 0;
-      const hitFn = bubbleGuard();
+      if (!guardFn || now - guardT > 50) { guardFn = bubbleGuard(); guardT = now; } // bubbles rarely move; don't measure the DOM every frame
+      const hitFn = guardFn;
       if (tx || ty) { let sc = 1; while (sc > 0.05 && hitFn(tx * sc, ty * sc)) sc -= 0.1; sc = Math.max(0, sc); tx *= sc; ty *= sc; }
       const k = 1 - Math.exp(-dt * (hitFn(pud.x, pud.y) ? 3 : 0.15 + 0.5 * a));
       pud.x += (tx - pud.x) * k; pud.y += (ty - pud.y) * k;
     }
     const j = (!reduceMotion && !atk && a > 0.6) ? (a - 0.6) * 1.5 : 0;
+    if (now - jit.t > 50) { jit = { x: Math.random() - 0.5, y: Math.random() - 0.5, t: now }; } // shake at ~20 Hz regardless of frame rate
     pd.classList.toggle("ram", !!atk);
-    pd.style.transform = pose ? "translate(-50%,-50%) scale(" + pose.sx.toFixed(3) + "," + pose.sy.toFixed(3) + ")" : "";
-    pd.style.left = (50 + pud.x + (Math.random() - 0.5) * j) + "%";
-    pd.style.top = (50 + pud.y + (Math.random() - 0.5) * j) + "%";
-    $("pudTint").setAttribute("opacity", (a * 0.4).toFixed(3));
+    // position with transform (GPU-composited) instead of left/top (forces layout every frame)
+    const px = (pud.x + jit.x * j) / 100 * wheelW, py = (pud.y + jit.y * j) / 100 * wheelW;
+    const sx = pose ? pose.sx : 1, sy = pose ? pose.sy : 1;
+    pd.style.transform = "translate(calc(-50% + " + px.toFixed(2) + "px),calc(-50% + " + py.toFixed(2) + "px)) scale(" + sx.toFixed(3) + "," + sy.toFixed(3) + ")";
+    setA($("pudTint"), "opacity", (a * 0.4).toFixed(3));
     const bo = Math.min(1, a * 3).toFixed(2);
     const bl = $("browL"), br = $("browR");
-    bl.setAttribute("opacity", bo); br.setAttribute("opacity", bo);
+    setA(bl, "opacity", bo); setA(br, "opacity", bo);
     const yo = (68 - a * 2).toFixed(1), yi = (70 + a * 7).toFixed(1);
-    bl.setAttribute("y1", yo); bl.setAttribute("y2", yi); br.setAttribute("y1", yo); br.setAttribute("y2", yi);
+    setA(bl, "y1", yo); setA(bl, "y2", yi); setA(br, "y1", yo); setA(br, "y2", yi);
     const open = pose ? pose.open : 0;
-    $("pudMouth").setAttribute("d", open > 0.05 ? "M50 91 Q60 " + (91 + 24 * open).toFixed(1) + " 70 91 Z"
+    setA($("pudMouth"), "d", open > 0.05 ? "M50 91 Q60 " + (91 + 24 * open).toFixed(1) + " 70 91 Z"
       : state.phase === "over" ? "M54 98 Q60 92 66 98" : "M54 94 Q60 " + (99 - 17 * a).toFixed(1) + " 66 94");
-    $("pudMouth").setAttribute("fill", open > 0.05 ? "#6b2606" : "none");
-  }, 50);
+    setA($("pudMouth"), "fill", open > 0.05 ? "#6b2606" : "none");
+  }
+  requestAnimationFrame(frame);
 
   // ---------- Wire up ----------
   $("createBtn").onclick = () => createLobby();
