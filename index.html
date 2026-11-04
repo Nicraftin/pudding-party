@@ -3,21 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Puffer Party</title>
+<title>Pudding Party</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0e3b43;
-    --bg-deep: #082a31;
-    --panel: #15505a;
-    --line: #2a7683;
-    --text: #f4f7ee;
-    --muted: #9fc7c9;
-    --puff: #ffc83d;
-    --coral: #ff6f59;
-    --good: #7bdca0;
+    --bg: #5a2508;
+    --bg-deep: #331303;
+    --panel: #83390c;
+    --line: #d2681a;
+    --text: #fff4e6;
+    --muted: #f2c9a3;
+    --puff: #ffb02e;
+    --coral: #ff5a3c;
+    --good: #a6e87c;
     color-scheme: dark;
   }
   * { box-sizing: border-box; }
@@ -42,7 +42,7 @@
     margin-top: 18px;
   }
   label { display: block; font-size: .95rem; color: var(--muted); margin-bottom: 6px; }
-  input[type=text] {
+  input[type=text], input[type=number] {
     width: 100%;
     font: inherit;
     font-size: 1.15rem;
@@ -53,7 +53,7 @@
     padding: 12px 14px;
     outline: none;
   }
-  input[type=text]:focus-visible { border-color: var(--puff); }
+  input[type=text]:focus-visible, input[type=number]:focus-visible { border-color: var(--puff); }
   button {
     font: inherit;
     font-weight: 600;
@@ -63,7 +63,7 @@
     padding: 12px 20px;
     cursor: pointer;
     background: var(--puff);
-    color: #3a2a00;
+    color: #3a1a00;
   }
   button:hover { filter: brightness(1.06); }
   button:focus-visible { outline: 3px solid var(--text); outline-offset: 2px; }
@@ -124,6 +124,50 @@
   .toast.show { opacity: 1; }
   .shake { animation: shake .3s; }
   @keyframes shake { 20% { transform: translateX(-6px); } 60% { transform: translateX(6px); } }
+
+  .settings { color: var(--muted); font-size: .95rem; margin: 0; }
+  /* Wheel */
+  .wheel { position: relative; width: 100%; max-width: 520px; aspect-ratio: 1 / 1; margin: 56px auto 8px; }
+  .pudding { position: absolute; left: 50%; top: 50%; width: 26%; min-width: 96px; transform: translate(-50%, -50%); animation: wobble 2.4s ease-in-out infinite; }
+  .pudding svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .pupils { transition: transform .35s cubic-bezier(.3,1.4,.5,1); }
+  @keyframes wobble { 0%,100% { transform: translate(-50%,-50%) rotate(-2deg); } 50% { transform: translate(-50%,-50%) rotate(2deg) scale(1.03,.97); } }
+  .seat { position: absolute; transform: translate(-50%, -50%); width: 84px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .seat svg { width: 52px; height: 52px; display: block; }
+  .seat .pname { font-size: .9rem; font-weight: 600; max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .seat.me .pname::after { content: " (you)"; color: var(--muted); font-size: .8em; }
+  .seat .hearts { font-size: .8rem; letter-spacing: 1px; }
+  .seat.dead { opacity: .4; filter: grayscale(.8); }
+  .seat.turn svg { animation: hop .8s ease-in-out infinite; filter: drop-shadow(0 0 8px var(--puff)); }
+  .seat.turn .pname { color: var(--puff); }
+  @keyframes hop { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+  .bubble {
+    position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+    background: var(--text); color: #3a1a06; font-family: "DM Mono", monospace; font-weight: 500;
+    padding: 4px 10px; border-radius: 12px; white-space: nowrap; font-size: .95rem;
+    min-width: 36px; text-align: center; box-shadow: 0 2px 0 rgba(0,0,0,.25); z-index: 3;
+  }
+  .bubble::after { content: ""; position: absolute; left: 50%; top: 100%; margin-left: -6px; border: 6px solid transparent; border-top-color: var(--text); }
+  .bubble.empty { animation: blink 1s infinite; }
+  @keyframes blink { 50% { opacity: .5; } }
+  .announce {
+    position: absolute; inset: 8%; z-index: 5; border-radius: 26px;
+    background: rgba(51,19,3,.94); border: 2px solid var(--puff);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+    padding: 18px; animation: pop .35s cubic-bezier(.3,1.5,.5,1);
+  }
+  .announce .label { font-size: .95rem; letter-spacing: 3px; color: var(--puff); font-weight: 600; }
+  .announce .theme { font-size: 2rem; font-weight: 700; line-height: 1.15; margin: 6px 0; }
+  .announce .asub { color: var(--muted); margin: 0 0 14px; }
+  .announce .count { width: 60%; height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; }
+  .announce .count > div { height: 100%; background: var(--puff); border-radius: 99px; animation: drain 3s linear forwards; transform-origin: left; }
+  @keyframes drain { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+  @keyframes pop { from { transform: scale(.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  @media (max-width: 480px) {
+    .seat { width: 68px; } .seat svg { width: 40px; height: 40px; } .seat .pname { font-size: .8rem; max-width: 68px; }
+    .bubble { font-size: .8rem; padding: 3px 8px; } .announce .theme { font-size: 1.5rem; }
+  }
+  @media (prefers-reduced-motion: reduce) { .pudding, .seat.turn svg, .bubble.empty, .announce, .announce .count > div { animation: none; } .pupils { transition: none; } }
   .hidden { display: none !important; }
   .winner { text-align: center; font-size: 2rem; font-weight: 700; color: var(--puff); margin: 8px 0 16px; }
   @media (prefers-reduced-motion: reduce) { .shake { animation: none; } .toast { transition: none; } }
@@ -131,13 +175,23 @@
 </head>
 <body>
 <main>
-  <h1>Puffer Party</h1>
+  <h1>Pudding Party</h1>
 
   <!-- HOME -->
   <section id="home" class="panel stack">
     <div>
       <label for="nameInput">Your name</label>
-      <input id="nameInput" type="text" maxlength="16" autocomplete="off" placeholder="Pufferfish McGee">
+      <input id="nameInput" type="text" maxlength="16" autocomplete="off" placeholder="Pudding McGee">
+    </div>
+    <div class="row">
+      <div>
+        <label for="livesInput">Lives</label>
+        <input id="livesInput" type="number" min="1" max="10" value="3" inputmode="numeric">
+      </div>
+      <div>
+        <label for="secsInput">Seconds to answer</label>
+        <input id="secsInput" type="number" min="3" max="60" value="10" inputmode="numeric">
+      </div>
     </div>
     <div class="row">
       <button id="createBtn">Create lobby</button>
@@ -157,6 +211,7 @@
       <p style="margin-bottom:0">Lobby code (click to copy)</p>
       <div class="code" id="lobbyCode" title="Copy code"></div>
     </div>
+    <p class="settings" id="lobbySettings"></p>
     <div>
       <h2>Players</h2>
       <ul class="players" id="lobbyPlayers"></ul>
@@ -174,13 +229,31 @@
     <div class="sub" id="promptSub"></div>
     <div class="timer" id="timer"><div id="timerFill"></div></div>
     <div class="turnline" id="turnLine"></div>
+    <div class="wheel" id="wheel">
+      <div class="pudding" id="pudding">
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <ellipse cx="60" cy="102" rx="54" ry="10" fill="#ffe9c7"/>
+          <path d="M28 100 L36 52 Q60 46 84 52 L92 100 Q60 110 28 100Z" fill="#ffd98a" stroke="#e0a63c" stroke-width="2"/>
+          <path d="M33 60 C33 40 87 40 87 60 C87 66 82 66 81 60 C80 70 74 70 73 62 C70 68 64 68 63 61 C61 70 54 70 53 61 C50 67 44 67 43 60 C41 67 34 67 33 60Z" fill="#b5651d"/>
+          <circle cx="60" cy="42" r="6" fill="#e03a3a"/><circle cx="58" cy="40" r="1.8" fill="#ff9a9a"/>
+          <circle cx="47" cy="80" r="9" fill="#fff"/><circle cx="73" cy="80" r="9" fill="#fff"/>
+          <g class="pupils" id="pupils"><circle cx="47" cy="80" r="4.5" fill="#2a1204"/><circle cx="73" cy="80" r="4.5" fill="#2a1204"/></g>
+          <path d="M54 93 Q60 98 66 93" fill="none" stroke="#b5651d" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="announce hidden" id="announce">
+        <div class="label">NEW THEME</div>
+        <div class="theme" id="annTheme"></div>
+        <p class="asub" id="annSub"></p>
+        <div class="count"><div></div></div>
+      </div>
+    </div>
     <div class="row" id="answerRow">
       <input id="answerInput" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type your answer" aria-label="Your answer">
       <button id="answerBtn" style="flex:0 0 auto">Submit</button>
     </div>
     <div class="used" id="usedList"></div>
     <div class="log" id="eventLog"></div>
-    <ul class="players" id="gamePlayers" style="margin-top:16px"></ul>
   </section>
 
   <!-- GAME OVER -->
@@ -200,9 +273,9 @@
 (() => {
   "use strict";
 
-  const PREFIX = "pufferparty-";
-  const TURN_MS = 10000;
-  const START_LIVES = 3;
+  const PREFIX = "puddingparty-";
+  const ANNOUNCE_MS = 3000;
+  const DEFAULT_LIVES = 3, DEFAULT_SECS = 10;
   const MAX_PLAYERS = 8;
   const WORDS = { one:1, two:2, three:3, four:4, five:5, six:6, seven:7, eight:8, nine:9, ten:10 };
 
@@ -243,7 +316,7 @@
   let roomCode = "";
 
   // Host-only
-  let turnTimer = null;
+  let turnTimer = null, announceTimer = null;
   let promptIdx = 0;
 
   function randCode() {
@@ -253,8 +326,13 @@
   }
   function cleanName(n) { return (n || "").trim().slice(0, 16) || "Player" + Math.floor(Math.random() * 90 + 10); }
 
+  function clampInt(v, lo, hi, def) {
+    const n = parseInt(v, 10);
+    return isNaN(n) ? def : Math.min(hi, Math.max(lo, n));
+  }
+
   function teardown() {
-    clearTimeout(turnTimer);
+    clearTimeout(turnTimer); clearTimeout(announceTimer);
     try { peer && peer.destroy(); } catch (e) {}
     peer = null; hostConn = null; state = null; isHost = false; myId = null;
     Object.keys(conns).forEach(k => delete conns[k]);
@@ -266,13 +344,17 @@
     myName = cleanName($("nameInput").value);
     roomCode = randCode();
     isHost = true;
+    const lives = clampInt($("livesInput").value, 1, 10, DEFAULT_LIVES);
+    const secs = clampInt($("secsInput").value, 3, 60, DEFAULT_SECS);
     peer = new Peer(PREFIX + roomCode);
     peer.on("open", id => {
       myId = id;
       state = {
         phase: "lobby",
         code: roomCode,
-        players: [{ id: myId, name: myName, lives: START_LIVES, alive: true }],
+        settings: { lives, turnMs: secs * 1000 },
+        players: [{ id: myId, name: myName, lives, alive: true }],
+        typing: "", announcing: false,
         turn: null, prompt: null, sub: null, used: [], event: "", winner: null, remaining: 0
       };
       broadcast();
@@ -317,6 +399,8 @@
         } else if (msg.t === "msg") {
           toast(msg.text);
           if (msg.shake) shakeInput();
+        } else if (msg.t === "typing") {
+          if (state) { state.typing = msg.text; updateBubbles(); }
         }
       });
       hostConn.on("close", () => { toast("Host disconnected"); teardown(); });
@@ -335,9 +419,13 @@
       if (state.players.length >= MAX_PLAYERS) { conn.send({ t: "reject", reason: "Lobby is full" }); return; }
       if (!state.players.find(p => p.id === conn.peer)) {
         conns[conn.peer] = conn;
-        state.players.push({ id: conn.peer, name: cleanName(msg.name), lives: START_LIVES, alive: true });
+        state.players.push({ id: conn.peer, name: cleanName(msg.name), lives: state.settings.lives, alive: true });
       }
       broadcast(); render();
+    } else if (msg.t === "typing") {
+      if (state.phase !== "game" || state.announcing || state.turn !== conn.peer) return;
+      state.typing = String(msg.text || "").slice(0, 40);
+      relayTyping(conn.peer); updateBubbles();
     } else if (msg.t === "answer") {
       submitAnswer(conn.peer, String(msg.text || ""));
     }
@@ -353,8 +441,9 @@
     } else {
       p.alive = false; p.lives = 0; p.left = true;
       state.event = p.name + " left the game";
-      if (state.turn === id) { clearTimeout(turnTimer); afterElimination(); return; }
+      if (state.turn === id && !state.announcing) { clearTimeout(turnTimer); afterElimination(); return; }
       if (checkWinner()) return;
+      if (state.turn === id) state.turn = nextAlive(id);
     }
     broadcast(); render();
   }
@@ -362,8 +451,10 @@
   // ---------- Host: game logic ----------
   function startGame() {
     if (!isHost || state.players.length < 2) return;
-    state.players.forEach(p => { p.lives = START_LIVES; p.alive = true; delete p.left; });
+    clearTimeout(announceTimer);
+    state.players.forEach(p => { p.lives = state.settings.lives; p.alive = true; delete p.left; });
     state.phase = "game";
+    state.announcing = false; state.typing = "";
     state.winner = null;
     state.event = "";
     state.turn = state.players[0].id;
@@ -380,10 +471,23 @@
 
   function startTurn() {
     clearTimeout(turnTimer);
-    state.remaining = TURN_MS;
-    localDeadline = Date.now() + TURN_MS;
-    turnTimer = setTimeout(onTimeout, TURN_MS);
+    state.announcing = false; state.typing = "";
+    state.remaining = state.settings.turnMs;
+    localDeadline = Date.now() + state.settings.turnMs;
+    turnTimer = setTimeout(onTimeout, state.settings.turnMs);
     broadcast(); render();
+  }
+
+  function announceRound() {
+    clearTimeout(turnTimer); clearTimeout(announceTimer);
+    state.announcing = true; state.typing = "";
+    state.remaining = state.settings.turnMs;
+    localDeadline = Date.now() + state.settings.turnMs;
+    broadcast(); render();
+    announceTimer = setTimeout(() => {
+      if (!state || state.phase !== "game") return;
+      startTurn();
+    }, ANNOUNCE_MS);
   }
 
   function nextAlive(fromId) {
@@ -399,7 +503,8 @@
   function checkWinner() {
     const alive = state.players.filter(p => p.alive);
     if (alive.length <= 1) {
-      clearTimeout(turnTimer);
+      clearTimeout(turnTimer); clearTimeout(announceTimer);
+      state.announcing = false; state.typing = "";
       state.phase = "over";
       state.winner = alive[0] ? alive[0].name : null;
       state.turn = null;
@@ -410,7 +515,7 @@
   }
 
   function submitAnswer(id, raw) {
-    if (!state || state.phase !== "game" || state.turn !== id) return;
+    if (!state || state.phase !== "game" || state.announcing || state.turn !== id) return;
     const prompt = PROMPTS.find(p => p.text === state.prompt);
     const ans = prompt.normalize(raw);
     const player = state.players.find(p => p.id === id);
@@ -419,12 +524,14 @@
     if (state.used.includes(ans)) { tell(id, ans + " was already used", true); return; }
     state.used.push(ans);
     state.event = player.name + " said " + ans;
+    state.turn = nextAlive(id);
     if (state.used.length >= prompt.answers.length) {
       newRound();
       state.event += " — all answers used, new round!";
+      announceRound();
+    } else {
+      startTurn();
     }
-    state.turn = nextAlive(id);
-    startTurn();
   }
 
   function onTimeout() {
@@ -439,16 +546,17 @@
   function afterElimination() {
     if (checkWinner()) return;
     newRound();
-    const cur = state.players.find(x => x.id === state.turn);
-    state.turn = (cur && cur.alive) ? nextAlive(state.turn) : nextAlive(state.turn);
-    startTurn();
+    state.turn = nextAlive(state.turn);
+    announceRound();
   }
 
   function backToLobby() {
     if (!isHost) return;
     state.phase = "lobby";
     state.players = state.players.filter(p => !p.left);
-    state.players.forEach(p => { p.lives = START_LIVES; p.alive = true; });
+    clearTimeout(announceTimer);
+    state.players.forEach(p => { p.lives = state.settings.lives; p.alive = true; });
+    state.announcing = false; state.typing = "";
     state.turn = null; state.used = []; state.event = ""; state.winner = null;
     broadcast(); render();
   }
@@ -456,6 +564,19 @@
   function tell(id, text, shake) {
     if (id === myId) { toast(text); if (shake) shakeInput(); return; }
     const c = conns[id]; if (c && c.open) c.send({ t: "msg", text, shake });
+  }
+
+  function relayTyping(exceptId) {
+    const payload = { t: "typing", text: state.typing };
+    Object.keys(conns).forEach(id => { const c = conns[id]; if (id !== exceptId && c.open) c.send(payload); });
+  }
+
+  function pushTyping(text) {
+    if (!state || state.phase !== "game" || state.announcing || state.turn !== myId) return;
+    state.typing = text.slice(0, 40);
+    updateBubbles();
+    if (isHost) relayTyping(null);
+    else if (hostConn && hostConn.open) hostConn.send({ t: "typing", text: state.typing });
   }
 
   function broadcast() {
@@ -474,6 +595,7 @@
     const text = input.value;
     if (!text.trim() || !state || state.turn !== myId) return;
     input.value = "";
+    pushTyping("");
     if (isHost) submitAnswer(myId, text);
     else if (hostConn && hostConn.open) hostConn.send({ t: "answer", text });
   }
@@ -484,7 +606,52 @@
   }
 
   // ---------- Rendering ----------
-  function hearts(n) { return n > 0 ? "♥".repeat(n) : "—"; }
+  function hearts(n) { return n <= 0 ? "—" : n <= 5 ? "♥".repeat(n) : "♥×" + n; }
+
+  const FACE_ALIVE = '<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="#ffd23f" stroke="#e08a00" stroke-width="2"/><circle cx="18" cy="21" r="3.2" fill="#3a1a06"/><circle cx="34" cy="21" r="3.2" fill="#3a1a06"/><path d="M14 31 Q26 44 38 31" fill="none" stroke="#3a1a06" stroke-width="3" stroke-linecap="round"/></svg>';
+  const FACE_DEAD = '<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="#ffd23f" stroke="#e08a00" stroke-width="2"/><path d="M14 17l8 8M22 17l-8 8M30 17l8 8M38 17l-8 8" stroke="#3a1a06" stroke-width="2.6" stroke-linecap="round"/><path d="M17 36 Q26 30 35 36" fill="none" stroke="#3a1a06" stroke-width="3" stroke-linecap="round"/></svg>';
+
+  function renderWheel() {
+    const wheel = $("wheel");
+    wheel.querySelectorAll(".seat").forEach(s => s.remove());
+    const ps = state.players, n = ps.length;
+    const myIdx = Math.max(0, ps.findIndex(p => p.id === myId));
+    let lookAngle = null;
+    ps.forEach((p, i) => {
+      const a = Math.PI / 2 + 2 * Math.PI * (i - myIdx) / n; // me at the bottom
+      const R = 38;
+      const seat = el("div", "seat");
+      seat.dataset.id = p.id;
+      seat.style.left = (50 + R * Math.cos(a)) + "%";
+      seat.style.top = (50 + R * Math.sin(a)) + "%";
+      if (p.id === myId) seat.classList.add("me");
+      if (!p.alive) seat.classList.add("dead");
+      if (!state.announcing && p.id === state.turn) { seat.classList.add("turn"); lookAngle = a; }
+      seat.appendChild(el("div", "bubble hidden"));
+      const face = el("div"); face.innerHTML = p.alive ? FACE_ALIVE : FACE_DEAD;
+      seat.appendChild(face);
+      seat.appendChild(el("div", "pname", p.name));
+      seat.appendChild(el("div", "hearts", hearts(p.lives)));
+      wheel.appendChild(seat);
+    });
+    const dx = lookAngle == null ? 0 : Math.cos(lookAngle) * 4;
+    const dy = lookAngle == null ? 0 : Math.sin(lookAngle) * 4;
+    $("pupils").style.transform = "translate(" + dx.toFixed(2) + "px," + dy.toFixed(2) + "px)";
+    updateBubbles();
+  }
+
+  function updateBubbles() {
+    if (!state) return;
+    $("wheel").querySelectorAll(".seat").forEach(s => {
+      const b = s.querySelector(".bubble");
+      const active = state.phase === "game" && !state.announcing && s.dataset.id === state.turn;
+      b.classList.toggle("hidden", !active);
+      if (!active) return;
+      const t = state.typing || "";
+      b.textContent = t ? (t.length > 14 ? "…" + t.slice(-13) : t) : "…";
+      b.classList.toggle("empty", !t);
+    });
+  }
 
   function fillPlayers(ul, opts = {}) {
     ul.textContent = "";
@@ -507,6 +674,8 @@
       show("lobby");
       $("lobbyCode").textContent = state.code;
       fillPlayers($("lobbyPlayers"));
+      const L = state.settings.lives;
+      $("lobbySettings").textContent = L + (L === 1 ? " life" : " lives") + " · " + (state.settings.turnMs / 1000) + "s to answer";
       $("startBtn").classList.toggle("hidden", !isHost);
       $("startBtn").disabled = state.players.length < 2;
       $("lobbyHint").textContent = isHost
@@ -516,15 +685,20 @@
       show("game");
       $("promptText").textContent = state.prompt;
       $("promptSub").textContent = state.sub;
-      const mine = state.turn === myId;
+      const ann = !!state.announcing;
+      const mine = state.turn === myId && !ann;
       const cur = state.players.find(p => p.id === state.turn);
-      $("turnLine").textContent = mine ? "Your turn!" : (cur ? cur.name + "'s turn" : "");
+      $("turnLine").textContent = ann ? "Get ready…" : mine ? "Your turn!" : (cur ? cur.name + "'s turn" : "");
       $("answerRow").classList.toggle("hidden", !mine);
-      if (mine) $("answerInput").focus({ preventScroll: true });
+      $("announce").classList.toggle("hidden", !ann);
+      $("annTheme").textContent = state.prompt || "";
+      $("annSub").textContent = state.sub || "";
+      if (mine) { if (document.activeElement !== $("answerInput")) $("answerInput").focus({ preventScroll: true }); }
+      else $("answerInput").value = "";
       const used = $("usedList"); used.textContent = "";
       state.used.forEach(u => used.appendChild(el("span", null, u)));
       $("eventLog").textContent = state.event || "";
-      fillPlayers($("gamePlayers"), { lives: true });
+      renderWheel();
     } else if (state.phase === "over") {
       show("over");
       $("winnerText").textContent = state.winner ? state.winner + " wins!" : "Nobody wins!";
@@ -537,9 +711,10 @@
   setInterval(() => {
     if (!state || state.phase !== "game") return;
     const left = Math.max(0, localDeadline - Date.now());
-    const frac = left / TURN_MS;
-    $("timerFill").style.transform = "scaleX(" + frac + ")";
-    $("timer").classList.toggle("low", left < 3000);
+    const total = state.settings.turnMs;
+    const ann = !!state.announcing;
+    $("timerFill").style.transform = "scaleX(" + (ann ? 1 : left / total) + ")";
+    $("timer").classList.toggle("low", !ann && left < Math.min(3000, total * 0.3));
   }, 50);
 
   // ---------- Wire up ----------
@@ -552,6 +727,7 @@
   $("leaveBtn").onclick = teardown;
   $("leaveBtn2").onclick = teardown;
   $("answerBtn").onclick = sendAnswer;
+  $("answerInput").addEventListener("input", e => pushTyping(e.target.value));
   $("answerInput").addEventListener("keydown", e => { if (e.key === "Enter") sendAnswer(); });
   $("lobbyCode").onclick = () => {
     if (navigator.clipboard) navigator.clipboard.writeText(roomCode).then(() => toast("Code copied")).catch(() => {});
