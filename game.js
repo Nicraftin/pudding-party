@@ -44,6 +44,17 @@
   function colorOf(k) { return COLORS[k] || COLORS[DEFAULT_COLOR]; }
   try { const sc = localStorage.getItem("pp-color"); if (COLORS[sc]) myColor = sc; } catch (e) {}
 
+  // ---------- Character expressions ----------
+  const FACES = {
+    smile:  { label: ":)", mouth: '<path d="M14 31 Q26 44 38 31" fill="none" stroke="#3a1a06" stroke-width="3" stroke-linecap="round"/>' },
+    sad:    { label: ":(", mouth: '<path d="M15 39 Q26 28 37 39" fill="none" stroke="#3a1a06" stroke-width="3" stroke-linecap="round"/>' },
+    tongue: { label: ":P", mouth: '<path d="M25 34 L25 41 Q25 46.5 30.5 46.5 Q36 46.5 36 41 L36 33" fill="#ff7a9c" stroke="#3a1a06" stroke-width="2.2" stroke-linejoin="round"/><path d="M14 31 Q26 38 38 31" fill="none" stroke="#3a1a06" stroke-width="3" stroke-linecap="round"/>' },
+    grin:   { label: ":D", mouth: '<path d="M13 30 Q26 52 39 30 Z" fill="#3a1a06" stroke="#3a1a06" stroke-width="2.4" stroke-linejoin="round"/><path d="M19.5 41.5 Q26 36 32.5 41.5 Q26 45.5 19.5 41.5Z" fill="#ff7a9c"/>' }
+  };
+  const DEFAULT_FACE = "smile";
+  let myFace = DEFAULT_FACE;
+  try { const sf = localStorage.getItem("pp-face"); if (FACES[sf]) myFace = sf; } catch (e) {}
+
   // ---------- Modes ----------
   const MODES = { sulka: "Sulka", social: "Social Craft" };
 
@@ -75,6 +86,7 @@
 
   // Host-only
   let voteTimer = null, turnTimer = null, announceTimer = null, lobbyTimer = null, attackTimer = null, overTimer = null;
+  let migrateTimer = null, graceTimer = null, migrating = false, claimPending = false;
   let localStart = 0;            // when the lobby countdown ends (0 = not counting)
   let seenAnswer = {};            // playerId -> id of the last answer we already showed a particle for
 
@@ -97,6 +109,7 @@
     peer = null; hostConn = null; state = null; isHost = false; myId = null; seenAnswer = {}; ringSeen = null; seatMove = {};
     document.querySelectorAll(".particle").forEach(p => p.remove());
     Object.keys(conns).forEach(k => delete conns[k]);
+    clearTimeout(migrateTimer); clearTimeout(graceTimer); migrating = false; claimPending = false;
     clearTimeout(attackTimer); clearTimeout(overTimer); clearTimeout(voteTimer); attackLocal = null; lastAttackSeq = 0; lastWinSeq = 0;
     document.querySelectorAll(".dmg,.confetti,.fx").forEach(p => p.remove());
     show("home");
@@ -114,20 +127,16 @@
       myId = id;
       state = {
         phase: "lobby",
-        code: roomCode,
+        code: roomCode, hostId: myId,
         settings: { lives, turnMs: secs * 1000, lifePts: DEFAULT_LIFE_PTS, mode: "sulka" },
-        players: [{ id: myId, name: myName, color: myColor, lives, alive: true, inRing: false, inMatch: false, pts: 0, segs: [], last: null }],
+        players: [{ id: myId, name: myName, color: myColor, face: myFace, lives, alive: true, inRing: false, inMatch: false, pts: 0, segs: [], last: null }],
         answerSeq: 0, vote: null, typing: "", announcing: false, attack: null,
         turn: null, prompt: null, sub: null, used: [], event: "", winner: null, remaining: 0
       };
       broadcast();
       render();
     });
-    peer.on("connection", conn => {
-      conn.on("data", msg => onHostMessage(conn, msg));
-      conn.on("close", () => onGuestLeft(conn.peer));
-      conn.on("error", () => onGuestLeft(conn.peer));
-    });
+    attachHostHandlers(peer);
     peer.on("error", err => {
       if (err.type === "unavailable-id" && attempt < 5) {
         try { peer.destroy(); } catch (e) {}
@@ -136,6 +145,15 @@
         toast("Connection problem: " + err.type);
         teardown();
       }
+    });
+  }
+
+  function attachHostHandlers(p) {
+    p.on("connection", conn => {
+      const gone = () => { if (conns[conn.peer] === conn) onGuestLeft(conn.peer); }; // ignore stale connections replaced by a reconnect
+      conn.on("data", msg => onHostMessage(conn, msg));
+      conn.on("close", gone);
+      conn.on("error", gone);
     });
   }
 
@@ -148,42 +166,137 @@
     roomCode = code;
     isHost = false;
     peer = new Peer();
-    peer.on("open", id => {
-      myId = id;
-      hostConn = peer.connect(PREFIX + code, { reliable: true });
-      hostConn.on("open", () => hostConn.send({ t: "join", name: myName, color: myColor }));
-      hostConn.on("data", msg => {
-        if (msg.t === "state") {
-          state = msg.state;
-          localDeadline = Date.now() + state.remaining;
-          localStart = state.startIn != null ? Date.now() + state.startIn : 0;
-          render();
-        } else if (msg.t === "reject") {
-          toast(msg.reason);
-          teardown();
-        } else if (msg.t === "msg") {
-          toast(msg.text);
-          if (msg.shake) shakeInput();
-        } else if (msg.t === "typing") {
-          if (state) { state.typing = msg.text; updateBubbles(); }
-        }
-      });
-      hostConn.on("close", () => { toast("Host disconnected"); teardown(); });
-      hostConn.on("error", () => { toast("Lost connection to host"); teardown(); });
-    });
+    peer.on("open", id => { myId = id; if (!hostConn) connectToHost(); });
     peer.on("error", err => {
+      if (migrating) return; // the migration loop keeps retrying
       toast(err.type === "peer-unavailable" ? "No lobby with that code" : "Connection problem: " + err.type);
       teardown();
     });
   }
 
+  function connectToHost() {
+    const conn = peer.connect(PREFIX + roomCode, { reliable: true });
+    hostConn = conn;
+    conn.on("open", () => {
+      if (conn !== hostConn) return;
+      migrating = false; clearTimeout(migrateTimer);
+      conn.send({ t: "join", name: myName, color: myColor, face: myFace });
+    });
+    conn.on("data", msg => {
+      if (conn !== hostConn) return;
+      if (msg.t === "state") {
+        state = msg.state;
+        if (state.remap) applyRemap(state.remap.from, state.remap.to);
+        localDeadline = Date.now() + state.remaining;
+        localStart = state.startIn != null ? Date.now() + state.startIn : 0;
+        render();
+      } else if (msg.t === "reject") {
+        toast(msg.reason);
+        teardown();
+      } else if (msg.t === "msg") {
+        toast(msg.text);
+        if (msg.shake) shakeInput();
+      } else if (msg.t === "typing") {
+        if (state) { state.typing = msg.text; updateBubbles(); }
+      }
+    });
+    conn.on("close", () => { if (conn === hostConn) onHostLost(); });
+    conn.on("error", () => { if (conn === hostConn) onHostLost(); });
+  }
+
+  // ---------- Host migration ----------
+  function applyRemap(from, to) { // a player's id changed (the new host took over the room's peer id): keep their local animation state
+    [seenAnswer, ringSeen, seatMove].forEach(o => { if (o && from in o && !(to in o)) { o[to] = o[from]; delete o[from]; } });
+  }
+
+  function onHostLost() {
+    if (migrating) return;
+    const oldHost = state && state.hostId;
+    const cands = state ? state.players.filter(p => p.id !== oldHost && !p.left) : [];
+    const idx = cands.findIndex(p => p.id === myId);
+    if (!peer || isHost || idx < 0) { toast("Host disconnected"); teardown(); return; }
+    migrating = true; claimPending = false;
+    toast("The host left — passing the host role on…");
+    const t0 = Date.now();
+    let joinAt = 0;
+    const step = () => {
+      if (!migrating || !peer || isHost) return;
+      const elapsed = Date.now() - t0;
+      if (elapsed > 30000) { toast("Couldn't find a new host"); teardown(); return; }
+      if (elapsed >= idx * 3500 && !claimPending) claimHost(oldHost);
+      else if (!(hostConn && hostConn.open) && (!hostConn || Date.now() - joinAt > 3000)) {
+        const old = hostConn; hostConn = null;
+        try { old && old.close(); } catch (e) {}
+        joinAt = Date.now();
+        connectToHost();
+      }
+      migrateTimer = setTimeout(step, 1000);
+    };
+    step();
+  }
+
+  function claimHost(oldHost) { // first remaining player grabs the room code's peer id and becomes the host
+    claimPending = true;
+    const np = new Peer(PREFIX + roomCode);
+    let claimed = false;
+    np.on("open", id => {
+      if (!migrating || !peer) { try { np.destroy(); } catch (e) {} return; }
+      claimed = true;
+      const oldPeer = peer, oldId = myId;
+      clearTimeout(migrateTimer); migrating = false; claimPending = false;
+      hostConn = null; peer = np; myId = id; isHost = true;
+      try { oldPeer.destroy(); } catch (e) {}
+      attachHostHandlers(np);
+      takeOver(oldId, oldHost);
+    });
+    np.on("error", err => {
+      if (!claimed) { claimPending = false; try { np.destroy(); } catch (e) {} return; } // someone else got there first (or the old id isn't released yet): the loop retries
+      toast("Connection problem: " + err.type); teardown();
+    });
+  }
+
+  function takeOver(oldId, oldHost) {
+    state = JSON.parse(JSON.stringify(state).split('"' + oldId + '"').join('"' + myId + '"')); // my player id is now the room's peer id
+    if (oldHost === oldId) oldHost = myId;
+    applyRemap(oldId, myId);
+    state.hostId = myId; state.remap = { from: oldId, to: myId };
+    state.typing = "";
+    // restart the timers the old host was running
+    if (state.phase === "lobby") { localStart = 0; checkLobbyStart(); }
+    else if (state.phase === "game") {
+      if (state.vote) { state.vote = null; state.event = "Vote cancelled"; }
+      const at = state.attack;
+      if (at) {
+        const p = state.players.find(x => x.id === at.id);
+        if (p && p.alive && state.event === p.name + " ran out of time!") { // the bite hadn't landed yet
+          p.lives = Math.max(0, p.lives - 1);
+          if (at.kill) { p.alive = false; p.inRing = false; p.eaten = true; state.event = "The pudding ate " + p.name + "!"; }
+          else state.event = p.name + " lost a life";
+        }
+        state.attack = null;
+        afterElimination();
+      } else if (state.announcing) announceRound();
+      else turnTimer = setTimeout(onTimeout, Math.max(300, localDeadline - Date.now()));
+    } else if (state.phase === "over") overTimer = setTimeout(backToLobby, 3000);
+    toast("You're the host now");
+    if (oldHost) onGuestLeft(oldHost);
+    // anyone who never reconnects is treated as having left
+    clearTimeout(graceTimer);
+    graceTimer = setTimeout(() => {
+      if (!isHost || !state) return;
+      state.players.filter(p => p.id !== myId && !(conns[p.id] && conns[p.id].open)).map(p => p.id).forEach(onGuestLeft);
+    }, 15000);
+    broadcast(); render();
+  }
+
   // ---------- Host: message handling ----------
   function onHostMessage(conn, msg) {
     if (msg.t === "join") {
-      if (state.players.length >= MAX_PEOPLE) { conn.send({ t: "reject", reason: "Lobby is full" }); return; }
-      if (!state.players.find(p => p.id === conn.peer)) {
-        conns[conn.peer] = conn;
-        state.players.push({ id: conn.peer, name: cleanName(msg.name), color: COLORS[msg.color] ? msg.color : DEFAULT_COLOR, lives: state.settings.lives, alive: true, inRing: false, inMatch: false, pts: 0, segs: [], last: null });
+      const known = state.players.find(p => p.id === conn.peer);
+      if (!known && state.players.length >= MAX_PEOPLE) { conn.send({ t: "reject", reason: "Lobby is full" }); return; }
+      conns[conn.peer] = conn;
+      if (!known) {
+        state.players.push({ id: conn.peer, name: cleanName(msg.name), color: COLORS[msg.color] ? msg.color : DEFAULT_COLOR, face: FACES[msg.face] ? msg.face : DEFAULT_FACE, lives: state.settings.lives, alive: true, inRing: false, inMatch: false, pts: 0, segs: [], last: null });
       }
       checkLobbyStart();
       broadcast(); render();
@@ -525,7 +638,7 @@
   // ---------- Rendering ----------
   function hearts(n) { return n <= 0 ? "—" : n <= 5 ? "♥".repeat(n) : "♥×" + n; }
 
-  const faceAlive = k => { const c = colorOf(k); return '<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="2"/><circle cx="18" cy="21" r="3.2" fill="#3a1a06"/><circle cx="34" cy="21" r="3.2" fill="#3a1a06"/><path d="M14 31 Q26 44 38 31" fill="none" stroke="#3a1a06" stroke-width="3" stroke-linecap="round"/></svg>'; };
+  const faceAlive = (k, f) => { const c = colorOf(k), fc = FACES[f] || FACES[DEFAULT_FACE]; return '<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="2"/><circle cx="18" cy="21" r="3.2" fill="#3a1a06"/><circle cx="34" cy="21" r="3.2" fill="#3a1a06"/>' + fc.mouth + '</svg>'; };
   const faceDead = k => { const c = colorOf(k); return '<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="2"/><path d="M14 17l8 8M22 17l-8 8M30 17l8 8M38 17l-8 8" stroke="#3a1a06" stroke-width="2.6" stroke-linecap="round"/><path d="M17 36 Q26 30 35 36" fill="none" stroke="#3a1a06" stroke-width="3" stroke-linecap="round"/></svg>'; };
 
   const FACE_HURT = '<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="#ff8a5c" stroke="#e08a00" stroke-width="2"/><path d="M13 17l9 4-9 4M39 17l-9 4 9 4" fill="none" stroke="#3a1a06" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 38 Q21 31 26 38 Q31 31 36 38" fill="none" stroke="#3a1a06" stroke-width="2.6" stroke-linecap="round"/></svg>';
@@ -652,7 +765,7 @@
       if (!state.announcing && p.id === state.turn) { seat.classList.add("turn"); lookAngle = a; }
       seat.appendChild(el("div", "bubble hidden"));
       const face = el("div", "face");
-      face.innerHTML = hit && now - atk.start > 200 ? FACE_HURT : p.alive ? faceAlive(p.color) : faceDead(p.color);
+      face.innerHTML = hit && now - atk.start > 200 ? FACE_HURT : p.alive ? faceAlive(p.color, p.face) : faceDead(p.color);
       if (hit) {
         seat.classList.add(atk.kill ? "eating" : "hurt");
         seat.style.setProperty("--ox", (cs * 22) + "px"); seat.style.setProperty("--oy", (sn * 22) + "px");
@@ -735,7 +848,7 @@
       if (live && p.inMatch && !p.alive) li.classList.add("dead");
       li.appendChild(el("span", "name", p.name));
       const meta = el("span", "meta");
-      if (i === 0) meta.appendChild(el("span", "tag", "host"));
+      if (p.id === state.hostId) meta.appendChild(el("span", "tag", "host"));
       if (live && p.inMatch && p.alive) meta.appendChild(el("span", "hearts", hearts(p.lives)));
       else if (!live && p.inRing) meta.appendChild(el("span", "tag on", "in ring"));
       else meta.appendChild(el("span", "tag", live && p.inMatch ? (p.eaten ? "eaten" : "out") : "spectating"));
@@ -813,7 +926,7 @@
   }
 
   // Timer bar + pudding animation (runs every frame so the ram/damage motion is smooth)
-  let lastTurnLine = "";
+  let lastTurnLine = "", postAtk = false; // postAtk: an attack just finished, so stay calm until the next round is announced
   function frame() {
     requestAnimationFrame(frame); // schedule first so an error can't kill the loop
     if (!state) return;
@@ -830,9 +943,11 @@
     // Pudding: drifts toward the current player (never into their text bubble), then rams them when time is up
     const atk = activeAtk(), pd = $("pudding");
     let a = 0, pose = null;
-    if (atk) { pose = ramPose(atk, now); a = pose.anger; pud.x = pose.x; pud.y = pose.y; }
+    if (atk) { postAtk = true; pose = ramPose(atk, now); a = pose.anger; pud.x = pose.x; pud.y = pose.y; }
     else {
-      const pr = ann ? 0 : Math.min(1, Math.max(0, 1 - left / total));
+      if (postAtk && (ann || !inGame)) postAtk = false;
+      const calm = ann || postAtk || !inGame; // no build-up anger after an attack, between rounds, or once the match is over
+      const pr = calm ? 0 : Math.min(1, Math.max(0, 1 - left / total));
       a = pr < 0.4 ? 0 : Math.pow((pr - 0.4) / 0.6, 1.4); // calm for the first 40% of the turn
       let tx = (look && !ann) ? look.x * PUD_MAX_R : 0, ty = (look && !ann) ? look.y * PUD_MAX_R : 0;
       if (!guardFn || now - guardT > 50) { guardFn = bubbleGuard(); guardT = now; } // bubbles rarely move; don't measure the DOM every frame
@@ -864,9 +979,10 @@
   requestAnimationFrame(frame);
 
   // ---------- Profile (name + character) ----------
-  function saveProfile() { try { localStorage.setItem("pp-name", $("nameInput").value); localStorage.setItem("pp-color", myColor); } catch (e) {} }
+  function saveProfile() { try { localStorage.setItem("pp-name", $("nameInput").value); localStorage.setItem("pp-color", myColor); localStorage.setItem("pp-face", myFace); } catch (e) {} }
   function renderProfile() {
-    $("facePreview").innerHTML = faceAlive(myColor);
+    $("facePreview").innerHTML = faceAlive(myColor, myFace);
+    $("faceOpts").querySelectorAll(".facebtn").forEach(b => { b.setAttribute("aria-checked", b.dataset.k === myFace ? "true" : "false"); b.innerHTML = faceAlive(myColor, b.dataset.k); });
     $("swatches").querySelectorAll(".swatch").forEach(b => b.setAttribute("aria-checked", b.dataset.k === myColor ? "true" : "false"));
   }
   Object.keys(COLORS).forEach(k => {
@@ -875,6 +991,12 @@
     b.style.background = COLORS[k].fill;
     b.onclick = () => { myColor = k; saveProfile(); renderProfile(); };
     $("swatches").appendChild(b);
+  });
+  Object.keys(FACES).forEach(k => {
+    const b = el("button", "facebtn"); b.type = "button"; b.dataset.k = k; b.title = FACES[k].label;
+    b.setAttribute("role", "radio"); b.setAttribute("aria-label", FACES[k].label);
+    b.onclick = () => { myFace = k; saveProfile(); renderProfile(); };
+    $("faceOpts").appendChild(b);
   });
   try { const sn = localStorage.getItem("pp-name"); if (sn) $("nameInput").value = sn; } catch (e) {}
   $("nameInput").addEventListener("input", saveProfile);

@@ -264,3 +264,6 @@ input:disabled, select:disabled { opacity: .6; cursor: not-allowed; }
 .votetext { font-weight: 600; }
 .voteCard select { margin-top: 2px; }
 .voteCard button { padding: 10px 14px; }
+.facebtn { width: 48px; height: 48px; min-width: 0; padding: 3px; border-radius: 50%; border: 3px solid var(--line); background: transparent; box-shadow: none; }
+.facebtn svg { width: 100%; height: 100%; display: block; }
+.facebtn[aria-checked="true"] { border-color: var(--text); transform: scale(1.12); }
