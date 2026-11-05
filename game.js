@@ -29,7 +29,7 @@
   };
 
   // ---------- Character (colors, faces, profile UI live in character.js) ----------
-  const { COLORS, FACES, DEFAULT_COLOR, DEFAULT_FACE, FACE_HURT, colorOf, faceAlive, faceDead } = Character;
+  const { COLORS, FACES, ACCESSORIES, DEFAULT_COLOR, DEFAULT_FACE, DEFAULT_ACCESSORY, colorOf, faceAlive, faceDead, faceHurt } = Character;
 
   // ---------- Modes ----------
   const MODES = { sulka: "Sulka", social: "Social Craft" };
@@ -105,7 +105,7 @@
         phase: "lobby",
         code: roomCode, hostId: myId,
         settings: { lives, turnMs: secs * 1000, lifePts: DEFAULT_LIFE_PTS, mode: "sulka" },
-        players: [{ id: myId, name: myName, color: Character.color, face: Character.face, lives, alive: true, inRing: false, inMatch: false, pts: 0, segs: [], last: null }],
+        players: [{ id: myId, name: myName, color: Character.color, face: Character.face, accessory: Character.accessory, lives, alive: true, inRing: false, inMatch: false, pts: 0, segs: [], last: null }],
         answerSeq: 0, vote: null, typing: "", announcing: false, attack: null,
         turn: null, prompt: null, sub: null, used: [], event: "", winner: null, remaining: 0
       };
@@ -156,7 +156,7 @@
     conn.on("open", () => {
       if (conn !== hostConn) return;
       migrating = false; clearTimeout(migrateTimer);
-      conn.send({ t: "join", name: myName, color: Character.color, face: Character.face });
+      conn.send({ t: "join", name: myName, color: Character.color, face: Character.face, accessory: Character.accessory });
     });
     conn.on("data", msg => {
       if (conn !== hostConn) return;
@@ -272,7 +272,7 @@
       if (!known && state.players.length >= MAX_PEOPLE) { conn.send({ t: "reject", reason: "Lobby is full" }); return; }
       conns[conn.peer] = conn;
       if (!known) {
-        state.players.push({ id: conn.peer, name: cleanName(msg.name), color: COLORS[msg.color] ? msg.color : DEFAULT_COLOR, face: FACES[msg.face] ? msg.face : DEFAULT_FACE, lives: state.settings.lives, alive: true, inRing: false, inMatch: false, pts: 0, segs: [], last: null });
+        state.players.push({ id: conn.peer, name: cleanName(msg.name), color: COLORS[msg.color] ? msg.color : DEFAULT_COLOR, face: FACES[msg.face] ? msg.face : DEFAULT_FACE, accessory: ACCESSORIES[msg.accessory] ? msg.accessory : DEFAULT_ACCESSORY, lives: state.settings.lives, alive: true, inRing: false, inMatch: false, pts: 0, segs: [], last: null });
       }
       checkLobbyStart();
       broadcast(); render();
@@ -737,7 +737,7 @@
       if (!state.announcing && p.id === state.turn) { seat.classList.add("turn"); lookAngle = a; }
       seat.appendChild(el("div", "bubble hidden"));
       const face = el("div", "face");
-      face.innerHTML = hit && now - atk.start > 200 ? FACE_HURT : p.alive ? faceAlive(p.color, p.face) : faceDead(p.color);
+      face.innerHTML = hit && now - atk.start > 200 ? faceHurt(p.accessory) : p.alive ? faceAlive(p.color, p.face, p.accessory) : faceDead(p.color, p.accessory);
       if (hit) {
         seat.classList.add(atk.kill ? "eating" : "hurt");
         seat.style.setProperty("--ox", (cs * 22) + "px"); seat.style.setProperty("--oy", (sn * 22) + "px");
