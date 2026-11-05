@@ -60,6 +60,7 @@ const Character = (() => {
   Object.keys(COLORS).forEach(k => { if (!COLORS[k].skin) ACC_COLORS[k] = COLORS[k]; });
   ACC_COLORS.white = { fill: "#ffffff", stroke: "#a39dae" };
   ACC_COLORS.gray  = { fill: "#9ba1ab", stroke: "#585e68" };
+  ACC_COLORS.brown = { fill: "#8a5a34", stroke: "#4e2f16" };
   ACC_COLORS.black = { fill: "#2b2630", stroke: "#0f0c13" };
   const has = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
 
@@ -71,6 +72,7 @@ const Character = (() => {
     // The tongue's bottom edge is the mouth curve nudged up past the outline, so it never pokes out.
     grin:   { label: ":D", mouth: '<path d="M13 30 Q26 52 39 30 Z" fill="#3a1a06" stroke="#3a1a06" stroke-width="2.4" stroke-linejoin="round"/><path d="M20.5 37.5 Q26 41.5 31.5 37.5 Q26 31.5 20.5 37.5Z" fill="#ff7a9c"/>' }
   };
+  FACES.owo = { label: "OwO", mouth: '<circle cx="17.2" cy="19.6" r="1.2" fill="#fff"/><circle cx="33.2" cy="19.6" r="1.2" fill="#fff"/><path d="M17 33 Q21.5 40 26 33 Q30.5 40 35 33" fill="none" stroke="#3a1a06" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>' };
   const DEFAULT_FACE = "smile";
 
   // ---------- Character accessories (drawn on top of the face) ----------
@@ -85,6 +87,17 @@ const Character = (() => {
         '<g fill="#cfeaff" fill-opacity=".1" stroke="' + c.fill + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">' + rims + '<g fill="none">' + rest + '</g></g>' +
         '<path d="M13.5 17.5 Q15 16 16.8 15.8M29.5 17.5 Q31 16 32.8 15.8" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="1.4" stroke-linecap="round"/>';
     } },
+    partyhat: { label: "Party hat", color: "pink", svg: c => {
+      return '<path d="M26 -14 L37 6 Q26 10 15 6 Z" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="1.4" stroke-linejoin="round"/>' +
+        '<path d="M22 -3 L31 -5 M19.5 2 L34 -0.5" stroke="#fff" stroke-opacity=".75" stroke-width="2" stroke-linecap="round" fill="none"/>' +
+        '<circle cx="26" cy="-15" r="3.2" fill="#fff" stroke="' + c.stroke + '" stroke-width="1.2"/>';
+    } },
+    ponytails: { label: "Twin ponytails", color: "brown", svg: c => {
+      const tail = (x, d) => '<path d="M' + x + ' 6 C' + (x + d * 9) + ' 6 ' + (x + d * 13) + ' 16 ' + (x + d * 10) + ' 30 C' + (x + d * 7) + ' 26 ' + (x + d * 3) + ' 18 ' + x + ' 10Z" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="1.4" stroke-linejoin="round"/>';
+      const tie = (x, d) => '<rect x="' + (x - 3) + '" y="4" width="6" height="6" rx="2.5" fill="#ff6b9a" stroke="#c22b5f" stroke-width="1" transform="rotate(' + (d * 20) + ' ' + x + ' 7)"/>';
+      return tail(9, -1) + tail(43, 1) + tie(9, -1) + tie(43, 1) +
+        '<path d="M6 17 Q10 -4 26 -2 Q42 -4 46 17 Q40 5 26 5 Q12 5 6 17Z" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="1.4" stroke-linejoin="round"/>';
+    } },
     banana:  { label: "Banana peel", color: "yellow", svg: c => {
       // A peel resting on top of the head: two broad flaps draped over the sides, one curling up in the middle, brown stem cap on top.
       return '<path d="M26 5 C15.6 -4.8 7.4 1.3 4 12 C10.3 9.1 20.2 9.5 26 5Z" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="1.4" stroke-linejoin="round"/><path d="M22 1.6 Q12.2 3.6 5.9 7.4" fill="none" stroke="' + c.stroke + '" stroke-opacity=".5" stroke-width=".9" stroke-linecap="round"/>' +
@@ -92,8 +105,7 @@ const Character = (() => {
         '<path d="M26 5 C31.8 9.5 42.1 9.2 48 12 C44.2 1.2 36.4 -4.8 26 5Z" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="1.4" stroke-linejoin="round"/><path d="M30 1.6 Q39.8 3.6 46.1 7.4" fill="none" stroke="' + c.stroke + '" stroke-opacity=".5" stroke-width=".9" stroke-linecap="round"/>' +
         '<circle cx="48" cy="12" r="1.5" fill="#7a5320"/>' +
         '<path d="M26 5 C37 0.8 33.9 -5.1 26 -9 C26.1 -4.8 23 0.8 26 5Z" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="1.4" stroke-linejoin="round"/><path d="M29.6 3.3 Q30.4 -2.7 29 -7" fill="none" stroke="' + c.stroke + '" stroke-opacity=".5" stroke-width=".9" stroke-linecap="round"/>' +
-        '<circle cx="26" cy="-9" r="1.5" fill="#7a5320"/>' +
-        '<rect x="22.5" y="1" width="7" height="5.5" rx="2.2" fill="#7a5320"/>';
+        '<circle cx="26" cy="-9" r="1.5" fill="#7a5320"/>';
     } }
   };
   const DEFAULT_ACCESSORY = "none";
@@ -178,7 +190,7 @@ const Character = (() => {
       const b = el("button", "facebtn"); b.type = "button"; b.dataset.k = k; b.title = ACCESSORIES[k].label;
       b.setAttribute("role", "radio"); b.setAttribute("aria-label", ACCESSORIES[k].label);
       b.onclick = () => { myAcc = k; saveProfile(); renderProfile(); };
-      wrap.appendChild(b); wrap.appendChild(el("span", "acclabel", ACCESSORIES[k].label));
+      wrap.appendChild(b);
       $("accOpts").appendChild(wrap);
     });
     const tabs = Array.from(document.querySelectorAll("#profileTabs [role=tab]"));

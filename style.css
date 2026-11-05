@@ -282,7 +282,7 @@ input:disabled, select:disabled { opacity: .6; cursor: not-allowed; }
 .accopt { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .acclabel { font-size: .8rem; color: var(--muted); }
 
-/* small phones: keep all 11 colors on one row but make them as big as possible */
+/* small phones: keep all colors on one row but make them as big as possible */
 @media (max-width: 480px) {
   #profile { padding-left: 16px; padding-right: 16px; }
   .swatchrow { gap: 3px; }
