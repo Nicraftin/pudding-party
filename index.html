@@ -26,18 +26,16 @@
       </div>
       <div>
         <div class="tabs" id="profileTabs" role="tablist" aria-label="Customize your character">
-          <button type="button" class="tab" role="tab" id="tabColor" aria-controls="panelColor" aria-selected="true">Color</button>
-          <button type="button" class="tab" role="tab" id="tabFace" aria-controls="panelFace" aria-selected="false" tabindex="-1">Expression</button>
+          <button type="button" class="tab" role="tab" id="tabFace" aria-controls="panelFace" aria-selected="true">Expression</button>
           <button type="button" class="tab" role="tab" id="tabAcc" aria-controls="panelAcc" aria-selected="false" tabindex="-1">Accessory</button>
         </div>
-        <div class="tabpanel" id="panelColor" role="tabpanel" aria-labelledby="tabColor">
-          <div class="swatches" id="swatches" role="radiogroup" aria-label="Color"></div>
-        </div>
-        <div class="tabpanel hidden" id="panelFace" role="tabpanel" aria-labelledby="tabFace">
+        <div class="tabpanel" id="panelFace" role="tabpanel" aria-labelledby="tabFace">
           <div class="swatches" id="faceOpts" role="radiogroup" aria-label="Expression"></div>
+          <div class="swatches swatchrow" id="swatches" role="radiogroup" aria-label="Color"></div>
         </div>
         <div class="tabpanel hidden" id="panelAcc" role="tabpanel" aria-labelledby="tabAcc">
           <div class="swatches" id="accOpts" role="radiogroup" aria-label="Accessory"></div>
+          <div class="swatches swatchrow" id="accSwatches" role="radiogroup" aria-label="Accessory color"></div>
         </div>
       </div>
     </section>

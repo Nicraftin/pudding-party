@@ -134,7 +134,7 @@ input:disabled, select:disabled { opacity: .6; cursor: not-allowed; }
 .pupils { transition: transform .35s cubic-bezier(.3,1.4,.5,1); }
 @keyframes wobble { 0%,100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg) scale(1.03,.97); } }
 .seat { position: absolute; z-index: 2; transform: translate(-50%, -50%); width: 84px; display: flex; flex-direction: column; align-items: center; text-align: center; }
-.seat svg { width: 52px; height: 52px; display: block; }
+.seat svg { width: 52px; height: 52px; display: block; overflow: visible; } /* accessories like the banana peel can rise above the head */
 .seat .pname { font-size: .9rem; font-weight: 600; max-width: 112px; line-height: 1.15; white-space: normal; overflow-wrap: anywhere; } /* full name always shown */
 .seat.me .pname::after { content: " (you)"; color: var(--muted); font-size: .8em; }
 .seat .hearts { font-size: .8rem; letter-spacing: 1px; }
@@ -144,7 +144,7 @@ input:disabled, select:disabled { opacity: .6; cursor: not-allowed; }
 .seat.turn .pname { color: var(--puff); }
 @keyframes hop { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
 .bubble {
-  position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+  position: absolute; bottom: calc(100% + 18px); left: 50%; transform: translateX(-50%); /* clears accessories that rise above the head */
   background: #2a1204; color: var(--bt, var(--text)); border: 2px solid var(--bc, var(--line));
   font-family: "DM Mono", monospace; font-weight: 500;
   padding: 4px 10px; border-radius: 12px; white-space: nowrap; font-size: .95rem;
@@ -256,23 +256,36 @@ input:disabled, select:disabled { opacity: .6; cursor: not-allowed; }
 .profilerow { display: flex; gap: 16px; align-items: flex-end; }
 .profilefields { flex: 1; min-width: 0; }
 .facepreview { width: 68px; height: 68px; flex: 0 0 68px; }
-.facepreview svg { width: 100%; height: 100%; display: block; }
+.facepreview svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.profilerow { padding-top: 12px; } /* room for tall accessories above the head */
 .swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+/* color rows never wrap: swatches shrink to fit so every color stays on one row */
+.swatchrow { flex-wrap: nowrap; gap: clamp(4px, 1.6vw, 9px); }
 .swatch { width: 38px; height: 38px; min-width: 0; padding: 0; border-radius: 50%; border: 3px solid var(--line); box-shadow: none; }
-.swatch[aria-checked="true"] { border-color: var(--text); transform: scale(1.12); }
+.swatchrow .swatch { flex: 0 1 38px; height: auto; aspect-ratio: 1; }
+.swatch[aria-checked="true"] { border-color: var(--text); transform: scale(1.12); box-shadow: 0 0 0 2px var(--panel), 0 0 0 4px var(--text); }
+.swatch:disabled { opacity: .3; }
 /* vote */
 .votetext { font-weight: 600; }
 .voteCard select { margin-top: 2px; }
 .voteCard button { padding: 10px 14px; }
 .facebtn { width: 48px; height: 48px; min-width: 0; padding: 3px; border-radius: 50%; border: 3px solid var(--line); background: transparent; box-shadow: none; }
-.facebtn svg { width: 100%; height: 100%; display: block; }
+.facebtn svg { width: 100%; height: 100%; display: block; overflow: visible; }
 .facebtn[aria-checked="true"] { border-color: var(--text); transform: scale(1.12); }
 
 /* profile tabs */
 .tabs { display: flex; gap: 6px; margin-bottom: 12px; }
 .tab { flex: 1; padding: 8px 10px; font-size: 1rem; background: transparent; color: var(--muted); border: 2px solid var(--line); border-radius: 12px; }
 .tab[aria-selected="true"] { background: var(--puff); color: #3a1a00; border-color: var(--puff); }
-.tabpanel { min-height: 94px; }
+.tabpanel { min-height: 138px; padding-top: 10px; }
+.tabpanel > * + * { margin-top: 16px; }
 .accopt { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .acclabel { font-size: .8rem; color: var(--muted); }
-.swatchbreak { flex-basis: 100%; height: 0; }
+
+/* small phones: keep all 11 colors on one row but make them as big as possible */
+@media (max-width: 480px) {
+  #profile { padding-left: 16px; padding-right: 16px; }
+  .swatchrow { gap: 3px; }
+  .swatchrow .swatch { border-width: 2px; }
+  .swatch[aria-checked="true"] { box-shadow: 0 0 0 1.5px var(--panel), 0 0 0 3px var(--text); }
+}
