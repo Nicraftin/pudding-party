@@ -314,7 +314,6 @@ Code Rot
 GG EZ (GG Fucking EZ, Fugging EZ, GG Fugging Ez, Ferking EZ)
 Homer let the barts out
 Folk Valley
-Fairs
 Jackpot
 Cry for me
 Tel Aviv approved (tel aviv)
@@ -685,7 +684,6 @@ Waitress Lion
 Fire Elemental
 Tentacled Monster
 Ice Wolf
-Snowy's Father
 Rabbit Kid
 Rabbit Girl
 Scarf Lady
@@ -1008,129 +1006,6 @@ Nestor Skip (death% skip, death% level 5 skip)
 - Flan-tastic
 First frame corner jump (first frame cj)
 Low%
-
-# Lugares que visitamos juntos
-modes: social
-
-- Spoon
-Joyjoy Café (joyjoy, joy joy, joy joy café)
-Casa do Bruno (bruno)
-Casa do John (john)
-
-- Slice
-Jockey Plaza Shopping (shopping jockey plaza, jockey plaza, jp)
-Shopping Mueller (mueller)
-Cinema (cinemark)
-Apartamento do Nícolas (casa do nícolas, nícolas)
-Dom Bosco (dom bosco, escola, escola dom bosco)
-
-- Rare
-Museu das ilusões (ilusão de ótica, museu da ilusão de ótica)
-Suljan Korean Bar (suljan, korean bar, restaurante coreano, bar coreano, suljan resetaurante coreano, suljan bar coreano)
-Baggio Pizzaria (baggio)
-Escape 60'
-Puzzle Room Escape Game (puzzle room)
-Apartamento antigo do Bruno (apartamento do bruno)
-
-- Deep Cut
-Shopping Palladium
-Zoológico Municipal de Curitiba (zoológico)
-Museu do Olho
-Planetário Colégio Estadual do Paraná (planetário)
-Doobeedoo Kids (Doobeedoo)
-Collors (buffet collors, buffet infantil collors)
-Fun Jungle (Fun Jungle, Fun Jungle Buffet)
-Habib's
-Apartamento do Victor (Casa do Victor, victor)
-Confraternização de final de ano (confraternização de final de ano, confraternização de fim de ano, colombo)
-Aquela chácara que eu n sei o nome (chácara)
-
-- Flan-tastic
-Serelepe Reserva Ambiental (serelepe, reserva ambiental)
-
-# Turma 3C do Dom Bosco
-modes: social
-
-- Spoon
-Nícolas
-Bruno
-John
-Alexandre (ale)
-
-- Slice
-João
-Gabriel Schneider (gabo)
-Gabriel Brito
-Victor
-Fabricio
-Marina
-Maria Fernanda
-
-- Rare
-Luan
-Gabrielle
-Giovanna
-Luana
-Caio
-Sofia
-Laura
-
-- Deep Cut
-Luiza Camargo
-Luiza Mochi
-Rosa (Prof Rosa)
-Rosane (Prof Rosane)
-Cabelo 3D (Jeferson, prof Jeferson)
-Marilia (Prof marilia)
-
-- Flan-tastic
-Luciana (prof luciana)
-
-# Alunos 7C do Dom Bosco
-modes: social
-
-- Spoon
-Nícolas Gaio (Gaio, Nícolas)
-Bruno
-John
-Alexandre (ale)
-
-- Slice
-João
-Gabriel Schneider (gabo, gabriel)
-Victor
-Fabricio
-Marina
-Maria Fernanda
-Luan
-Gabrielle
-Caio
-Nicolas Cortes
-
-- Rare
-Ana Laura
-Luana
-Sofia
-Rafael (rafael edin)
-Maya
-Mariana
-Laura
-Yasmin
-Giulia
-Manoela (Manu)
-Luiza Mochi
-
-- Deep Cut
-Ettore
-Chiara
-Pietra (Pietra Buffa)
-Victoria
-Luiza Guidolin
-Luiza Pereira
-Isabella
-
-- Flan-tastic
-Kalani
 
 # Hollow Knight charms
 
@@ -1587,6 +1462,32 @@ Skid's Grandmother
 Grandpa (Mr. Wonder)
 Lucky
 
+- Deep Cut
+Aaron
+Ethan
+Richard
+Sad Guy
+News Anchor
+The Hobomen
+The Tree Entity
+Little Girl with Blue Hair
+Costumed Teenager
+Infiltrated Cultist
+Actor
+Actress
+Box Cutter
+Boyfriend
+Luigi
+Literally Zach
+Pelito
+Spider
+Newsman
+Richard's Coworkers
+The Cultists (cultist)
+
+- Flan-tastic
+Sans Kid (sans)
+
 # Sulka Discord emojis
 modes: sulka
 
@@ -1676,37 +1577,10 @@ Blarity
 Homosexuality
 Variety
 Chillity
-
 Verity God (rainbow verity, rainbow)
 
 - Flan-tastic
 Obscurity
-
-- Deep Cut
-Aaron
-Ethan
-Richard
-Sad Guy
-News Anchor
-The Hobomen
-The Tree Entity
-Little Girl with Blue Hair
-Costumed Teenager
-Infiltrated Cultist
-Actor
-Actress
-Box Cutter
-Boyfriend
-Luigi
-Literally Zach
-Pelito
-Spider
-Newsman
-Richard's Coworkers
-The Cultists (cultist)
-
-- Flan-tastic
-Sans Kid (sans)
 
 # Celeste Characters
 
@@ -2615,5 +2489,128 @@ Umbará
 
 - Flan-tastic
 Fanny (funny, vila funny, vila fanny)
+
+# Lugares que visitamos juntos
+modes: social
+
+- Spoon
+Joyjoy Café (joyjoy, joy joy, joy joy café)
+Casa do Bruno (bruno)
+Casa do John (john)
+
+- Slice
+Jockey Plaza Shopping (shopping jockey plaza, jockey plaza, jp)
+Shopping Mueller (mueller)
+Cinema (cinemark)
+Apartamento do Nícolas (casa do nícolas, nícolas)
+Dom Bosco (dom bosco, escola, escola dom bosco)
+
+- Rare
+Museu das ilusões (ilusão de ótica, museu da ilusão de ótica)
+Suljan Korean Bar (suljan, korean bar, restaurante coreano, bar coreano, suljan resetaurante coreano, suljan bar coreano)
+Baggio Pizzaria (baggio)
+Escape 60'
+Puzzle Room Escape Game (puzzle room)
+Apartamento antigo do Bruno (apartamento do bruno)
+
+- Deep Cut
+Shopping Palladium
+Zoológico Municipal de Curitiba (zoológico)
+Museu do Olho
+Planetário Colégio Estadual do Paraná (planetário)
+Doobeedoo Kids (Doobeedoo)
+Collors (buffet collors, buffet infantil collors)
+Fun Jungle (Fun Jungle, Fun Jungle Buffet)
+Habib's
+Apartamento do Victor (Casa do Victor, victor)
+Confraternização de final de ano (confraternização de final de ano, confraternização de fim de ano, colombo)
+Aquela chácara que eu n sei o nome (chácara)
+
+- Flan-tastic
+Serelepe Reserva Ambiental (serelepe, reserva ambiental)
+
+# Turma 3C do Dom Bosco
+modes: social
+
+- Spoon
+Nícolas
+Bruno
+John
+Alexandre (ale)
+
+- Slice
+João
+Gabriel Schneider (gabo)
+Gabriel Brito
+Victor
+Fabricio
+Marina
+Maria Fernanda
+
+- Rare
+Luan
+Gabrielle
+Giovanna
+Luana
+Caio
+Sofia
+Laura
+
+- Deep Cut
+Luiza Camargo
+Luiza Mochi
+Rosa (Prof Rosa)
+Rosane (Prof Rosane)
+Cabelo 3D (Jeferson, prof Jeferson)
+Marilia (Prof marilia)
+
+- Flan-tastic
+Luciana (prof luciana)
+
+# Alunos 7C do Dom Bosco
+modes: social
+
+- Spoon
+Nícolas Gaio (Gaio, Nícolas)
+Bruno
+John
+Alexandre (ale)
+
+- Slice
+João
+Gabriel Schneider (gabo, gabriel)
+Victor
+Fabricio
+Marina
+Maria Fernanda
+Luan
+Gabrielle
+Caio
+Nicolas Cortes
+
+- Rare
+Ana Laura
+Luana
+Sofia
+Rafael (rafael edin)
+Maya
+Mariana
+Laura
+Yasmin
+Giulia
+Manoela (Manu)
+Luiza Mochi
+
+- Deep Cut
+Ettore
+Chiara
+Pietra (Pietra Buffa)
+Victoria
+Luiza Guidolin
+Luiza Pereira
+Isabella
+
+- Flan-tastic
+Kalani
 
 `;
