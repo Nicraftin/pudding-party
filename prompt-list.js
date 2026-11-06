@@ -879,39 +879,39 @@ Craig Obrien
 modes: sulka
 
 - Spoon
-Moon Sulka (moonka)
-Hard Sulka (hardka)
-Portal Sulka
+Moon Sulka (moonka, moon)
+Hard Sulka (hardka, hard)
+Portal Sulka (portal)
 
 - Slice
 Speedrun Mod (Sulka Speedrun, Sulka Speedrun Mode, speedrun sulka, speedrun)
-Super Sulka Bros
-The Sulka Trials
-The Outskirts
+Super Sulka Bros (mario sulka, mario)
+The Sulka Trials (trials, sulka trials)
+The Outskirts (outskirts)
 1 level pain
-Blind Sulka
+Blind Sulka (blind)
 Practice Mod (practice, practice mode)
 
 - Rare
-Bouncy Sulka
-Ice Sulka
-Intended Sulka
+Bouncy Sulka (bouncy)
+Ice Sulka (iceka, ice)
+Intended Sulka (intended)
 Mod Ready
 akluS
-The Outskirts Practice (Practice Outskirts)
+The Outskirts Practice (Practice Outskirts, outskirts practice)
 Spooky Sulka (Spooka)
 Individual Levels (Sulka Individual Levels)
 TAS (Sulka Tas, Sulka tas tool)
 2 level twain
-Sulka NEO
+Sulka NEO (neo)
 
 - Deep Cut
-Sulka Random Inputs (random inputs)
+Sulka Random Inputs (random inputs, random inputs mod, sulka random inputs mod)
 14 (Sulka 14)
 Sulka Low (low%)
 Sulka NoLeft (noleft%)
 Debug Mode (sulka debug mode, sulka debug)
-Bounce String (sulka bounce string)
+Bounce String (sulka bounce string, bounce string mod, bounce line, bounce line mod)
 Level Counter (level count, sulka level count, sulka level counter)
 
 - Flan-tastic
@@ -1002,6 +1002,7 @@ Sulka's Weird Uncle (uncle, weird uncle)
 Individual Levels (IL)
 
 - Deep Cut
+Tile wiggle (wiggle, block wiggle, tile going down, block going down)
 String momentum preservation glitch
 Subpixel Manipulation (subpixel, subpixel manip)
 Strat combo

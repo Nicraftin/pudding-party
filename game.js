@@ -9,6 +9,7 @@
   const DEFAULT_LIVES = 3, DEFAULT_SECS = 15;
   const MAX_RING = 8, MAX_PEOPLE = 16, OVER_MS = 5000, IMPACT_MS = 450, HIT_MS = 1500, EAT_MS = 2300; // HIT/EAT match the CSS animation lengths
   const VOTE_MS = 20000;
+  const HOLD_MS = 1800; // pause before switching prompts so everyone can see the last answer
   const RETURN_MS = 1000, JOIN_MS = 500, SLIDE_MS = 450; // RETURN_MS: slow glide back to centre after the final chomp; JOIN_MS matches the joinFade CSS animation
   const CHEW_END = 1500, CHEW_END_FINALE = 1900; // when the pudding stops chewing and starts heading back to the centre
 
@@ -29,7 +30,7 @@
   };
 
   // ---------- Sound effects (files are optional: missing files just play nothing) ----------
-  const SFX_NAMES = ["eat", "damage", "flantastic", "answer", "invalid", "extralife", "newprompt"];
+  const SFX_NAMES = ["eat", "damage", "flantastic", "answer", "invalid", "extralife", "newprompt", "win"];
   const sfx = {};
   let sfxVol = 0.8;
   try { const sv = parseFloat(localStorage.getItem("pp-sfx-volume")); if (!isNaN(sv)) sfxVol = Math.min(1, Math.max(0, sv)); } catch (e) {}
@@ -100,7 +101,7 @@
   let roomCode = "";
 
   // Host-only
-  let voteTimer = null, turnTimer = null, announceTimer = null, lobbyTimer = null, attackTimer = null, overTimer = null;
+  let holdTimer = null, voteTimer = null, turnTimer = null, announceTimer = null, lobbyTimer = null, attackTimer = null, overTimer = null;
   let migrateTimer = null, graceTimer = null, migrating = false, claimPending = false;
   let localStart = 0;            // when the lobby countdown ends (0 = not counting)
   let seenAnswer = {};            // playerId -> id of the last answer we already showed a particle for
@@ -118,7 +119,7 @@
   }
 
   function teardown() {
-    clearTimeout(turnTimer); clearTimeout(announceTimer); clearTimeout(lobbyTimer);
+    clearTimeout(turnTimer); clearTimeout(announceTimer); clearTimeout(lobbyTimer); clearTimeout(holdTimer);
     lobbyTimer = null; localStart = 0; $("answerInput").value = ""; $("dym").classList.add("hidden");
     try { peer && peer.destroy(); } catch (e) {}
     peer = null; hostConn = null; state = null; isHost = false; myId = null; seenAnswer = {}; ringSeen = null; seatMove = {};
@@ -293,7 +294,8 @@
         }
         state.attack = null;
         afterElimination();
-      } else if (state.announcing) announceRound();
+      } else if (state.holding) { state.holding = false; newRound(); announceRound(); }
+      else if (state.announcing) announceRound();
       else turnTimer = setTimeout(onTimeout, Math.max(300, localDeadline - Date.now()));
     } else if (state.phase === "over") overTimer = setTimeout(backToLobby, 3000);
     toast("You're the host now");
@@ -320,7 +322,7 @@
       checkLobbyStart();
       broadcast(); render();
     } else if (msg.t === "typing") {
-      if (state.phase !== "game" || state.announcing || state.turn !== conn.peer) return;
+      if (state.phase !== "game" || state.announcing || state.holding || state.turn !== conn.peer) return;
       state.typing = String(msg.text || "").slice(0, 40);
       relayTyping(conn.peer); updateBubbles();
     } else if (msg.t === "ring") {
@@ -341,7 +343,7 @@
     const caller = state.players.find(p => p.id === callerId), target = state.players.find(p => p.id === targetId);
     if (!caller || !caller.inMatch || !caller.alive) { tell(callerId, "Only players still in the match can call a vote"); return; }
     if (!target || !target.inMatch || !target.alive) { tell(callerId, "That player can't get an extra life"); return; }
-    const voters = state.players.filter(p => p.inMatch && p.alive && p.id !== targetId).map(p => p.id);
+    const voters = state.players.filter(p => p.inMatch && p.alive).map(p => p.id); // everyone in the match, including the player receiving the life
     if (!voters.length) return;
     state.voteSeq = (state.voteSeq || 0) + 1;
     state.vote = { seq: state.voteSeq, caller: callerId, callerName: caller.name, target: targetId, targetName: target.name, voters, yes: voters.includes(callerId) ? [callerId] : [] };
@@ -386,7 +388,7 @@
       if (state.vote) { if (state.vote.target === id) endVote(false, "Vote cancelled"); else resolveVote(); }
       if (state.attack && state.attack.id === id) { clearTimeout(attackTimer); state.attack = null; }
       if (state.phase === "over") { broadcast(); render(); return; }
-      if (state.turn === id && !state.announcing) { clearTimeout(turnTimer); afterElimination(); return; }
+      if (state.turn === id && !state.announcing && !state.holding) { clearTimeout(turnTimer); afterElimination(); return; }
       if (checkWinner()) return;
       if (state.turn === id) state.turn = nextAlive(id);
     }
@@ -411,7 +413,7 @@
     clearTimeout(announceTimer); clearTimeout(lobbyTimer); lobbyTimer = null; localStart = 0;
     state.players.forEach(p => { p.inMatch = p.inRing; p.alive = p.inRing; p.lives = state.settings.lives; p.pts = 0; p.segs = []; p.last = null; delete p.left; delete p.eaten; });
     state.phase = "game";
-    state.announcing = false; state.typing = "";
+    state.announcing = false; state.holding = false; state.typing = "";
     state.winner = null;
     state.event = "";
     state.turn = state.players.find(p => p.inMatch).id; state.attack = null;
@@ -431,8 +433,8 @@
   }
 
   function startTurn() {
-    clearTimeout(turnTimer);
-    state.announcing = false; state.typing = "";
+    clearTimeout(turnTimer); clearTimeout(holdTimer);
+    state.announcing = false; state.holding = false; state.typing = "";
     state.remaining = state.settings.turnMs;
     localDeadline = Date.now() + state.settings.turnMs;
     turnTimer = setTimeout(onTimeout, state.settings.turnMs);
@@ -440,8 +442,8 @@
   }
 
   function announceRound() {
-    clearTimeout(turnTimer); clearTimeout(announceTimer);
-    state.announcing = true; state.typing = "";
+    clearTimeout(turnTimer); clearTimeout(announceTimer); clearTimeout(holdTimer);
+    state.holding = false; state.announcing = true; state.typing = "";
     state.remaining = state.settings.turnMs;
     localDeadline = Date.now() + state.settings.turnMs;
     broadcast(); render();
@@ -464,8 +466,8 @@
   function checkWinner() {
     const alive = state.players.filter(p => p.inMatch && p.alive);
     if (alive.length <= 1) {
-      clearTimeout(turnTimer); clearTimeout(announceTimer); clearTimeout(attackTimer);
-      state.announcing = false; state.typing = ""; state.attack = null; state.turn = null;
+      clearTimeout(turnTimer); clearTimeout(announceTimer); clearTimeout(attackTimer); clearTimeout(holdTimer);
+      state.announcing = false; state.holding = false; state.typing = ""; state.attack = null; state.turn = null;
       clearTimeout(voteTimer); voteTimer = null; state.vote = null;
       if (!alive[0]) { backToLobby(); return true; }
       state.phase = "over"; // winner animation plays in the arena, then everyone drops back to the lobby
@@ -478,7 +480,7 @@
   }
 
   function submitAnswer(id, raw) {
-    if (!state || state.phase !== "game" || state.announcing || state.attack || state.turn !== id) return;
+    if (!state || state.phase !== "game" || state.announcing || state.holding || state.attack || state.turn !== id) return;
     const prompt = PROMPTS.find(p => p.text === state.prompt);
     if (!raw.trim()) return;
     const ans = prompt.match ? prompt.match(raw, state.used) : prompt.normalize(raw);
@@ -503,11 +505,21 @@
     const allUsed = state.used.length >= prompt.answers.length;
     const lostNext = (state.lossIds || []).includes(state.turn); // next player already lost a life on this prompt: switch prompts
     if (allUsed || lostNext) {
-      const lastObj = player.last;
-      newRound();
-      lastObj.stale = true; player.last = lastObj; // keep it so everyone still sees/hears the answer, but don't show its bubble on the new prompt
+      // keep the current prompt (and the answer bubble) on screen for a moment before switching
+      clearTimeout(turnTimer); clearTimeout(holdTimer);
+      state.holding = true; state.typing = "";
+      state.remaining = state.settings.turnMs; localDeadline = Date.now() + state.settings.turnMs;
       state.event += allUsed ? " — all answers used, new round!" : " — new prompt!";
-      announceRound();
+      const lastObj = player.last;
+      holdTimer = setTimeout(() => {
+        if (!state || state.phase !== "game" || !state.holding) return;
+        state.holding = false;
+        newRound();
+        const pl = state.players.find(x => x.id === id);
+        if (pl) { lastObj.stale = true; pl.last = lastObj; } // keep it so everyone still sees/hears the answer, but don't show its bubble on the new prompt
+        announceRound();
+      }, HOLD_MS);
+      broadcast(); render();
     } else {
       startTurn();
     }
@@ -571,8 +583,8 @@
 
   function backToLobby() { // everyone returns to the lobby as a spectator
     if (!isHost || !state) return;
-    clearTimeout(overTimer); clearTimeout(announceTimer); clearTimeout(turnTimer); clearTimeout(attackTimer);
-    state.phase = "lobby"; state.attack = null; state.winnerId = null; clearTimeout(voteTimer); voteTimer = null; state.vote = null;
+    clearTimeout(overTimer); clearTimeout(announceTimer); clearTimeout(turnTimer); clearTimeout(attackTimer); clearTimeout(holdTimer);
+    state.phase = "lobby"; state.holding = false; state.attack = null; state.winnerId = null; clearTimeout(voteTimer); voteTimer = null; state.vote = null;
     state.players = state.players.filter(p => !p.left);
     state.players.forEach(p => { p.lives = state.settings.lives; p.alive = true; p.inMatch = false; p.inRing = false; p.pts = 0; p.segs = []; p.last = null; delete p.eaten; });
     state.announcing = false; state.typing = "";
@@ -620,7 +632,7 @@
   }
 
   function pushTyping(text) {
-    if (!state || state.phase !== "game" || state.announcing || state.turn !== myId) return;
+    if (!state || state.phase !== "game" || state.announcing || state.holding || state.turn !== myId) return;
     state.typing = text.slice(0, 40);
     updateBubbles();
     if (isHost) relayTyping(null);
@@ -664,14 +676,14 @@
       return;
     }
     const canVote = v.voters.includes(myId) && !v.yes.includes(myId);
-    $("voteText").textContent = v.callerName + " wants to give " + v.targetName + " an extra life.";
-    $("voteCount").textContent = v.target === myId ? "Waiting for the others to agree… (" + v.yes.length + "/" + v.voters.length + ")" : v.yes.length + "/" + v.voters.length + " agreed. Everyone must agree.";
+    $("voteText").textContent = v.callerName + " wants to give " + (v.target === myId ? "you" : v.targetName) + " an extra life.";
+    $("voteCount").textContent = v.yes.length + "/" + v.voters.length + " agreed. Everyone must agree" + (v.target === myId ? ", including you." : ".");
     $("voteBtns").classList.toggle("hidden", !canVote);
   }
   function sendAnswer() {
     const input = $("answerInput");
     const text = input.value;
-    if (!text.trim() || !state || state.phase !== "game" || state.announcing || state.turn !== myId) return;
+    if (!text.trim() || !state || state.phase !== "game" || state.announcing || state.holding || state.turn !== myId) return;
     input.value = "";
     $("dym").classList.add("hidden");
     pushTyping("");
@@ -697,7 +709,7 @@
   function activeAtk() { return attackLocal && Date.now() - attackLocal.start < atkDur(attackLocal) ? attackLocal : null; }
   function startAttack(at) {
     attackLocal = { id: at.id, kill: at.kill, finale: at.finale, start: Date.now(), sx: pud.x, sy: pud.y };
-    setTimeout(() => playSfx(at.kill ? "eat" : "damage"), IMPACT_MS);
+    setTimeout(() => { if (at.kill) playSfx("eat"); playSfx("damage"); }, IMPACT_MS);
     setTimeout(() => {
       const sp = seatPct[at.id]; if (!sp) return;
       const d = el("div", "dmg", at.kill ? "CHOMP!" : "−1 ♥"); d.style.left = sp.left; d.style.top = sp.top;
@@ -809,7 +821,7 @@
       if (!p.alive && !hit) seat.classList.add("dead");
       if (p.eaten && !hit) seat.classList.add("eaten");
       if (state.phase === "over" && p.id === state.winnerId) seat.classList.add("winner");
-      if (!state.announcing && p.id === state.turn) { seat.classList.add("turn"); lookAngle = a; }
+      if (!state.announcing && !state.holding && p.id === state.turn) { seat.classList.add("turn"); lookAngle = a; }
       seat.appendChild(el("div", "bubble hidden"));
       const face = el("div", "face");
       face.innerHTML = hit && now - atk.start > 200 ? faceHurt(p.accessory, p.accColor) : p.alive ? faceAlive(p.color, p.face, p.accessory, p.accColor) : faceDead(p.color, p.accessory, p.accColor);
@@ -863,7 +875,7 @@
     $("wheel").querySelectorAll(".seat").forEach(s => {
       const b = s.querySelector(".bubble");
       if (state.attack && state.attack.id === s.dataset.id) { b.classList.add("hidden"); return; }
-      const active = state.phase === "game" && !state.announcing && s.dataset.id === state.turn;
+      const active = state.phase === "game" && !state.announcing && !state.holding && s.dataset.id === state.turn;
       const pl = state.players.find(x => x.id === s.dataset.id);
       b.style.removeProperty("--bt"); b.style.removeProperty("--bc"); b.classList.remove("flanb");
       b.title = "";
@@ -928,6 +940,7 @@
     if (document.activeElement !== $("secsInput")) $("secsInput").value = state.settings.turnMs / 1000;
     if (document.activeElement !== $("lifePtsInput")) $("lifePtsInput").value = state.settings.lifePts;
     if (document.activeElement !== $("modeInput")) $("modeInput").value = state.settings.mode;
+    $("settingsCard").classList.toggle("hidden", !lobby);
     $("setHint").textContent = !isHost ? "Only the host can change these." : lobby ? "You're the host. Settings lock once the match starts." : "Settings are locked during the match.";
     const rb = $("ringBtn"), inRing = !!(me && me.inRing);
     rb.textContent = lobby ? (inRing ? "Leave ring (just watch)" : "Join the ring") : over ? "Match ending…" : playing ? "You're in the match" : "Spectating until the match ends";
@@ -937,9 +950,10 @@
     $("promptText").textContent = lobby ? (inRing ? "You're in the ring!" : "Join the ring!") : over ? (state.winner || "Nobody") + " wins!" : state.prompt;
     $("promptSub").textContent = lobby ? "The match starts 15 seconds after at least 2 players join the ring (the host can start it early). Or just spectate." : over ? "" : (state.sub || "");
     const ann = game && !!state.announcing;
-    const mine = game && state.turn === myId && !ann && !state.attack;
+    const hold = game && !!state.holding;
+    const mine = game && state.turn === myId && !ann && !hold && !state.attack;
     const cur = state.players.find(p => p.id === state.turn);
-    $("turnLine").textContent = lobby ? lobbyLine() : over ? "" : ann ? "Get ready…" : mine ? "Your turn!" : (cur ? cur.name + "'s turn" : "");
+    $("turnLine").textContent = lobby ? lobbyLine() : over ? "" : ann ? "Get ready…" : hold ? "New prompt coming…" : mine ? "Your turn!" : (cur ? cur.name + "'s turn" : "");
     $("answerRow").classList.toggle("hidden", !playing);
     $("answerBtn").disabled = !mine;
     $("answerInput").placeholder = mine ? "Type your answer" : "Prepare your answer…";
@@ -959,7 +973,7 @@
     else if ((state.lifeSeq || 0) !== lifeSeen) { lifeSeen = state.lifeSeq || 0; playSfx("extralife"); }
     if (ann && state.roundSeq !== lastRoundSeq) { lastRoundSeq = state.roundSeq; playSfx("newprompt"); }
     renderWheel();
-    if (over && state.winSeq !== lastWinSeq) { lastWinSeq = state.winSeq; confetti(state.winnerId); setTimeout(() => confetti(state.winnerId), 900); }
+    if (over && state.winSeq !== lastWinSeq) { lastWinSeq = state.winSeq; playSfx("win"); confetti(state.winnerId); setTimeout(() => confetti(state.winnerId), 900); }
   }
 
   let nextBlink = Date.now() + 2500, blinkStart = 0, blinkAgain = false;
@@ -986,7 +1000,7 @@
     const inGame = state.phase === "game", inLobby = state.phase === "lobby";
     const now = Date.now(), dt = Math.min(0.2, (now - lastTick) / 1000); lastTick = now;
     const left = Math.max(0, localDeadline - now), total = state.settings.turnMs;
-    const ann = !inGame || !!state.announcing;
+    const ann = !inGame || !!state.announcing || !!state.holding;
     let frac = 0;
     if (inGame) frac = ann ? 1 : left / total;
     else if (inLobby) { frac = localStart ? Math.max(0, localStart - now) / LOBBY_MS : 0; const ll = lobbyLine(); if (ll !== lastTurnLine) { lastTurnLine = ll; $("turnLine").textContent = ll; } }
