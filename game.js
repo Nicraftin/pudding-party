@@ -6,7 +6,7 @@
   const LOBBY_MS = 15000;
   const DEFAULT_LIFE_PTS = 500;
   const PUD_MAX_R = 10; // % of wheel the pudding can drift toward the current player
-  const DEFAULT_LIVES = 3, DEFAULT_SECS = 15;
+  const DEFAULT_LIVES = 3, DEFAULT_SECS = 25, DEFAULT_LOSSES = 2;
   const MAX_RING = 8, MAX_PEOPLE = 16, OVER_MS = 5000, IMPACT_MS = 450, HIT_MS = 1500, EAT_MS = 2300; // HIT/EAT match the CSS animation lengths
   const VOTE_MS = 20000;
   const HOLD_MS = 1800; // pause before switching prompts so everyone can see the last answer
@@ -148,7 +148,7 @@
       state = {
         phase: "lobby",
         code: roomCode, hostId: myId,
-        settings: { lives, turnMs: secs * 1000, lifePts: DEFAULT_LIFE_PTS, mode: "sulka" },
+        settings: { lives, turnMs: secs * 1000, lifePts: DEFAULT_LIFE_PTS, mode: "sulka", losses: DEFAULT_LOSSES },
         players: [{ id: myId, name: myName, color: Character.color, face: Character.face, accessory: Character.accessory, accColor: Character.accColor, lives, alive: true, inRing: false, inMatch: false, pts: 0, segs: [], last: null }],
         answerSeq: 0, vote: null, skip: null, typing: "", announcing: false, attack: null,
         turn: null, prompt: null, sub: null, used: [], event: "", winner: null, remaining: 0
@@ -615,7 +615,7 @@
     if (checkWinner()) return;
     const next = nextAlive(state.turn);
     const lost = (state.lossIds || []).filter(id => state.players.some(x => x.id === id));
-    if (lost.length >= 2 || lost.includes(next)) { // 2 people lost a life, or it's the turn of someone who already lost one on this prompt
+    if (lost.length >= (state.settings.losses || DEFAULT_LOSSES) || lost.includes(next)) { // N people lost a life (setting), or it's the turn of someone who already lost one on this prompt
       newRound();
       state.turn = next;
       announceRound();
@@ -630,11 +630,12 @@
     const lives = clampInt($("livesInput").value, 1, 10, state.settings.lives);
     const secs = clampInt($("secsInput").value, 3, 60, state.settings.turnMs / 1000);
     const lifePts = clampInt($("lifePtsInput").value, 10, 5000, state.settings.lifePts);
+    const losses = clampInt($("lossesInput").value, 1, 10, state.settings.losses || DEFAULT_LOSSES);
     const mode = MODES[$("modeInput").value] ? $("modeInput").value : state.settings.mode;
-    state.settings = { lives, turnMs: secs * 1000, lifePts, mode };
+    state.settings = { lives, turnMs: secs * 1000, lifePts, mode, losses };
     state.players.forEach(p => { p.lives = lives; });
     $("livesInput").value = lives; $("secsInput").value = secs;
-    $("lifePtsInput").value = lifePts; $("modeInput").value = mode;
+    $("lifePtsInput").value = lifePts; $("modeInput").value = mode; $("lossesInput").value = losses;
     broadcast(); render();
   }
 
@@ -1009,10 +1010,11 @@
     const playing = game && !!me && me.inMatch && me.alive;
     $("lobbyCode").textContent = state.code;
     fillPlayers($("lobbyPlayers"));
-    ["livesInput","secsInput","lifePtsInput","modeInput"].forEach(i => { $(i).disabled = !isHost || !lobby; });
+    ["livesInput","secsInput","lifePtsInput","lossesInput","modeInput"].forEach(i => { $(i).disabled = !isHost || !lobby; });
     if (document.activeElement !== $("livesInput")) $("livesInput").value = state.settings.lives;
     if (document.activeElement !== $("secsInput")) $("secsInput").value = state.settings.turnMs / 1000;
     if (document.activeElement !== $("lifePtsInput")) $("lifePtsInput").value = state.settings.lifePts;
+    if (document.activeElement !== $("lossesInput")) $("lossesInput").value = state.settings.losses || DEFAULT_LOSSES;
     if (document.activeElement !== $("modeInput")) $("modeInput").value = state.settings.mode;
     $("settingsCard").classList.toggle("hidden", !lobby);
     $("setHint").textContent = !isHost ? "Only the host can change these." : lobby ? "You're the host. Settings lock once the match starts." : "Settings are locked during the match.";
@@ -1131,6 +1133,7 @@
   $("livesInput").addEventListener("change", applySettings);
   $("secsInput").addEventListener("change", applySettings);
   $("lifePtsInput").addEventListener("change", applySettings);
+  $("lossesInput").addEventListener("change", applySettings);
   $("modeInput").addEventListener("change", applySettings);
   $("ringBtn").onclick = toggleRing;
   $("voteCallBtn").onclick = sendCallVote;
