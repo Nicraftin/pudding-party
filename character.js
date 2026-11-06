@@ -77,6 +77,9 @@ const Character = (() => {
   const HAPPY_EYES = '<path d="M12.5 24 Q18 14.5 23.5 24 M28.5 24 Q34 14.5 39.5 24" fill="none" stroke="#3a1a06" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>';
   FACES.happy = { label: "^v^", eyes: HAPPY_EYES, mouth: '<path d="M16 32 Q26 42 36 32" fill="none" stroke="#3a1a06" stroke-width="3" stroke-linecap="round"/>' };
   FACES.happyteeth = { label: "^D^", eyes: HAPPY_EYES, mouth: '<path d="M13 30 Q26 50 39 30 Z" fill="#fff" stroke="#3a1a06" stroke-width="2.4" stroke-linejoin="round"/><path d="M16 34 Q26 37.5 36 34 M21 30.5 V35 M26 30.5 V36 M31 30.5 V35" fill="none" stroke="#3a1a06" stroke-opacity=".75" stroke-width="1.2" stroke-linecap="round"/>' };
+  // Wink: left eye open, right eye closed; Surprised: wide eyes, round open mouth
+  FACES.wink = { label: ";)", eyes: '<circle cx="18" cy="21" r="3.2" fill="#3a1a06"/><path d="M28.5 22 Q34 16 39.5 22" fill="none" stroke="#3a1a06" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>', mouth: '<path d="M14 31 Q26 44 38 31" fill="none" stroke="#3a1a06" stroke-width="3" stroke-linecap="round"/>' };
+  FACES.surprised = { label: ":O", eyes: '<circle cx="18" cy="20" r="4.6" fill="#fff" stroke="#3a1a06" stroke-width="2"/><circle cx="34" cy="20" r="4.6" fill="#fff" stroke="#3a1a06" stroke-width="2"/><circle cx="18" cy="20" r="2.1" fill="#3a1a06"/><circle cx="34" cy="20" r="2.1" fill="#3a1a06"/>', mouth: '<ellipse cx="26" cy="37" rx="5.2" ry="6.4" fill="#3a1a06"/><ellipse cx="26" cy="39.5" rx="3" ry="2.8" fill="#ff7a9c"/>' };
   const DEFAULT_FACE = "smile";
   const DEFAULT_EYES = '<circle cx="18" cy="21" r="3.2" fill="#3a1a06"/><circle cx="34" cy="21" r="3.2" fill="#3a1a06"/>';
 

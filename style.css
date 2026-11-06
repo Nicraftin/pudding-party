@@ -289,3 +289,6 @@ input:disabled, select:disabled { opacity: .6; cursor: not-allowed; }
   .swatchrow .swatch { border-width: 2px; }
   .swatch[aria-checked="true"] { box-shadow: 0 0 0 1.5px var(--panel), 0 0 0 3px var(--text); }
 }
+
+/* autocorrect suggestion */
+.dym { text-align: center; font-weight: 600; color: var(--puff); margin: 0 0 6px; }

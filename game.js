@@ -36,7 +36,7 @@
 
   // ---------- DOM ----------
   const $ = id => document.getElementById(id);
-  function show(name) { $("home").classList.toggle("hidden", name !== "home"); $("gameLayout").classList.toggle("hidden", name !== "game"); $("profile").classList.toggle("hidden", name !== "home"); }
+  function show(name) { if (name !== "game") { const h = document.querySelector("main > h1"); if (h) h.classList.add("hidden"); } $("home").classList.toggle("hidden", name !== "home"); $("gameLayout").classList.toggle("hidden", name !== "game"); $("profile").classList.toggle("hidden", name !== "home"); }
   let toastTimer;
   function toast(msg) {
     const t = $("toast"); t.textContent = msg; t.classList.add("show");
@@ -80,7 +80,7 @@
 
   function teardown() {
     clearTimeout(turnTimer); clearTimeout(announceTimer); clearTimeout(lobbyTimer);
-    lobbyTimer = null; localStart = 0; $("answerInput").value = "";
+    lobbyTimer = null; localStart = 0; $("answerInput").value = ""; $("dym").classList.add("hidden");
     try { peer && peer.destroy(); } catch (e) {}
     peer = null; hostConn = null; state = null; isHost = false; myId = null; seenAnswer = {}; ringSeen = null; seatMove = {};
     document.querySelectorAll(".particle").forEach(p => p.remove());
@@ -172,6 +172,8 @@
       } else if (msg.t === "msg") {
         toast(msg.text);
         if (msg.shake) shakeInput();
+      } else if (msg.t === "suggest") {
+        showSuggestion(msg.text);
       } else if (msg.t === "typing") {
         if (state) { state.typing = msg.text; updateBubbles(); }
       }
@@ -246,6 +248,7 @@
         const p = state.players.find(x => x.id === at.id);
         if (p && p.alive && state.event === p.name + " ran out of time!") { // the bite hadn't landed yet
           p.lives = Math.max(0, p.lives - 1);
+          state.lossIds = state.lossIds || []; if (!state.lossIds.includes(p.id)) state.lossIds.push(p.id);
           if (at.kill) { p.alive = false; p.inRing = false; p.eaten = true; state.event = "The pudding ate " + p.name + "!"; }
           else state.event = p.name + " lost a life";
         }
@@ -383,7 +386,7 @@
     const pick = choices[Math.floor(Math.random() * choices.length)];
     state.prompt = pick.text;
     state.sub = pick.sub;
-    state.used = [];
+    state.used = []; state.lossIds = [];
     state.players.forEach(p => { p.last = null; });
   }
 
@@ -442,6 +445,7 @@
     const player = state.players.find(p => p.id === id);
     if (!ans || !prompt.answers.includes(ans)) { tell(id, "Not a valid answer", true); return; }
     if (state.used.includes(ans)) { tell(id, ans + " was already used", true); return; }
+    if (prompt.exact && !prompt.exact(raw)) { suggest(id, ans); return; } // autocorrected guess: ask the player to confirm by pressing enter again
     state.used.push(ans);
     const rKey = (prompt.rarity && prompt.rarity[ans]) || "spoon";
     const R = RARITIES[rKey];
@@ -484,6 +488,7 @@
     attackTimer = setTimeout(() => { // moment of impact
       if (!state || !state.attack) return;
       p.lives = Math.max(0, p.lives - 1);
+      state.lossIds = state.lossIds || []; if (!state.lossIds.includes(p.id)) state.lossIds.push(p.id);
       if (kill) { p.alive = false; p.inRing = false; p.eaten = true; state.event = "The pudding ate " + p.name + "!"; }
       else state.event = p.name + " lost a life";
       if (kill && state.vote) { if (state.vote.target === p.id) { endVote(false, "Vote cancelled"); } else resolveVote(); }
@@ -494,9 +499,16 @@
 
   function afterElimination() {
     if (checkWinner()) return;
-    newRound();
-    state.turn = nextAlive(state.turn);
-    announceRound();
+    const next = nextAlive(state.turn);
+    const lost = (state.lossIds || []).filter(id => state.players.some(x => x.id === id));
+    if (lost.length >= 2 || lost.includes(next)) { // 2 people lost a life, or it's the turn of someone who already lost one on this prompt
+      newRound();
+      state.turn = next;
+      announceRound();
+    } else {
+      state.turn = next;
+      startTurn();
+    }
   }
 
   function applySettings() {
@@ -541,6 +553,20 @@
   function tell(id, text, shake) {
     if (id === myId) { toast(text); if (shake) shakeInput(); return; }
     const c = conns[id]; if (c && c.open) c.send({ t: "msg", text, shake });
+  }
+
+  function suggest(id, text) {
+    if (id === myId) { showSuggestion(text); return; }
+    const c = conns[id]; if (c && c.open) c.send({ t: "suggest", text });
+  }
+  function showSuggestion(text) {
+    const input = $("answerInput");
+    input.value = text;
+    $("dym").textContent = "Did you mean " + text + "?";
+    $("dym").classList.remove("hidden");
+    pushTyping(text);
+    input.focus({ preventScroll: true });
+    try { input.setSelectionRange(text.length, text.length); } catch (e) {}
   }
 
   function relayTyping(exceptId) {
@@ -602,6 +628,7 @@
     const text = input.value;
     if (!text.trim() || !state || state.phase !== "game" || state.announcing || state.turn !== myId) return;
     input.value = "";
+    $("dym").classList.add("hidden");
     pushTyping("");
     if (isHost) submitAnswer(myId, text);
     else if (hostConn && hostConn.open) hostConn.send({ t: "answer", text });
@@ -842,6 +869,7 @@
     if (state.phase !== "game") { seenAnswer = {}; document.querySelectorAll(".particle").forEach(p => p.remove()); }
     if (state.phase !== "lobby") { ringSeen = null; seatMove = {}; }
     show("game");
+    document.querySelector("main > h1").classList.toggle("hidden", state.phase !== "lobby");
     const lobby = state.phase === "lobby", game = state.phase === "game", over = state.phase === "over";
     const me = state.players.find(p => p.id === myId);
     const playing = game && !!me && me.inMatch && me.alive;
@@ -868,6 +896,7 @@
     $("answerBtn").disabled = !mine;
     $("answerInput").placeholder = mine ? "Type your answer" : "Prepare your answer…";
     if (!game) $("answerInput").value = "";
+    if (!mine) $("dym").classList.add("hidden");
     $("announce").classList.toggle("hidden", !ann);
     $("annTheme").textContent = state.prompt || "";
     $("annSub").textContent = state.sub || "";
@@ -969,7 +998,7 @@
   $("startNowBtn").onclick = () => { if (isHost && state && state.phase === "lobby") startGame(); };
   $("leaveBtn").onclick = teardown;
   $("answerBtn").onclick = sendAnswer;
-  $("answerInput").addEventListener("input", e => pushTyping(e.target.value));
+  $("answerInput").addEventListener("input", e => { $("dym").classList.add("hidden"); pushTyping(e.target.value); });
   $("answerInput").addEventListener("keydown", e => { if (e.key === "Enter") sendAnswer(); });
   $("lobbyCode").onclick = () => {
     if (navigator.clipboard) navigator.clipboard.writeText(roomCode).then(() => toast("Code copied")).catch(() => {});
