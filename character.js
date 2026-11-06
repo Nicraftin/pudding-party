@@ -89,14 +89,18 @@ const Character = (() => {
     } },
     partyhat: { label: "Party hat", color: "pink", svg: c => {
       return '<path d="M26 -14 L37 6 Q26 10 15 6 Z" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="1.4" stroke-linejoin="round"/>' +
-        '<path d="M22 -3 L31 -5 M19.5 2 L34 -0.5" stroke="#fff" stroke-opacity=".75" stroke-width="2" stroke-linecap="round" fill="none"/>' +
-        '<circle cx="26" cy="-15" r="3.2" fill="#fff" stroke="' + c.stroke + '" stroke-width="1.2"/>';
+        '<path d="M15.4 6.3 Q26 10.3 36.6 6.3" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/>' +
+        '<path d="M15.4 6.3 Q26 10.3 36.6 6.3" fill="none" stroke="' + c.stroke + '" stroke-opacity=".6" stroke-width=".8" stroke-linecap="round"/>';
     } },
-    ponytails: { label: "Twin ponytails", color: "brown", svg: c => {
-      const tail = (x, d) => '<path d="M' + x + ' 6 C' + (x + d * 9) + ' 6 ' + (x + d * 13) + ' 16 ' + (x + d * 10) + ' 30 C' + (x + d * 7) + ' 26 ' + (x + d * 3) + ' 18 ' + x + ' 10Z" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="1.4" stroke-linejoin="round"/>';
-      const tie = (x, d) => '<rect x="' + (x - 3) + '" y="4" width="6" height="6" rx="2.5" fill="#ff6b9a" stroke="#c22b5f" stroke-width="1" transform="rotate(' + (d * 20) + ' ' + x + ' 7)"/>';
-      return tail(9, -1) + tail(43, 1) + tie(9, -1) + tie(43, 1) +
+    ponytails: { label: "Twin ponytails", color: "green", svg: c => {
+      const tail = (x, d) => '<path d="M' + x + ' 6 C' + (x + d * 8) + ' 6 ' + (x + d * 11) + ' 12 ' + (x + d * 9) + ' 21 C' + (x + d * 6) + ' 18 ' + (x + d * 3) + ' 14 ' + x + ' 10Z" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="1.4" stroke-linejoin="round"/>';
+      return tail(9, -1) + tail(43, 1) +
         '<path d="M6 17 Q10 -4 26 -2 Q42 -4 46 17 Q40 5 26 5 Q12 5 6 17Z" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="1.4" stroke-linejoin="round"/>';
+    } },
+    sidehair: { label: "Bald with side hair", color: "brown", svg: c => {
+      const side = d => { const X = x => d < 0 ? x : 52 - x;
+        return '<path d="M' + X(6) + ' 11 C' + X(-1) + ' 9 ' + X(-4) + ' 19 ' + X(-2) + ' 27 C' + X(0) + ' 33 ' + X(5) + ' 31 ' + X(5.5) + ' 27 C' + X(2.5) + ' 22 ' + X(3.5) + ' 17 ' + X(7.5) + ' 14Z" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="1.4" stroke-linejoin="round"/>'; };
+      return side(-1) + side(1);
     } },
     banana:  { label: "Banana peel", color: "yellow", svg: c => {
       // A peel resting on top of the head: two broad flaps draped over the sides, one curling up in the middle, brown stem cap on top.
