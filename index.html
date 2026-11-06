@@ -50,6 +50,10 @@
         </div>
         <button id="joinBtn" class="ghost">Join lobby</button>
       </div>
+      <div>
+        <div class="sfxrow"><label for="sfxVolHome">Sound effects volume</label><span class="sfxpct"></span></div>
+        <input type="range" class="sfxVol" id="sfxVolHome" min="0" max="100" step="1" value="80">
+      </div>
     </section>
   </div>
 
@@ -122,6 +126,11 @@
             <button id="voteNoBtn" class="ghost">Decline</button>
           </div>
         </div>
+      </div>
+      <div class="settingsCard" id="soundCard">
+        <h3>Sound</h3>
+        <div class="sfxrow"><label for="sfxVolGame">Sound effects volume</label><span class="sfxpct"></span></div>
+        <input type="range" class="sfxVol" id="sfxVolGame" min="0" max="100" step="1" value="80">
       </div>
       <div class="settingsCard" id="settingsCard">
         <h3>Match settings</h3>

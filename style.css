@@ -135,7 +135,7 @@ input:disabled, select:disabled { opacity: .6; cursor: not-allowed; }
 @keyframes wobble { 0%,100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg) scale(1.03,.97); } }
 .seat { position: absolute; z-index: 2; transform: translate(-50%, -50%); width: 84px; display: flex; flex-direction: column; align-items: center; text-align: center; }
 .seat svg { width: 52px; height: 52px; display: block; overflow: visible; } /* accessories like the banana peel can rise above the head */
-.seat .pname { font-size: .9rem; font-weight: 600; max-width: 112px; line-height: 1.15; white-space: normal; overflow-wrap: anywhere; } /* full name always shown */
+.seat .pname { font-size: .9rem; font-weight: 600; width: max-content; max-width: none; line-height: 1.15; white-space: nowrap; } /* full name always shown on one line (may overlap neighbours) */
 .seat.me .pname::after { content: " (you)"; color: var(--muted); font-size: .8em; }
 .seat .hearts { font-size: .8rem; letter-spacing: 1px; }
 .seat.dead { opacity: .4; filter: grayscale(.8); }
@@ -183,7 +183,7 @@ input:disabled, select:disabled { opacity: .6; cursor: not-allowed; }
 .setrow > div { flex: 1; }
 @keyframes pop { from { transform: scale(.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @media (max-width: 480px) {
-  .seat { width: 68px; } .seat svg { width: 40px; height: 40px; } .seat .pname { font-size: .8rem; max-width: 80px; }
+  .seat { width: 68px; } .seat svg { width: 40px; height: 40px; } .seat .pname { font-size: .8rem; }
   .bubble { font-size: .8rem; padding: 3px 8px; } .bubble span { max-width: 130px; } .seat .ptstxt { font-size: .85rem; } .announce .theme { font-size: 1.5rem; }
 }
 @media (prefers-reduced-motion: reduce) { .pudding svg, .seat.turn svg, .announce { animation: none; } .pupils { transition: none; } }
@@ -292,3 +292,9 @@ input:disabled, select:disabled { opacity: .6; cursor: not-allowed; }
 
 /* autocorrect suggestion */
 .dym { text-align: center; font-weight: 600; color: var(--puff); margin: 0 0 6px; }
+
+/* sfx volume slider */
+.sfxrow { display: flex; justify-content: space-between; align-items: baseline; }
+.sfxrow label { margin-bottom: 4px; }
+.sfxpct { font-variant-numeric: tabular-nums; color: var(--muted); font-size: .95rem; }
+input.sfxVol { width: 100%; accent-color: var(--puff); cursor: pointer; margin: 4px 0 0; }

@@ -28,6 +28,45 @@
     flan:  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 21 L6.8 9 Q12 7 17.2 9 L19.5 21 Q12 23 4.5 21Z" fill="#ffcf3a" stroke="#b8860b" stroke-width="1.2"/><path d="M6.8 9 Q12 7 17.2 9 L17.7 11.6 Q12 10.4 6.3 11.6Z" fill="#a05a10"/><path d="M12 1.5 L13 4 L15.6 4.3 L13.6 6 L14.2 8.5 L12 7.2 L9.8 8.5 L10.4 6 L8.4 4.3 L11 4Z" fill="#fff3a0" stroke="#d9a400" stroke-width=".6"/></svg>'
   };
 
+  // ---------- Sound effects (files are optional: missing files just play nothing) ----------
+  const SFX_NAMES = ["eat", "damage", "flantastic", "answer", "invalid", "extralife", "newprompt"];
+  const sfx = {};
+  let sfxVol = 0.8;
+  try { const sv = parseFloat(localStorage.getItem("pp-sfx-volume")); if (!isNaN(sv)) sfxVol = Math.min(1, Math.max(0, sv)); } catch (e) {}
+  SFX_NAMES.forEach(n => {
+    const o = sfx[n] = { a: null, missing: false };
+    try {
+      const a = new Audio(); a.preload = "auto";
+      a.addEventListener("error", () => { o.missing = true; });
+      a.src = n + ".ogg"; o.a = a;
+    } catch (e) { o.missing = true; }
+  });
+  function playSfx(n) {
+    const o = sfx[n];
+    if (!o || o.missing || !o.a || sfxVol <= 0) return;
+    try {
+      const c = o.a.cloneNode(); c.volume = sfxVol;
+      const p = c.play(); if (p && p.catch) p.catch(() => {});
+    } catch (e) {}
+  }
+  function syncSfxSliders() {
+    document.querySelectorAll(".sfxVol").forEach(s => {
+      s.value = Math.round(sfxVol * 100);
+      const pct = s.parentNode.querySelector(".sfxpct"); if (pct) pct.textContent = Math.round(sfxVol * 100) + "%";
+    });
+  }
+  function initSfxSliders() {
+    syncSfxSliders();
+    document.querySelectorAll(".sfxVol").forEach(s => {
+      s.addEventListener("input", () => {
+        sfxVol = Math.min(1, Math.max(0, (parseInt(s.value, 10) || 0) / 100));
+        try { localStorage.setItem("pp-sfx-volume", String(sfxVol)); } catch (e) {}
+        syncSfxSliders();
+      });
+      s.addEventListener("change", () => playSfx("answer")); // preview at the new volume
+    });
+  }
+
   // ---------- Character (colors, faces, profile UI live in character.js) ----------
   const { faceAlive, faceDead, faceHurt } = Character;
 
@@ -86,7 +125,7 @@
     document.querySelectorAll(".particle").forEach(p => p.remove());
     Object.keys(conns).forEach(k => delete conns[k]);
     clearTimeout(migrateTimer); clearTimeout(graceTimer); migrating = false; claimPending = false;
-    clearTimeout(attackTimer); clearTimeout(overTimer); clearTimeout(voteTimer); attackLocal = null; lastAttackSeq = 0; lastWinSeq = 0;
+    clearTimeout(attackTimer); clearTimeout(overTimer); clearTimeout(voteTimer); attackLocal = null; lastAttackSeq = 0; lastWinSeq = 0; lifeSeen = null; lastRoundSeq = 0;
     document.querySelectorAll(".dmg,.confetti,.fx").forEach(p => p.remove());
     show("home");
   }
@@ -322,7 +361,7 @@
     v.yes = v.yes.filter(id => v.voters.includes(id));
     const t = state.players.find(p => p.id === v.target);
     if (!t || !t.alive) { endVote(false, "Vote cancelled"); return true; }
-    if (v.voters.every(id => v.yes.includes(id))) { t.lives++; endVote(true, v.targetName + " got an extra life!"); return true; }
+    if (v.voters.every(id => v.yes.includes(id))) { t.lives++; state.lifeSeq = (state.lifeSeq || 0) + 1; endVote(true, v.targetName + " got an extra life!"); return true; }
     return false;
   }
   function endVote(passed, text) {
@@ -386,6 +425,7 @@
     const pick = choices[Math.floor(Math.random() * choices.length)];
     state.prompt = pick.text;
     state.sub = pick.sub;
+    state.roundSeq = (state.roundSeq || 0) + 1;
     state.used = []; state.lossIds = [];
     state.players.forEach(p => { p.last = null; });
   }
@@ -456,12 +496,17 @@
     player.segs.push({ r: rKey, pts: R.pts });
     let gained = 0;
     while (segSum(player.segs) >= LP) { player.lives++; takeFront(player.segs, LP); gained++; } // no cap: the bar never sits full
+    if (gained) state.lifeSeq = (state.lifeSeq || 0) + 1;
     player.pts = segSum(player.segs);
     state.event = player.name + " said " + ans + " — " + R.name + " +" + R.pts + " pts" + (gained ? (gained > 1 ? " · +" + gained + " lives!" : " · extra life!") : "");
     state.turn = nextAlive(id);
-    if (state.used.length >= prompt.answers.length) {
+    const allUsed = state.used.length >= prompt.answers.length;
+    const lostNext = (state.lossIds || []).includes(state.turn); // next player already lost a life on this prompt: switch prompts
+    if (allUsed || lostNext) {
+      const lastObj = player.last;
       newRound();
-      state.event += " — all answers used, new round!";
+      lastObj.stale = true; player.last = lastObj; // keep it so everyone still sees/hears the answer, but don't show its bubble on the new prompt
+      state.event += allUsed ? " — all answers used, new round!" : " — new prompt!";
       announceRound();
     } else {
       startTurn();
@@ -635,6 +680,7 @@
   }
 
   function shakeInput() {
+    playSfx("invalid");
     const i = $("answerInput");
     i.classList.remove("shake"); void i.offsetWidth; i.classList.add("shake");
   }
@@ -645,12 +691,13 @@
   let wheelW = 520, guardFn = null, guardT = 0, jit = { x: 0, y: 0, t: 0 };
   const attrCache = new Map();
   function setA(node, name, val) { const k = node.id + name; if (attrCache.get(k) !== val) { attrCache.set(k, val); node.setAttribute(name, val); } } // skip redundant SVG writes (each one forces a repaint)
-  let seatOff = {}, seatPct = {}, attackLocal = null, lastAttackSeq = 0, lastWinSeq = 0;
+  let seatOff = {}, seatPct = {}, attackLocal = null, lastAttackSeq = 0, lastWinSeq = 0, lifeSeen = null, lastRoundSeq = 0;
   let ringSeen = null, seatMove = {}; // ringSeen: playerId -> when they joined the ring (null = not primed yet)
   function atkDur(at) { return at.kill ? EAT_MS + (at.finale ? RETURN_MS : 0) : HIT_MS; }
   function activeAtk() { return attackLocal && Date.now() - attackLocal.start < atkDur(attackLocal) ? attackLocal : null; }
   function startAttack(at) {
     attackLocal = { id: at.id, kill: at.kill, finale: at.finale, start: Date.now(), sx: pud.x, sy: pud.y };
+    setTimeout(() => playSfx(at.kill ? "eat" : "damage"), IMPACT_MS);
     setTimeout(() => {
       const sp = seatPct[at.id]; if (!sp) return;
       const d = el("div", "dmg", at.kill ? "CHOMP!" : "−1 ♥"); d.style.left = sp.left; d.style.top = sp.top;
@@ -794,6 +841,7 @@
       } else delete seenAnswer[p.id];
     });
     if (ringSeen) Object.keys(ringSeen).forEach(id => { if (!ps.some(p => p.id === id)) delete ringSeen[id]; }); // leaving + rejoining animates again
+    if (fresh.length) playSfx(fresh.some(f => f.r === "flan") ? "flantastic" : "answer");
     fresh.forEach(f => {
       const pt = el("div", "particle" + (f.r === "flan" ? " flan" : ""));
       const ic = el("span"); ic.innerHTML = ICONS[f.r]; pt.appendChild(ic);
@@ -825,7 +873,7 @@
         b.textContent = "";
         b.appendChild(el("span", null, t ? (t.length > 16 ? "…" + t.slice(-15) : t) : "…"));
         b.classList.toggle("empty", !t);
-      } else if (state.phase === "game" && !state.announcing && pl && pl.last && RARITIES[pl.last.r]) {
+      } else if (state.phase === "game" && !state.announcing && pl && pl.last && !pl.last.stale && RARITIES[pl.last.r]) {
         const R = RARITIES[pl.last.r];
         b.classList.remove("hidden", "empty");
         b.style.setProperty("--bt", R.color); b.style.setProperty("--bc", R.color); b.classList.toggle("flanb", pl.last.r === "flan");
@@ -907,6 +955,9 @@
     }
     $("eventLog").textContent = state.event || "";
     renderVote(game, playing);
+    if (lifeSeen === null) lifeSeen = state.lifeSeq || 0; // don't play for lives gained before we arrived
+    else if ((state.lifeSeq || 0) !== lifeSeen) { lifeSeen = state.lifeSeq || 0; playSfx("extralife"); }
+    if (ann && state.roundSeq !== lastRoundSeq) { lastRoundSeq = state.roundSeq; playSfx("newprompt"); }
     renderWheel();
     if (over && state.winSeq !== lastWinSeq) { lastWinSeq = state.winSeq; confetti(state.winnerId); setTimeout(() => confetti(state.winnerId), 900); }
   }
@@ -981,6 +1032,7 @@
   requestAnimationFrame(frame);
 
   Character.init();
+  initSfxSliders();
 
   // ---------- Wire up ----------
   $("createBtn").onclick = () => createLobby();
