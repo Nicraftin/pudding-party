@@ -2677,6 +2677,8 @@ Unoriginal Starwalker
 Windstruggler
 
 # Penis Synonyms
+modes: social
+
 - Spoon
 Dick
 Cock
