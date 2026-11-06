@@ -327,7 +327,7 @@
       broadcast(); render();
     } else if (msg.t === "typing") {
       if (state.phase !== "game" || state.announcing || state.holding || state.turn !== conn.peer) return;
-      state.typing = String(msg.text || "").slice(0, 40);
+      state.typing = String(msg.text || "");
       relayTyping(conn.peer); updateBubbles();
     } else if (msg.t === "ring") {
       setRing(conn.peer, !!msg.on);
@@ -637,7 +637,7 @@
 
   function pushTyping(text) {
     if (!state || state.phase !== "game" || state.announcing || state.holding || state.turn !== myId) return;
-    state.typing = text.slice(0, 40);
+    state.typing = text;
     updateBubbles();
     if (isHost) relayTyping(null);
     else if (hostConn && hostConn.open) hostConn.send({ t: "typing", text: state.typing });

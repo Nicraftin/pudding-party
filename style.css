@@ -184,7 +184,7 @@ input:disabled, select:disabled { opacity: .6; cursor: not-allowed; }
 @keyframes pop { from { transform: scale(.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @media (max-width: 480px) {
   .seat { width: 68px; } .seat svg { width: 40px; height: 40px; } .seat .pname { font-size: .8rem; }
-  .bubble { font-size: .8rem; padding: 3px 8px; } .bubble span { max-width: 130px; } .seat .ptstxt { font-size: .85rem; } .announce .theme { font-size: 1.5rem; }
+  .bubble { font-size: .8rem; padding: 3px 8px; } .seat .ptstxt { font-size: .85rem; } .announce .theme { font-size: 1.5rem; }
 }
 @media (prefers-reduced-motion: reduce) { .pudding svg, .seat.turn svg, .announce { animation: none; } .pupils { transition: none; } }
 .hidden { display: none !important; }
