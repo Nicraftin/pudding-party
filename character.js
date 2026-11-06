@@ -73,7 +73,12 @@ const Character = (() => {
     grin:   { label: ":D", mouth: '<path d="M13 30 Q26 52 39 30 Z" fill="#3a1a06" stroke="#3a1a06" stroke-width="2.4" stroke-linejoin="round"/><path d="M20.5 37.5 Q26 41.5 31.5 37.5 Q26 31.5 20.5 37.5Z" fill="#ff7a9c"/>' }
   };
   FACES.owo = { label: "OwO", mouth: '<circle cx="17.2" cy="19.6" r="1.2" fill="#fff"/><circle cx="33.2" cy="19.6" r="1.2" fill="#fff"/><path d="M17 33 Q21.5 40 26 33 Q30.5 40 35 33" fill="none" stroke="#3a1a06" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>' };
+  // Closed-eye faces: `eyes` replaces the default round eyes
+  const HAPPY_EYES = '<path d="M12.5 24 Q18 14.5 23.5 24 M28.5 24 Q34 14.5 39.5 24" fill="none" stroke="#3a1a06" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>';
+  FACES.happy = { label: "^v^", eyes: HAPPY_EYES, mouth: '<path d="M16 32 Q26 42 36 32" fill="none" stroke="#3a1a06" stroke-width="3" stroke-linecap="round"/>' };
+  FACES.happyteeth = { label: "^D^", eyes: HAPPY_EYES, mouth: '<path d="M13 30 Q26 50 39 30 Z" fill="#fff" stroke="#3a1a06" stroke-width="2.4" stroke-linejoin="round"/><path d="M16 34 Q26 37.5 36 34 M21 30.5 V35 M26 30.5 V36 M31 30.5 V35" fill="none" stroke="#3a1a06" stroke-opacity=".75" stroke-width="1.2" stroke-linecap="round"/>' };
   const DEFAULT_FACE = "smile";
+  const DEFAULT_EYES = '<circle cx="18" cy="21" r="3.2" fill="#3a1a06"/><circle cx="34" cy="21" r="3.2" fill="#3a1a06"/>';
 
   // ---------- Character accessories (drawn on top of the face) ----------
   //  color: the accessory's own default color (a key of ACC_COLORS; null = nothing to paint)
@@ -101,6 +106,24 @@ const Character = (() => {
       const side = d => { const X = x => d < 0 ? x : 52 - x;
         return '<path d="M' + X(6) + ' 11 C' + X(-1) + ' 9 ' + X(-4) + ' 19 ' + X(-2) + ' 27 C' + X(0) + ' 33 ' + X(5) + ' 31 ' + X(5.5) + ' 27 C' + X(2.5) + ' 22 ' + X(3.5) + ' 17 ' + X(7.5) + ' 14Z" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="1.4" stroke-linejoin="round"/>'; };
       return side(-1) + side(1);
+    } },
+    shorthair: { label: "Short hair", color: "brown", svg: c => {
+      return '<path d="M3.5 21 C-1 5 10 -4 26 -4 C42 -4 53 5 48.5 21 C46 15 43 11 38 10 C33 14 24 12 17 9 C11 11 6 15 3.5 21Z" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="1.4" stroke-linejoin="round"/>' +
+        '<path d="M38 10 C41 5 40 1 36 -1.5" fill="none" stroke="' + c.stroke + '" stroke-opacity=".5" stroke-width=".9" stroke-linecap="round"/>';
+    } },
+    longhair: { label: "Long hair", color: "black", svg: c => {
+      const side = d => { const X = x => d < 0 ? x : 52 - x;
+        return '<path d="M' + X(4) + ' 20 C' + X(-3) + ' 26 ' + X(-4) + ' 40 ' + X(-1) + ' 48 C' + X(4) + ' 49 ' + X(9) + ' 46 ' + X(10) + ' 42 C' + X(7) + ' 34 ' + X(7) + ' 26 ' + X(9) + ' 17Z" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="1.4" stroke-linejoin="round"/>'; };
+      return side(-1) + side(1) +
+        '<path d="M3.5 22 C-1 4 12 -4 26 -4 C40 -4 53 4 48.5 22 C45 14 38 9 26 6 C14 9 7 14 3.5 22Z" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="1.4" stroke-linejoin="round"/>' +
+        '<path d="M26 6 Q26 0 26 -4" fill="none" stroke="' + c.stroke + '" stroke-opacity=".5" stroke-width=".9" stroke-linecap="round"/>';
+    } },
+    curlyhair: { label: "Curly hair", color: "orange", svg: c => {
+      const cs = [[8, 12, 6], [14, 5, 6.5], [26, 1, 7.5], [38, 5, 6.5], [44, 12, 6]];
+      const circ = extra => cs.map(a => '<circle cx="' + a[0] + '" cy="' + a[1] + '" r="' + a[2] + '" ' + extra + '/>').join("");
+      return circ('fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="1.4"') +
+        circ('fill="' + c.fill + '"') +
+        '<path d="M7 13 Q14 11 20 9 Q26 13 32 9 Q38 11 45 13 L45 4 L7 4Z" fill="' + c.fill + '"/>';
     } },
     banana:  { label: "Banana peel", color: "yellow", svg: c => {
       // A peel resting on top of the head: two broad flaps draped over the sides, one curling up in the middle, brown stem cap on top.
@@ -133,7 +156,7 @@ const Character = (() => {
   const accColorKey = a => has(myAccColors, a) ? myAccColors[a] : ACCESSORIES[a].color;
 
   // ---------- Face drawings ----------
-  const faceAlive = (k, f, a, ac) => { const c = colorOf(k), fc = FACES[f] || FACES[DEFAULT_FACE]; return '<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="2"/><circle cx="18" cy="21" r="3.2" fill="#3a1a06"/><circle cx="34" cy="21" r="3.2" fill="#3a1a06"/>' + fc.mouth + accOf(a, ac) + '</svg>'; };
+  const faceAlive = (k, f, a, ac) => { const c = colorOf(k), fc = FACES[f] || FACES[DEFAULT_FACE]; return '<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="2"/>' + (fc.eyes || DEFAULT_EYES) + fc.mouth + accOf(a, ac) + '</svg>'; };
   const faceDead = (k, a, ac) => { const c = colorOf(k); return '<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="2"/><path d="M14 17l8 8M22 17l-8 8M30 17l8 8M38 17l-8 8" stroke="#3a1a06" stroke-width="2.6" stroke-linecap="round"/><path d="M17 36 Q26 30 35 36" fill="none" stroke="#3a1a06" stroke-width="3" stroke-linecap="round"/>' + accOf(a, ac) + '</svg>'; };
 
   const faceHurt = (a, ac) => '<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="#ff8a5c" stroke="#e08a00" stroke-width="2"/><path d="M13 17l9 4-9 4M39 17l-9 4 9 4" fill="none" stroke="#3a1a06" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 38 Q21 31 26 38 Q31 31 36 38" fill="none" stroke="#3a1a06" stroke-width="2.6" stroke-linecap="round"/>' + accOf(a, ac) + '</svg>';
