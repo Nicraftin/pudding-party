@@ -170,7 +170,8 @@ Exhaust Organ
 - Flan-tastic
 Red Memory
 
-# Brainrot Terms (no italian brainrots)
+# Brainrot Terms 
+sub: No Italian brainrots
 
 - Spoon
 Brainrot
@@ -535,7 +536,7 @@ Tilted Town
 - Flan-tastic
 The Block
 
-# Minecraft crafting recipes that use iron ingot
+# Minecraft crafting recipes that use Iron Ingot
 
 - Spoon
 Iron Pickaxe
@@ -584,7 +585,7 @@ Iron Spear (Spear)
 - Flan-tastic
 Saddle
 
-# Minecraft crafting recipes that use copper ingot
+# Minecraft crafting recipes that use Copper Ingot
 
 - Spoon
 Block of Copper (Copper block)
@@ -669,7 +670,7 @@ Lesser Dog
 Dogamy
 Dogaressa
 Greater Dog
-The Roaring Knight (the knight, roaring knight, knight)
+The Roaring Knight (the knight, roaring knight, knight, papyrus)
 Dad Cat
 The Warrior
 Hat Monster
@@ -779,7 +780,8 @@ orld
 Ninjack Rabbit
 Underneath
 
-# Frogfall Locations (no level names)
+# Frogfall Locations 
+sub: No level names
 modes: sulka
 
 - Spoon
@@ -807,7 +809,8 @@ Tutorial
 - Flan-tastic
 Froggo Town
 
-# Sulka Discord Members (not bots)
+# Sulka Discord Members
+sub: Not bots
 modes: sulka
 
 - Spoon
@@ -914,7 +917,8 @@ Level Counter (level count, sulka level count, sulka level counter)
 - Flan-tastic
 ARG Mod (a1z26, arg, avgpens)
 
-# Sulka room names in the files (like rTuto1)
+# Sulka room names in the files
+sub: Like rTuto1
 modes: sulka
 
 - Spoon
@@ -957,7 +961,8 @@ rFocus
 - Flan-tastic
 rInit
 
-# Sulka Terminology (not mod related)
+# Sulka Terminology
+sub: Not mod related
 modes: sulka
 
 - Spoon
@@ -1064,7 +1069,8 @@ Carefree Melody
 - Flan-tastic
 Shape of Unn
 
-# Brawlhalla maps (no big versions)
+# Brawlhalla maps
+sub: No big versions 
 
 - Spoon
 Brawlhaven
@@ -1593,7 +1599,7 @@ Theo
 Granny
 
 - Rare
-Mr. Oshiro (oshiro, orochinho)
+Mr. Oshiro (oshiro, orochinho, ghost guy, ghost thing, ghost, guy from the hotel)
 Bird (The bird, crow)
 
 - Deep Cut
@@ -1605,6 +1611,7 @@ Ex (green haired person, green hair, green haired)
 Carlos (theo's grandfather, theo's grandpa)
 
 # Celeste Chapters
+modes: social
 
 - Spoon
 Forsaken City
@@ -1871,7 +1878,6 @@ PR (Partido da República)
 PGT (Partido Geral dos Trabalhadores)
 PST (Partido Social Trabalhista)
 PMR (Partido Municipalista Renovador)
-PSD (Partido Social Democrata, legenda histórica)
 
 - Flan-tastic
 PAN (Partido dos Aposentados da Nação)
@@ -1952,7 +1958,7 @@ The Hidden Treasure of Area Zero
 - Flan-tastic
 Omori
 
-# GD Levels made by RobTop
+# Geometry Dash levels made by RobTop
 
 - Spoon
 Stereo Madness
@@ -2152,7 +2158,8 @@ Winged Nosk
 - Flan-tastic
 Zote the Mighty (Zote)
 
-# Nicraftin Songs (no mashups)
+# Nicraftin Songs
+sub: No mashups
 
 - Spoon
 Always More
@@ -2491,6 +2498,7 @@ Umbará
 Fanny (funny, vila funny, vila fanny)
 
 # Lugares que visitamos juntos
+sub: Nós 4 ao mesmo tempo
 modes: social
 
 - Spoon
@@ -2612,5 +2620,115 @@ Isabella
 
 - Flan-tastic
 Kalani
+
+# Penis Synonyms
+- Spoon
+Dick
+Cock
+
+- Slice
+Willy (Willie)
+Wiener (Weiner)
+Rod
+Schlong
+Shaft
+Member
+Organ
+Johnson
+Boner
+Pecker
+Junk
+Genitalia (Genital)
+PP (Pee-pee)
+
+- Rare
+Stick
+Wand
+Ding-Dong
+Weapon
+Cucumber
+Eggplant
+Whang
+Wee Wee
+Third Leg
+Weenie
+Wood
+Prick
+Peter
+Phallus
+Joystick
+Knob
+Manhood
+Dong
+Pisser
+Sausage
+Banana
+Ding-a-ling
+Thing
+Peen
+Equipment
+
+- Deep Cut
+Beef Whistle
+Candle
+Captain
+Cranny Axe
+Lap Rocket
+Pocket Rocket
+Baby-maker
+Bed snake
+Pego
+Rig
+Dipstick
+Ramrod
+Stiffy
+Sweet spot
+Bratwurst
+Dingus
+Dude Piston
+Master Sword
+Leaky Hose
+Meat Popsicle
+Pink Oboe
+Piston
+Schween
+Quiver Bone
+Schlort
+Horn
+Loom
+Winkle
+Pintle
+Mickey
+Tallywhacker
+Runnion
+Fire Hose
+Love Stick
+Fun Stick
+Hog
+Netherrod
+Pillicock
+Dinky
+Donger
+Dork
+Piss Weasle
+Tube Steak
+Virile member
+Trouser Monster
+Trouser snake
+Tarse
+Rocket
+Plonker
+Wang
+Tadger
+Pizzle
+Todger
+Putz
+Tockley
+Pork Sword
+Giggle Stick
+Skin Flute
+
+- Flan-tastic
+Sexcalibur
 
 `;
