@@ -2191,9 +2191,10 @@ The Frogfall Trials OST (Frogfall Trials OST, Frogfall Trials, The Frogfall Tria
 Definitely Just Sulka TrollST (Definitely Just Sulka OST, Definitely Just Sulka)
 Ghost Story (theme of a ghost that's bad at being scary)
 Espresso Sulka Parody (state of flow, flow, espresso parody, Espresso Sulka version)
-GG Gaster EZ (GG EZ Frogfall Version, GG EZ Frogfall PARODY, GG Fucking EZ Frogfall Version, GG Fucking EZ Frogfall PARODY,
+GG Gaster EZ (GG EZ Frogfall Version, GG EZ Frogfall PARODY, GG Fucking EZ Frogfall Version, GG Fucking EZ Frogfall PARODY)
 
 - Deep Cut
+XO Sulka Parody (Record, Re Cord, Xo Sulka Version)
 Raise Up Your Bat Sulka Parody (raise up your bat parody, Raise Up Your Bat Sulka version)
 Glory Days
 Friendly Clanker
