@@ -2177,11 +2177,11 @@ Galaxy
 Hard Sulka OST (Hard Sulka)
 The Sulka Trials OST (Sulka Trials OST, Trials OST, Sulka Trials, Trials)
 Moon Sulka OST (Moon Sulka)
-Sugar Rush
 Robot
 More Zombies
 
 - Rare
+Sugar Rush
 Vs. Nicraftin
 The Outskirts Practice OST
 Sulka NEO OST (Sulka NEO)
@@ -2190,8 +2190,11 @@ A Sulky Date! (Sulky Date, Date, A Sulky Date)
 The Frogfall Trials OST (Frogfall Trials OST, Frogfall Trials, The Frogfall Trials)
 Definitely Just Sulka TrollST (Definitely Just Sulka OST, Definitely Just Sulka)
 Ghost Story (theme of a ghost that's bad at being scary)
+Espresso Sulka Parody (state of flow, flow, espresso parody, Espresso Sulka version)
+GG Gaster EZ (GG EZ Frogfall Version, GG EZ Frogfall PARODY, GG Fucking EZ Frogfall Version, GG Fucking EZ Frogfall PARODY,
 
 - Deep Cut
+Raise Up Your Bat Sulka Parody (raise up your bat parody, Raise Up Your Bat Sulka version)
 Glory Days
 Friendly Clanker
 Heavy Core
@@ -2221,14 +2224,15 @@ December River
 Strange Venture
 Smug Intermission
 Science Yoshi Noteblock Cover
-Transform
-Conundrum
+Transform (ghost game ost 2)
+Conundrum (ghost game ost)
 
 - Flan-tastic
 Up'n Down (Up and down, Up n down)
-Lave
+Lave (floor is lave, floor is lave ost)
 Suco de Abacaxi Azedo
 Just Hope
+Chrome Lab music challenge (chrome music lab, chrome lab)
 
 # Hollow Knight Named Locations
 

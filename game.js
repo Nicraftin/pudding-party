@@ -238,7 +238,7 @@
     const idx = cands.findIndex(p => p.id === myId);
     if (!peer || isHost || idx < 0) { toast("Host disconnected"); teardown(); return; }
     migrating = true; claimPending = false;
-    toast("The host left — passing the host role on…");
+    toast("The host left, passing the host role on…");
     const t0 = Date.now();
     let joinAt = 0;
     const step = () => {
@@ -504,7 +504,7 @@
     while (segSum(player.segs) >= LP) { player.lives++; takeFront(player.segs, LP); gained++; } // no cap: the bar never sits full
     if (gained) state.lifeSeq = (state.lifeSeq || 0) + 1;
     player.pts = segSum(player.segs);
-    state.event = player.name + " said " + ans + " — " + R.name + " +" + R.pts + " pts" + (gained ? (gained > 1 ? " · +" + gained + " lives!" : " · extra life!") : "");
+    state.event = player.name + " said " + ans + ", " + R.name + " +" + R.pts + " pts" + (gained ? (gained > 1 ? " · +" + gained + " lives!" : " · extra life!") : "");
     state.turn = nextAlive(id);
     const allUsed = state.used.length >= prompt.answers.length;
     const lostNext = (state.lossIds || []).includes(state.turn); // next player already lost a life on this prompt: switch prompts
@@ -513,7 +513,7 @@
       clearTimeout(turnTimer); clearTimeout(holdTimer);
       state.holding = true; state.typing = "";
       state.remaining = state.settings.turnMs; localDeadline = Date.now() + state.settings.turnMs;
-      state.event += allUsed ? " — all answers used, new round!" : " — new prompt!";
+      state.event += allUsed ? ", all answers used, new round!" : ", new prompt!";
       const lastObj = player.last;
       holdTimer = setTimeout(() => {
         if (!state || state.phase !== "game" || !state.holding) return;
@@ -702,7 +702,7 @@
   }
 
   // ---------- Rendering ----------
-  function hearts(n) { return n <= 0 ? "—" : n <= 5 ? "♥".repeat(n) : "♥×" + n; }
+  function hearts(n) { return n <= 0 ? "-" : n <= 5 ? "♥".repeat(n) : "♥×" + n; }
 
   let wheelW = 520, guardFn = null, guardT = 0, jit = { x: 0, y: 0, t: 0 };
   const attrCache = new Map();

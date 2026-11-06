@@ -9,7 +9,8 @@
 //    Character.ACC_COLORS                     the colors an accessory can be painted
 //    Character.DEFAULT_COLOR / _FACE / _ACCESSORY  fallbacks for bad/missing values
 //    Character.color / .face / .accessory     the local player's current choices
-//    Character.accColor                       color of the currently chosen accessory
+//    Character.accessory                      array of worn accessory keys (at most one per hidden category: glasses, hair, hat)
+//    Character.accColor                       { colorId: colorKey } map of the worn accessories' colors
 //    Character.faceAlive(color, face, acc, accColor)  SVG string for a living player
 //    Character.faceDead(color, acc, accColor)         SVG string for an eliminated player
 //    Character.faceHurt(acc, accColor)                SVG string shown when hit
@@ -88,47 +89,55 @@ const Character = (() => {
   //  svg:   function(c) -> SVG markup, where c = { fill, stroke } of the accessory's current color
   const ACCESSORIES = {
     none:    { label: "None", color: null, svg: () => "" },
-    glasses: { label: "Glasses", color: "black", svg: c => {
+    glasses: { label: "Glasses", cat: "glasses", color: "black", svg: c => {
       const rims = '<circle cx="18" cy="21" r="7.2"/><circle cx="34" cy="21" r="7.2"/>';
       const rest = '<path d="M25.2 20.5 Q26 19.5 26.8 20.5"/><path d="M10.8 20 L4.5 18.5M41.2 20 L47.5 18.5"/>';
       return '<g fill="none" stroke="' + c.stroke + '" stroke-width="3.6" stroke-linejoin="round" stroke-linecap="round">' + rims + rest + '</g>' +   // thin outline so any color shows up on any face
         '<g fill="#cfeaff" fill-opacity=".1" stroke="' + c.fill + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">' + rims + '<g fill="none">' + rest + '</g></g>' +
         '<path d="M13.5 17.5 Q15 16 16.8 15.8M29.5 17.5 Q31 16 32.8 15.8" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="1.4" stroke-linecap="round"/>';
     } },
-    partyhat: { label: "Party hat", color: "pink", svg: c => {
+    // Right-click the glasses button to swap to these. Shares the glasses' color.
+    sunglasses: { label: "Sunglasses", cat: "glasses", colorId: "glasses", hidden: true, color: "black", svg: c => {
+      const rims = '<circle cx="18" cy="21" r="7.2"/><circle cx="34" cy="21" r="7.2"/>';
+      const rest = '<path d="M25.2 20.5 Q26 19.5 26.8 20.5"/><path d="M10.8 20 L4.5 18.5M41.2 20 L47.5 18.5"/>';
+      return '<g fill="none" stroke="' + c.stroke + '" stroke-width="3.6" stroke-linejoin="round" stroke-linecap="round">' + rims + rest + '</g>' +
+        '<g fill="#1b1722" stroke="' + c.fill + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">' + rims + '<g fill="none">' + rest + '</g></g>' +
+        '<path d="M13.5 17.5 Q15 16 16.8 15.8M29.5 17.5 Q31 16 32.8 15.8" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="1.4" stroke-linecap="round"/>';
+    } },
+    partyhat: { label: "Party hat", cat: "hat", color: "pink", svg: c => {
       return '<path d="M26 -14 L37 6 Q26 10 15 6 Z" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="1.4" stroke-linejoin="round"/>' +
         '<path d="M15.4 6.3 Q26 10.3 36.6 6.3" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/>' +
         '<path d="M15.4 6.3 Q26 10.3 36.6 6.3" fill="none" stroke="' + c.stroke + '" stroke-opacity=".6" stroke-width=".8" stroke-linecap="round"/>';
     } },
-    ponytails: { label: "Twin ponytails", color: "green", svg: c => {
+    ponytails: { label: "Twin ponytails", cat: "hair", color: "green", svg: c => {
       const tail = (x, d) => '<path d="M' + x + ' 6 C' + (x + d * 8) + ' 6 ' + (x + d * 11) + ' 12 ' + (x + d * 9) + ' 21 C' + (x + d * 6) + ' 18 ' + (x + d * 3) + ' 14 ' + x + ' 10Z" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="1.4" stroke-linejoin="round"/>';
       return tail(9, -1) + tail(43, 1) +
         '<path d="M6 17 Q10 -4 26 -2 Q42 -4 46 17 Q40 5 26 5 Q12 5 6 17Z" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="1.4" stroke-linejoin="round"/>';
     } },
-    sidehair: { label: "Bald with side hair", color: "brown", svg: c => {
+    sidehair: { label: "Bald with side hair", cat: "hair", color: "brown", svg: c => {
       const side = d => { const X = x => d < 0 ? x : 52 - x;
         return '<path d="M' + X(6) + ' 11 C' + X(-1) + ' 9 ' + X(-4) + ' 19 ' + X(-2) + ' 27 C' + X(0) + ' 33 ' + X(5) + ' 31 ' + X(5.5) + ' 27 C' + X(2.5) + ' 22 ' + X(3.5) + ' 17 ' + X(7.5) + ' 14Z" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="1.4" stroke-linejoin="round"/>'; };
       return side(-1) + side(1);
     } },
-    shorthair: { label: "Short hair", color: "brown", svg: c => {
+    shorthair: { label: "Short hair", cat: "hair", color: "brown", svg: c => {
       return '<path d="M3.5 21 C-1 5 10 -4 26 -4 C42 -4 53 5 48.5 21 C46 15 43 11 38 10 C33 14 24 12 17 9 C11 11 6 15 3.5 21Z" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="1.4" stroke-linejoin="round"/>' +
         '<path d="M38 10 C41 5 40 1 36 -1.5" fill="none" stroke="' + c.stroke + '" stroke-opacity=".5" stroke-width=".9" stroke-linecap="round"/>';
     } },
-    longhair: { label: "Long hair", color: "black", svg: c => {
+    longhair: { label: "Long hair", cat: "hair", color: "black", svg: c => {
       const side = d => { const X = x => d < 0 ? x : 52 - x;
         return '<path d="M' + X(4) + ' 20 C' + X(-3) + ' 26 ' + X(-4) + ' 40 ' + X(-1) + ' 48 C' + X(4) + ' 49 ' + X(9) + ' 46 ' + X(10) + ' 42 C' + X(7) + ' 34 ' + X(7) + ' 26 ' + X(9) + ' 17Z" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="1.4" stroke-linejoin="round"/>'; };
       return side(-1) + side(1) +
         '<path d="M3.5 22 C-1 4 12 -4 26 -4 C40 -4 53 4 48.5 22 C45 14 38 9 26 6 C14 9 7 14 3.5 22Z" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="1.4" stroke-linejoin="round"/>' +
         '<path d="M26 6 Q26 0 26 -4" fill="none" stroke="' + c.stroke + '" stroke-opacity=".5" stroke-width=".9" stroke-linecap="round"/>';
     } },
-    curlyhair: { label: "Curly hair", color: "orange", svg: c => {
+    curlyhair: { label: "Curly hair", cat: "hair", color: "orange", svg: c => {
       const cs = [[8, 12, 6], [14, 5, 6.5], [26, 1, 7.5], [38, 5, 6.5], [44, 12, 6]];
       const circ = extra => cs.map(a => '<circle cx="' + a[0] + '" cy="' + a[1] + '" r="' + a[2] + '" ' + extra + '/>').join("");
       return circ('fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="1.4"') +
         circ('fill="' + c.fill + '"') +
         '<path d="M7 13 Q14 11 20 9 Q26 13 32 9 Q38 11 45 13 L45 4 L7 4Z" fill="' + c.fill + '"/>';
     } },
-    banana:  { label: "Banana peel", color: "yellow", svg: c => {
+    banana:  { label: "Banana peel", cat: "hat", color: "yellow", svg: c => {
       // A peel resting on top of the head: two broad flaps draped over the sides, one curling up in the middle, brown stem cap on top.
       return '<path d="M26 5 C15.6 -4.8 7.4 1.3 4 12 C10.3 9.1 20.2 9.5 26 5Z" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="1.4" stroke-linejoin="round"/><path d="M22 1.6 Q12.2 3.6 5.9 7.4" fill="none" stroke="' + c.stroke + '" stroke-opacity=".5" stroke-width=".9" stroke-linecap="round"/>' +
         '<circle cx="4" cy="12" r="1.5" fill="#7a5320"/>' +
@@ -140,23 +149,44 @@ const Character = (() => {
   };
   const DEFAULT_ACCESSORY = "none";
   const accDef = a => has(ACCESSORIES, a) ? ACCESSORIES[a] : ACCESSORIES[DEFAULT_ACCESSORY];
-  // Color to paint accessory `a` in: the given key if valid, otherwise that accessory's own default
-  const accColorOf = (a, ck) => ACC_COLORS[has(ACC_COLORS, ck) ? ck : accDef(a).color] || ACC_COLORS.black;
-  const accOf = (a, ck) => accDef(a).svg(accColorOf(a, ck));
+  // Hidden layering: glasses sit at the bottom, hair on top of them, hats / banana peels on top of that.
+  // A player can wear one accessory per category.
+  const CATS = ["glasses", "hair", "hat"];
+  const colorId = a => ACCESSORIES[a].colorId || a;
+  // Turn a string / array of accessory keys into a clean list: valid keys only, one per category, in layer order
+  function normAccs(v) {
+    const list = Array.isArray(v) ? v : (typeof v === "string" ? [v] : []);
+    const byCat = {};
+    list.forEach(k => { if (typeof k === "string" && has(ACCESSORIES, k) && ACCESSORIES[k].cat) byCat[ACCESSORIES[k].cat] = k; });
+    return CATS.filter(c => byCat[c]).map(c => byCat[c]);
+  }
+  // { colorId: colorKey } with valid entries only
+  function normColors(o) {
+    const out = {};
+    if (o && typeof o === "object") Object.keys(o).forEach(k => { if (has(ACCESSORIES, k) && ACCESSORIES[k].color && has(ACC_COLORS, o[k])) out[k] = o[k]; });
+    return out;
+  }
+  // Color to paint accessory `a` in: the player's choice if valid, otherwise that accessory's own default
+  const accColorOf = (a, cols) => ACC_COLORS[cols && has(cols, colorId(a)) && has(ACC_COLORS, cols[colorId(a)]) ? cols[colorId(a)] : accDef(a).color] || ACC_COLORS.black;
+  const accOf = (list, cols) => normAccs(list).map(a => ACCESSORIES[a].svg(accColorOf(a, cols))).join("");
 
   // The local player's current choices (restored from localStorage)
-  let myColor = DEFAULT_COLOR, myFace = DEFAULT_FACE, myAcc = DEFAULT_ACCESSORY;
+  let myColor = DEFAULT_COLOR, myFace = DEFAULT_FACE, myAccs = [], myActive = null;
   try { const sc = localStorage.getItem("pp-color"); if (has(COLORS, sc)) myColor = sc; } catch (e) {}
   try { const sf = localStorage.getItem("pp-face"); if (has(FACES, sf)) myFace = sf; } catch (e) {}
-  try { const sa = localStorage.getItem("pp-accessory"); if (has(ACCESSORIES, sa)) myAcc = sa; } catch (e) {}
+  try {
+    const raw = localStorage.getItem("pp-accessory");
+    let v = raw; try { v = JSON.parse(raw); } catch (e) {}   // older saves stored a single plain key
+    myAccs = normAccs(v);
+    myActive = myAccs.length ? myAccs[myAccs.length - 1] : null;
+  } catch (e) {}
   // Each accessory remembers its own color. Only colors the player changed are stored;
   // anything missing falls back to that accessory's default (glasses black, banana peel yellow).
-  const myAccColors = {};
-  try {
-    const sc = JSON.parse(localStorage.getItem("pp-acc-colors"));
-    if (sc && typeof sc === "object") Object.keys(sc).forEach(a => { if (has(ACCESSORIES, a) && ACCESSORIES[a].color && has(ACC_COLORS, sc[a])) myAccColors[a] = sc[a]; });
-  } catch (e) {}
-  const accColorKey = a => has(myAccColors, a) ? myAccColors[a] : ACCESSORIES[a].color;
+  let myAccColors = {};
+  try { myAccColors = normColors(JSON.parse(localStorage.getItem("pp-acc-colors"))); } catch (e) {}
+  const accColorKey = a => has(myAccColors, colorId(a)) ? myAccColors[colorId(a)] : ACCESSORIES[a].color;
+  // The key actually worn in a button's slot (the glasses button may be wearing sunglasses)
+  const heldFor = k => myAccs.find(a => a === k || (ACCESSORIES[a].cat === ACCESSORIES[k].cat && ACCESSORIES[a].colorId === k)) || null;
 
   // ---------- Face drawings ----------
   const faceAlive = (k, f, a, ac) => { const c = colorOf(k), fc = FACES[f] || FACES[DEFAULT_FACE]; return '<svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="' + c.fill + '" stroke="' + c.stroke + '" stroke-width="2"/>' + (fc.eyes || DEFAULT_EYES) + fc.mouth + accOf(a, ac) + '</svg>'; };
@@ -166,27 +196,46 @@ const Character = (() => {
   const FACE_HURT = faceHurt(DEFAULT_ACCESSORY);
 
   function sanitize(color, face, accessory, accColor) {
-    const acc = has(ACCESSORIES, accessory) ? accessory : DEFAULT_ACCESSORY;
     return {
       color: has(COLORS, color) ? color : DEFAULT_COLOR,
       face: has(FACES, face) ? face : DEFAULT_FACE,
-      accessory: acc,
-      accColor: has(ACC_COLORS, accColor) ? accColor : ACCESSORIES[acc].color
+      accessory: normAccs(accessory),
+      accColor: normColors(accColor)
     };
   }
 
   // ---------- Profile (name + character) ----------
-  function saveProfile() { try { localStorage.setItem("pp-name", $("nameInput").value); localStorage.setItem("pp-color", myColor); localStorage.setItem("pp-face", myFace); localStorage.setItem("pp-accessory", myAcc); localStorage.setItem("pp-acc-colors", JSON.stringify(myAccColors)); } catch (e) {} }
+  function saveProfile() { try { localStorage.setItem("pp-name", $("nameInput").value); localStorage.setItem("pp-color", myColor); localStorage.setItem("pp-face", myFace); localStorage.setItem("pp-accessory", JSON.stringify(myAccs)); localStorage.setItem("pp-acc-colors", JSON.stringify(myAccColors)); } catch (e) {} }
   function renderProfile() {
-    const curAccColor = accColorKey(myAcc);
-    $("facePreview").innerHTML = faceAlive(myColor, myFace, myAcc, curAccColor);
-    $("faceOpts").querySelectorAll(".facebtn").forEach(b => { b.setAttribute("aria-checked", b.dataset.k === myFace ? "true" : "false"); b.innerHTML = faceAlive(myColor, b.dataset.k, myAcc, curAccColor); });
-    // each accessory button is drawn in its own remembered color
-    $("accOpts").querySelectorAll(".facebtn").forEach(b => { b.setAttribute("aria-checked", b.dataset.k === myAcc ? "true" : "false"); b.innerHTML = faceAlive(myColor, myFace, b.dataset.k, accColorKey(b.dataset.k)); });
+    $("facePreview").innerHTML = faceAlive(myColor, myFace, myAccs, myAccColors);
+    $("faceOpts").querySelectorAll(".facebtn").forEach(b => { b.setAttribute("aria-checked", b.dataset.k === myFace ? "true" : "false"); b.innerHTML = faceAlive(myColor, b.dataset.k, myAccs, myAccColors); });
+    // each accessory button is drawn in its own remembered color; selected ones get a border, the one the color row paints is also enlarged
+    $("accOpts").querySelectorAll(".facebtn").forEach(b => {
+      const k = b.dataset.k, held = k === "none" ? null : heldFor(k);
+      b.setAttribute("aria-checked", k === "none" ? (myAccs.length ? "false" : "true") : (held ? "true" : "false"));
+      b.classList.toggle("active", !!held && held === myActive);
+      b.innerHTML = faceAlive(myColor, myFace, k === "none" ? [] : (held || k), myAccColors);
+    });
     $("swatches").querySelectorAll(".swatch").forEach(b => b.setAttribute("aria-checked", b.dataset.k === myColor ? "true" : "false"));
-    // "None" has nothing to paint, so its color row is switched off
-    const canPaint = !!ACCESSORIES[myAcc].color;
+    // the color row paints the most recently picked accessory; with nothing picked it's switched off
+    const canPaint = !!(myActive && ACCESSORIES[myActive].color);
+    const curAccColor = canPaint ? accColorKey(myActive) : null;
     $("accSwatches").querySelectorAll(".swatch").forEach(b => { b.disabled = !canPaint; b.setAttribute("aria-checked", canPaint && b.dataset.k === curAccColor ? "true" : "false"); });
+  }
+  function setHeld(oldKey, newKey) { myAccs = normAccs(myAccs.filter(a => a !== oldKey).concat(newKey)); myActive = newKey; }
+  function pickAccessory(k) {
+    if (k === "none") { myAccs = []; myActive = null; return; }
+    const held = heldFor(k);
+    if (!held) { myAccs = normAccs(myAccs.filter(a => ACCESSORIES[a].cat !== ACCESSORIES[k].cat).concat(k)); myActive = k; }
+    else if (held !== myActive) myActive = held;                                   // worn but not the one being painted: select it for painting
+    else { myAccs = myAccs.filter(a => a !== held); myActive = myAccs.length ? myAccs[myAccs.length - 1] : null; }   // click again to take it off
+  }
+  // Right-click glasses <-> sunglasses
+  function toggleSunglasses(onlyIfWorn) {
+    const held = heldFor("glasses");
+    if (!held && onlyIfWorn) return false;
+    setHeld(held, held === "sunglasses" ? "glasses" : "sunglasses");
+    return true;
   }
   function selectTab(tab) {
     document.querySelectorAll("#profileTabs [role=tab]").forEach(t => {
@@ -208,21 +257,23 @@ const Character = (() => {
   }
   function init() {
     makeSwatches($("swatches"), COLORS, k => { myColor = k; });
-    makeSwatches($("accSwatches"), ACC_COLORS, k => { if (ACCESSORIES[myAcc].color) myAccColors[myAcc] = k; });
+    makeSwatches($("accSwatches"), ACC_COLORS, k => { if (myActive && ACCESSORIES[myActive].color) myAccColors[colorId(myActive)] = k; });
     Object.keys(FACES).forEach(k => {
       const b = el("button", "facebtn"); b.type = "button"; b.dataset.k = k; b.title = FACES[k].label;
       b.setAttribute("role", "radio"); b.setAttribute("aria-label", FACES[k].label);
       b.onclick = () => { myFace = k; saveProfile(); renderProfile(); };
       $("faceOpts").appendChild(b);
     });
-    Object.keys(ACCESSORIES).forEach(k => {
+    Object.keys(ACCESSORIES).filter(k => !ACCESSORIES[k].hidden).forEach(k => {
       const wrap = el("div", "accopt");
-      const b = el("button", "facebtn"); b.type = "button"; b.dataset.k = k; b.title = ACCESSORIES[k].label;
+      const b = el("button", "facebtn"); b.type = "button"; b.dataset.k = k; b.title = ACCESSORIES[k].label + (k === "glasses" ? " (right-click for sunglasses)" : "");
       b.setAttribute("role", "radio"); b.setAttribute("aria-label", ACCESSORIES[k].label);
-      b.onclick = () => { myAcc = k; saveProfile(); renderProfile(); };
+      b.onclick = () => { pickAccessory(k); saveProfile(); renderProfile(); };
+      if (k === "glasses") b.addEventListener("contextmenu", e => { e.preventDefault(); toggleSunglasses(false); saveProfile(); renderProfile(); });
       wrap.appendChild(b);
       $("accOpts").appendChild(wrap);
     });
+    $("facePreview").addEventListener("contextmenu", e => { if (toggleSunglasses(true)) { e.preventDefault(); saveProfile(); renderProfile(); } });
     const tabs = Array.from(document.querySelectorAll("#profileTabs [role=tab]"));
     tabs.forEach((t, i) => {
       t.onclick = () => selectTab(t);
@@ -245,8 +296,8 @@ const Character = (() => {
     COLORS, ACC_COLORS, FACES, ACCESSORIES, DEFAULT_COLOR, DEFAULT_FACE, DEFAULT_ACCESSORY, FACE_HURT,
     get color() { return myColor; },
     get face() { return myFace; },
-    get accessory() { return myAcc; },
-    get accColor() { return accColorKey(myAcc); },
+    get accessory() { return myAccs.slice(); },
+    get accColor() { return Object.assign({}, myAccColors); },
     colorOf, faceAlive, faceDead, faceHurt, sanitize,
     save: saveProfile,
     render: renderProfile,
