@@ -50,6 +50,10 @@
       const p = c.play(); if (p && p.catch) p.catch(() => {});
     } catch (e) {}
   }
+  function winMs() { // the win animation lasts exactly as long as win.ogg
+    const o = sfx.win, d = o && o.a && o.a.duration;
+    return (!o || o.missing || !isFinite(d) || d <= 0) ? OVER_MS : Math.round(d * 1000);
+  }
   function syncSfxSliders() {
     document.querySelectorAll(".sfxVol").forEach(s => {
       s.value = Math.round(sfxVol * 100);
@@ -473,7 +477,7 @@
       state.phase = "over"; // winner animation plays in the arena, then everyone drops back to the lobby
       state.winner = alive[0].name; state.winnerId = alive[0].id; state.winSeq = (state.winSeq || 0) + 1;
       broadcast(); render();
-      overTimer = setTimeout(backToLobby, OVER_MS);
+      overTimer = setTimeout(backToLobby, winMs());
       return true;
     }
     return false;
@@ -883,7 +887,7 @@
         b.classList.remove("hidden");
         const t = state.typing || "";
         b.textContent = "";
-        b.appendChild(el("span", null, t ? (t.length > 16 ? "…" + t.slice(-15) : t) : "…"));
+        b.appendChild(el("span", null, t ? t : "…"));
         b.classList.toggle("empty", !t);
       } else if (state.phase === "game" && !state.announcing && pl && pl.last && !pl.last.stale && RARITIES[pl.last.r]) {
         const R = RARITIES[pl.last.r];

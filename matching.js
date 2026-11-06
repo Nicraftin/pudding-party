@@ -19,6 +19,7 @@
     let i = 0; while (i < x.length && x[i] === y[i]) i++;
     return x.slice(i) === y.slice(i + 1);
   }
+  function coreKey(s) { return answerKey(String(s).replace(/^\s*the\s+/i, "")); } // leading "the" never matters
   function trailNum(k) { const t = String(k).match(/\d+$/); return t ? t[0] : ""; } // a trailing number must be typed exactly
   function tieredPrompt(text, sub, modes, tiers) {
     const answers = [], rarity = {}, entries = [];
@@ -26,13 +27,15 @@
       const a = typeof item === "string" ? item : item.name, aliases = (typeof item === "string" ? [] : item.aliases) || [];
       answers.push(a); rarity[a] = r;
       const w = tokens(a); entries.push({ a, key: answerKey(a), words: new Set(w), long: w.length >= 5,
-        altKeys: aliases.map(answerKey).filter(Boolean) }); // aliases (from "(...)" in prompt-list.js) count as this answer
+        altKeys: aliases.map(answerKey).filter(Boolean),
+        core: coreKey(a), altCores: aliases.map(coreKey).filter(Boolean) }); // aliases (from "(...)" in prompt-list.js) count as this answer
     }));
     return { text, sub, modes, answers, rarity,
       exact(raw) { const key = answerKey(raw); return !!key && entries.some(e => e.key === key || e.altKeys.includes(key)); }, // false = the match was an autocorrect guess
       match(raw, used) {
         const key = answerKey(raw); if (!key) return null;
         const ex = entries.find(e => e.key === key || e.altKeys.includes(key)); if (ex) return ex.a; // spaces/punctuation never matter
+        const ck = coreKey(raw), th = ck && entries.find(e => e.core === ck || e.altCores.includes(ck)); if (th) return th.a; // "the" added/missing: autocorrected
         const typed = new Set(tokens(raw)), c = [];
         entries.forEach(e => {
           let score = 0;
