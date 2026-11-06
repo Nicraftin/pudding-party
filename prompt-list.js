@@ -16,7 +16,7 @@
 
 const PROMPT_LIST = `
 
-# Minecraft crafting recipes that use glass
+# Minecraft crafting recipes that use Glass
 
 - Spoon
 Glass Pane (pane)
@@ -106,6 +106,7 @@ Big Top Breakout
 Dungeons and Duct Tape
 
 # Named locations in Silksong
+modes: social
 
 - Spoon
 Moss Grotto
@@ -1013,7 +1014,7 @@ Nestor Skip (death% skip, death% level 5 skip)
 First frame corner jump (first frame cj)
 Low%
 
-# Hollow Knight charms
+# Hollow Knight Charms
 
 - Spoon
 Wayward Compass (compass)
@@ -1070,8 +1071,9 @@ Carefree Melody
 - Flan-tastic
 Shape of Unn
 
-# Brawlhalla maps
+# Brawlhalla Maps
 sub: No big versions 
+modes: social
 
 - Spoon
 Brawlhaven
@@ -1184,7 +1186,7 @@ Small Big Kings Pass
 - Flan-tastic
 Ice Cream Edge
 
-# Minecraft enchantments
+# Minecraft Enchantments
 
 - Spoon
 Sharpness
@@ -1239,7 +1241,7 @@ Wind Burst
 - Flan-tastic
 Lunge
 
-# The Amazing Digital Circus characters
+# The Amazing Digital Circus Characters
 
 - Spoon
 Pomni
@@ -1301,7 +1303,7 @@ Sam Best (sam, Kinger's second daughter)
 - Flan-tastic
 Dr. Football (football, average doer)
 
-# The Amazing Digital Circus locations
+# The Amazing Digital Circus Locations
 
 - Spoon
 The Tent (tent)
@@ -1358,7 +1360,7 @@ Rows of Doors Hallway
 - Flan-tastic
 Shrimp Town
 
-# The Amazing Digital Circus episode names
+# The Amazing Digital Circus Episode Names
 
 - Spoon
 Pilot
@@ -1379,7 +1381,7 @@ Fast food masquerade
 - Flan-tastic
 hjsakldfhl
 
-# Terraria bosses
+# Terraria Bosses
 modes: social
 
 - Spoon
@@ -1423,7 +1425,7 @@ Stardust Pillar
 - Flan-tastic
 Mechdusa
 
-# Spooky Month characters
+# Spooky Month Characters
 modes: sulka
 
 - Spoon
@@ -1495,7 +1497,7 @@ The Cultists (cultist)
 - Flan-tastic
 Sans Kid (sans)
 
-# Sulka Discord emojis
+# Sulka Discord Emojis
 modes: sulka
 
 - Spoon
@@ -1554,7 +1556,7 @@ Nic clap (clap, nicraftin clap)
 - Flan-tastic
 Looks sad
 
-# Verity variants
+# Verity Variants
 
 - Spoon
 Verity
@@ -2015,7 +2017,7 @@ Monster Dance Off
 - Flan-tastic
 SerpienTess
 
-# Minecraft neutral mobs
+# Minecraft Neutral Mobs
 
 - Spoon
 Enderman
@@ -2045,7 +2047,8 @@ Zombie Nautilus
 - Flan-tastic
 Coral Zombie Nautilus
 
-# Silksong bosses
+# Silksong Bosses
+modes: social
 
 - Spoon
 Moss Mother
@@ -2227,7 +2230,7 @@ Lave
 Suco de Abacaxi Azedo
 Just Hope
 
-# Hollow Knight named locations
+# Hollow Knight Named Locations
 
 - Spoon
 Dirtmouth
@@ -2621,6 +2624,57 @@ Isabella
 
 - Flan-tastic
 Kalani
+
+# Deltarune Chapter 5 new characters
+modes: sulka
+
+- Spoon
+Flowery
+Pink (maddy, maddie, pink's ghost)
+Aqua
+
+- Slice
+Seth
+Yellow
+Green
+Orange
+Blue
+Floradinn
+Netskie
+Kawkaw
+
+- Rare
+Leafling
+Shi
+Shinobeetle
+Terakota
+Sheary
+Pink's body
+Hopschef
+Tropical Starwalker
+Laddery
+Signery
+Spikery
+
+- Deep Cut
+Doubter
+Kooby
+Shrubbery
+Small Netskie
+Wave
+Umbrella
+Pumpkin
+Zenlooker
+Tropical Starwalker Bird
+Farmer Shi
+Ferroll
+Pot archer
+Mantis dancer
+Chairery
+Unoriginal Starwalker
+
+- Flan-tastic
+Windstruggler
 
 # Penis Synonyms
 - Spoon
