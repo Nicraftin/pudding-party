@@ -76,7 +76,7 @@
   const { faceAlive, faceDead, faceHurt } = Character;
 
   // ---------- Modes ----------
-  const MODES = { sulka: "Sulka", social: "Social Craft" };
+  const MODES = { sulka: "Sulka", newsulka: "New Sulka", social: "Social Craft" };
 
   // ---------- DOM ----------
   const $ = id => document.getElementById(id);
@@ -148,7 +148,7 @@
       state = {
         phase: "lobby",
         code: roomCode, hostId: myId,
-        settings: { lives, turnMs: secs * 1000, lifePts: DEFAULT_LIFE_PTS, mode: "sulka", losses: DEFAULT_LOSSES, noRepeat: "lobby" },
+        settings: { lives, turnMs: secs * 1000, lifePts: DEFAULT_LIFE_PTS, mode: "social", losses: DEFAULT_LOSSES, noRepeat: "lobby" },
         players: [{ id: myId, name: myName, color: Character.color, face: Character.face, accessory: Character.accessory, accColor: Character.accColor, lives, alive: true, inRing: false, inMatch: false, pts: 0, segs: [], last: null }],
         answerSeq: 0, vote: null, skip: null, typing: "", announcing: false, attack: null,
         turn: null, prompt: null, sub: null, used: [], usedPrompts: [], event: "", winner: null, remaining: 0
