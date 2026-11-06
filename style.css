@@ -293,6 +293,7 @@ input:disabled, select:disabled { opacity: .6; cursor: not-allowed; }
 
 /* autocorrect suggestion */
 .dym { text-align: center; font-weight: 600; color: var(--puff); margin: 0 0 6px; }
+.dym.repeat { color: #f5c518; letter-spacing: 2px; }
 
 /* sfx volume slider */
 .sfxrow { display: flex; justify-content: space-between; align-items: baseline; }

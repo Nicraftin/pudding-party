@@ -1,5 +1,5 @@
 // All prompts now live in prompt-list.js (plain text, no coding needed).
-// Helpers (tieredPrompt, parsePromptList, WORDS, within1) come from matching.js.
+// Helpers (tieredPrompt, parsePromptList, WORDS, editDist) come from matching.js.
 
 const PROMPTS = parsePromptList(PROMPT_LIST);
 

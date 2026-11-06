@@ -19,6 +19,23 @@
     let i = 0; while (i < x.length && x[i] === y[i]) i++;
     return x.slice(i) === y.slice(i + 1);
   }
+  function editDist(a, b) { // optimal-string-alignment distance: substitute / insert / delete / swap neighbours each cost 1
+    const la = a.length, lb = b.length, d = [];
+    for (let i = 0; i <= la; i++) { d[i] = [i]; }
+    for (let j = 1; j <= lb; j++) d[0][j] = j;
+    for (let i = 1; i <= la; i++) for (let j = 1; j <= lb; j++) {
+      d[i][j] = Math.min(d[i-1][j] + 1, d[i][j-1] + 1, d[i-1][j-1] + (a[i-1] === b[j-1] ? 0 : 1));
+      if (i > 1 && j > 1 && a[i-1] === b[j-2] && a[i-2] === b[j-1]) d[i][j] = Math.min(d[i][j], d[i-2][j-2] + 1);
+    }
+    return d[la][lb];
+  }
+  function allowedMistakes(len) { return len > 15 ? 3 : len > 10 ? 2 : 1; } // 1 mistake normally, 2 above 10 characters, 3 above 15
+  function typoDist(typed, target) { // edit distance if typed is close enough to target to autocorrect, else -1
+    if (typed.length < 4 || target.length < 4 || trailNum(typed) !== trailNum(target)) return -1;
+    const n = allowedMistakes(target.length);
+    if (Math.abs(typed.length - target.length) > n) return -1;
+    const d = editDist(typed, target); return d <= n ? d : -1;
+  }
   function coreKey(s) { return answerKey(String(s).replace(/^\s*the\s+/i, "")); } // leading "the" never matters
   function trailNum(k) { const t = String(k).match(/\d+$/); return t ? t[0] : ""; } // a trailing number must be typed exactly
   function tieredPrompt(text, sub, modes, tiers) {
@@ -39,7 +56,8 @@
         const typed = new Set(tokens(raw)), c = [];
         entries.forEach(e => {
           let score = 0;
-          if ((key.length >= 4 && e.key.length >= 4 && trailNum(key) === trailNum(e.key) && within1(key, e.key)) || (key.length >= 4 && e.altKeys.some(k => k.length >= 4 && trailNum(key) === trailNum(k) && within1(key, k)))) score = 100;           // one misspelled character
+          const dists = [e.key, ...e.altKeys].map(k => typoDist(key, k)).filter(d => d >= 0);
+          if (dists.length) score = 100 - Math.min(...dists); // a few misspelled characters (closest match wins)
           else if (e.long) { const n = [...e.words].filter(w => typed.has(w) || (w.length >= 5 && key.includes(w))).length; if (n >= 3) score = n; } // any 3 words of a long answer
           if (score) c.push({ a: e.a, score });
         });

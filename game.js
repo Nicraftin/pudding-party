@@ -148,10 +148,10 @@
       state = {
         phase: "lobby",
         code: roomCode, hostId: myId,
-        settings: { lives, turnMs: secs * 1000, lifePts: DEFAULT_LIFE_PTS, mode: "sulka", losses: DEFAULT_LOSSES },
+        settings: { lives, turnMs: secs * 1000, lifePts: DEFAULT_LIFE_PTS, mode: "sulka", losses: DEFAULT_LOSSES, noRepeat: "lobby" },
         players: [{ id: myId, name: myName, color: Character.color, face: Character.face, accessory: Character.accessory, accColor: Character.accColor, lives, alive: true, inRing: false, inMatch: false, pts: 0, segs: [], last: null }],
         answerSeq: 0, vote: null, skip: null, typing: "", announcing: false, attack: null,
-        turn: null, prompt: null, sub: null, used: [], event: "", winner: null, remaining: 0
+        turn: null, prompt: null, sub: null, used: [], usedPrompts: [], event: "", winner: null, remaining: 0
       };
       broadcast();
       render();
@@ -216,6 +216,8 @@
       } else if (msg.t === "msg") {
         toast(msg.text);
         if (msg.shake) shakeInput();
+      } else if (msg.t === "repeat") {
+        showRepeat();
       } else if (msg.t === "suggest") {
         showSuggestion(msg.text);
       } else if (msg.t === "typing") {
@@ -469,6 +471,7 @@
     state.announcing = false; state.holding = false; state.typing = "";
     state.winner = null;
     state.event = "";
+    if (state.settings.noRepeat === "match") state.usedPrompts = []; // "match": list resets every match; "lobby": carries across matches
     state.turn = state.players.find(p => p.inMatch).id; state.attack = null;
     newRound();
     announceRound();
@@ -476,8 +479,14 @@
 
   function newRound() {
     const pool = PROMPTS.filter(p => p.modes.includes(state.settings.mode));
-    const choices = pool.length > 1 ? pool.filter(p => p.text !== state.prompt) : pool;
+    state.usedPrompts = state.usedPrompts || [];
+    let choices = pool.filter(p => p.text !== state.prompt && !state.usedPrompts.includes(p.text));
+    if (!choices.length) { // every prompt has been played: start the cycle over
+      state.usedPrompts = [];
+      choices = pool.length > 1 ? pool.filter(p => p.text !== state.prompt) : pool;
+    }
     const pick = choices[Math.floor(Math.random() * choices.length)];
+    state.usedPrompts.push(pick.text);
     state.prompt = pick.text;
     state.sub = pick.sub;
     state.roundSeq = (state.roundSeq || 0) + 1;
@@ -540,7 +549,7 @@
     const ans = prompt.match ? prompt.match(raw, state.used) : prompt.normalize(raw);
     const player = state.players.find(p => p.id === id);
     if (!ans || !prompt.answers.includes(ans)) { tell(id, "Not a valid answer", true); return; }
-    if (state.used.includes(ans)) { tell(id, ans + " was already used", true); return; }
+    if (state.used.includes(ans)) { flagRepeat(id); return; }
     if (prompt.exact && !prompt.exact(raw)) { suggest(id, ans); return; } // autocorrected guess: ask the player to confirm by pressing enter again
     state.used.push(ans);
     const rKey = (prompt.rarity && prompt.rarity[ans]) || "spoon";
@@ -632,10 +641,11 @@
     const lifePts = clampInt($("lifePtsInput").value, 10, 5000, state.settings.lifePts);
     const losses = clampInt($("lossesInput").value, 1, 10, state.settings.losses || DEFAULT_LOSSES);
     const mode = MODES[$("modeInput").value] ? $("modeInput").value : state.settings.mode;
-    state.settings = { lives, turnMs: secs * 1000, lifePts, mode, losses };
+    const noRepeat = $("repeatInput").value === "match" ? "match" : "lobby";
+    state.settings = { lives, turnMs: secs * 1000, lifePts, mode, losses, noRepeat };
     state.players.forEach(p => { p.lives = lives; });
     $("livesInput").value = lives; $("secsInput").value = secs;
-    $("lifePtsInput").value = lifePts; $("modeInput").value = mode; $("lossesInput").value = losses;
+    $("lifePtsInput").value = lifePts; $("modeInput").value = mode; $("lossesInput").value = losses; $("repeatInput").value = noRepeat;
     broadcast(); render();
   }
 
@@ -674,7 +684,18 @@
     if (id === myId) { showSuggestion(text); return; }
     const c = conns[id]; if (c && c.open) c.send({ t: "suggest", text });
   }
+  function flagRepeat(id) {
+    if (id === myId) { showRepeat(); return; }
+    const c = conns[id]; if (c && c.open) c.send({ t: "repeat" });
+  }
+  function showRepeat() {
+    $("dym").textContent = "REPEAT";
+    $("dym").classList.add("repeat");
+    $("dym").classList.remove("hidden");
+    shakeInput();
+  }
   function showSuggestion(text) {
+    $("dym").classList.remove("repeat");
     const input = $("answerInput");
     input.value = text;
     $("dym").textContent = "Did you mean " + text + "?";
@@ -1010,12 +1031,13 @@
     const playing = game && !!me && me.inMatch && me.alive;
     $("lobbyCode").textContent = state.code;
     fillPlayers($("lobbyPlayers"));
-    ["livesInput","secsInput","lifePtsInput","lossesInput","modeInput"].forEach(i => { $(i).disabled = !isHost || !lobby; });
+    ["livesInput","secsInput","lifePtsInput","lossesInput","modeInput","repeatInput"].forEach(i => { $(i).disabled = !isHost || !lobby; });
     if (document.activeElement !== $("livesInput")) $("livesInput").value = state.settings.lives;
     if (document.activeElement !== $("secsInput")) $("secsInput").value = state.settings.turnMs / 1000;
     if (document.activeElement !== $("lifePtsInput")) $("lifePtsInput").value = state.settings.lifePts;
     if (document.activeElement !== $("lossesInput")) $("lossesInput").value = state.settings.losses || DEFAULT_LOSSES;
     if (document.activeElement !== $("modeInput")) $("modeInput").value = state.settings.mode;
+    if (document.activeElement !== $("repeatInput")) $("repeatInput").value = state.settings.noRepeat || "lobby";
     $("settingsCard").classList.toggle("hidden", !lobby);
     $("setHint").textContent = !isHost ? "Only the host can change these." : lobby ? "You're the host. Settings lock once the match starts." : "Settings are locked during the match.";
     const rb = $("ringBtn"), inRing = !!(me && me.inRing);
@@ -1135,6 +1157,7 @@
   $("lifePtsInput").addEventListener("change", applySettings);
   $("lossesInput").addEventListener("change", applySettings);
   $("modeInput").addEventListener("change", applySettings);
+  $("repeatInput").addEventListener("change", applySettings);
   $("ringBtn").onclick = toggleRing;
   $("voteCallBtn").onclick = sendCallVote;
   $("skipCallBtn").onclick = sendCallSkip;
