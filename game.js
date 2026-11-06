@@ -105,7 +105,7 @@
   let roomCode = "";
 
   // Host-only
-  let holdTimer = null, voteTimer = null, turnTimer = null, announceTimer = null, lobbyTimer = null, attackTimer = null, overTimer = null;
+  let holdTimer = null, voteTimer = null, skipTimer = null, turnTimer = null, announceTimer = null, lobbyTimer = null, attackTimer = null, overTimer = null;
   let migrateTimer = null, graceTimer = null, migrating = false, claimPending = false;
   let localStart = 0;            // when the lobby countdown ends (0 = not counting)
   let seenAnswer = {};            // playerId -> id of the last answer we already showed a particle for
@@ -130,7 +130,7 @@
     document.querySelectorAll(".particle").forEach(p => p.remove());
     Object.keys(conns).forEach(k => delete conns[k]);
     clearTimeout(migrateTimer); clearTimeout(graceTimer); migrating = false; claimPending = false;
-    clearTimeout(attackTimer); clearTimeout(overTimer); clearTimeout(voteTimer); attackLocal = null; lastAttackSeq = 0; lastWinSeq = 0; lifeSeen = null; lastRoundSeq = 0;
+    clearTimeout(attackTimer); clearTimeout(overTimer); clearTimeout(voteTimer); clearTimeout(skipTimer); attackLocal = null; lastAttackSeq = 0; lastWinSeq = 0; lifeSeen = null; lastRoundSeq = 0;
     document.querySelectorAll(".dmg,.confetti,.fx").forEach(p => p.remove());
     show("home");
   }
@@ -150,7 +150,7 @@
         code: roomCode, hostId: myId,
         settings: { lives, turnMs: secs * 1000, lifePts: DEFAULT_LIFE_PTS, mode: "sulka" },
         players: [{ id: myId, name: myName, color: Character.color, face: Character.face, accessory: Character.accessory, accColor: Character.accColor, lives, alive: true, inRing: false, inMatch: false, pts: 0, segs: [], last: null }],
-        answerSeq: 0, vote: null, typing: "", announcing: false, attack: null,
+        answerSeq: 0, vote: null, skip: null, typing: "", announcing: false, attack: null,
         turn: null, prompt: null, sub: null, used: [], event: "", winner: null, remaining: 0
       };
       broadcast();
@@ -287,6 +287,7 @@
     if (state.phase === "lobby") { localStart = 0; checkLobbyStart(); }
     else if (state.phase === "game") {
       if (state.vote) { state.vote = null; state.event = "Vote cancelled"; }
+      if (state.skip) { state.skip = null; state.event = "Vote cancelled"; }
       const at = state.attack;
       if (at) {
         const p = state.players.find(x => x.id === at.id);
@@ -337,6 +338,10 @@
       callVote(conn.peer, String(msg.target || ""));
     } else if (msg.t === "vote") {
       castVote(conn.peer, !!msg.yes);
+    } else if (msg.t === "callSkip") {
+      callSkip(conn.peer);
+    } else if (msg.t === "skipVote") {
+      castSkip(conn.peer, !!msg.yes);
     }
   }
 
@@ -378,6 +383,49 @@
     broadcast(); render();
   }
 
+  // ---------- Host: skip-prompt votes ----------
+  function callSkip(callerId) {
+    if (!state || state.phase !== "game") return;
+    if (state.skip) { tell(callerId, "A skip vote is already in progress"); return; }
+    if (state.attack || state.holding) { tell(callerId, "Can't skip right now"); return; }
+    const caller = state.players.find(p => p.id === callerId);
+    if (!caller || !caller.inMatch || !caller.alive) { tell(callerId, "Only players still in the match can call a vote"); return; }
+    const voters = state.players.filter(p => p.inMatch && p.alive).map(p => p.id);
+    state.skipSeq = (state.skipSeq || 0) + 1;
+    state.skip = { seq: state.skipSeq, caller: callerId, callerName: caller.name, round: state.roundSeq, voters, yes: [callerId] };
+    state.event = caller.name + " called a vote to skip the prompt";
+    clearTimeout(skipTimer); skipTimer = setTimeout(() => endSkip(false, "The skip vote timed out"), VOTE_MS);
+    if (!resolveSkip()) { broadcast(); render(); }
+  }
+  function castSkip(id, yes) {
+    const v = state && state.skip; if (!v || !v.voters.includes(id) || v.yes.includes(id)) return;
+    if (!yes) { const p = state.players.find(x => x.id === id); endSkip(false, (p ? p.name : "Someone") + " declined the skip vote"); return; }
+    v.yes.push(id);
+    if (!resolveSkip()) { broadcast(); render(); }
+  }
+  function resolveSkip() { // skip the prompt once every eligible voter agrees
+    const v = state && state.skip; if (!v) return false;
+    if (state.phase !== "game" || state.attack || state.holding || v.round !== state.roundSeq) { endSkip(false, "Skip vote cancelled"); return true; }
+    v.voters = v.voters.filter(id => { const p = state.players.find(x => x.id === id); return p && p.inMatch && p.alive; });
+    v.yes = v.yes.filter(id => v.voters.includes(id));
+    if (!v.voters.length) { endSkip(false, "Skip vote cancelled"); return true; }
+    if (v.voters.every(id => v.yes.includes(id))) {
+      clearTimeout(skipTimer); skipTimer = null; state.skip = null;
+      newRound();
+      state.event = "Prompt skipped!";
+      announceRound();
+      return true;
+    }
+    return false;
+  }
+  function endSkip(passed, text) {
+    clearTimeout(skipTimer); skipTimer = null;
+    if (!state) return;
+    state.skip = null;
+    if (text) state.event = text;
+    broadcast(); render();
+  }
+
   function onGuestLeft(id) {
     delete conns[id];
     if (!state) return;
@@ -390,6 +438,7 @@
       p.alive = false; p.lives = 0; p.left = true; p.inRing = false;
       state.event = p.name + " left the game";
       if (state.vote) { if (state.vote.target === id) endVote(false, "Vote cancelled"); else resolveVote(); }
+      if (state.skip) resolveSkip();
       if (state.attack && state.attack.id === id) { clearTimeout(attackTimer); state.attack = null; }
       if (state.phase === "over") { broadcast(); render(); return; }
       if (state.turn === id && !state.announcing && !state.holding) { clearTimeout(turnTimer); afterElimination(); return; }
@@ -432,6 +481,7 @@
     state.prompt = pick.text;
     state.sub = pick.sub;
     state.roundSeq = (state.roundSeq || 0) + 1;
+    if (state.skip) { clearTimeout(skipTimer); skipTimer = null; state.skip = null; }
     state.used = []; state.lossIds = [];
     state.players.forEach(p => { p.last = null; });
   }
@@ -472,7 +522,7 @@
     if (alive.length <= 1) {
       clearTimeout(turnTimer); clearTimeout(announceTimer); clearTimeout(attackTimer); clearTimeout(holdTimer);
       state.announcing = false; state.holding = false; state.typing = ""; state.attack = null; state.turn = null;
-      clearTimeout(voteTimer); voteTimer = null; state.vote = null;
+      clearTimeout(voteTimer); voteTimer = null; state.vote = null; clearTimeout(skipTimer); skipTimer = null; state.skip = null;
       if (!alive[0]) { backToLobby(); return true; }
       state.phase = "over"; // winner animation plays in the arena, then everyone drops back to the lobby
       state.winner = alive[0].name; state.winnerId = alive[0].id; state.winSeq = (state.winSeq || 0) + 1;
@@ -512,6 +562,7 @@
       // keep the current prompt (and the answer bubble) on screen for a moment before switching
       clearTimeout(turnTimer); clearTimeout(holdTimer);
       state.holding = true; state.typing = "";
+      if (state.skip) { clearTimeout(skipTimer); skipTimer = null; state.skip = null; }
       state.remaining = state.settings.turnMs; localDeadline = Date.now() + state.settings.turnMs;
       state.event += allUsed ? ", all answers used, new round!" : ", new prompt!";
       const lastObj = player.last;
@@ -544,6 +595,7 @@
     const finale = kill && state.players.filter(x => x.inMatch && x.alive && x.id !== p.id).length <= 1; // this bite ends the match
     state.attackSeq = (state.attackSeq || 0) + 1;
     state.attack = { id: p.id, kill, finale, seq: state.attackSeq };
+    if (state.skip) { clearTimeout(skipTimer); skipTimer = null; state.skip = null; }
     state.event = p.name + " ran out of time!";
     broadcast(); render();
     attackTimer = setTimeout(() => { // moment of impact
@@ -553,6 +605,7 @@
       if (kill) { p.alive = false; p.inRing = false; p.eaten = true; state.event = "The pudding ate " + p.name + "!"; }
       else state.event = p.name + " lost a life";
       if (kill && state.vote) { if (state.vote.target === p.id) { endVote(false, "Vote cancelled"); } else resolveVote(); }
+      if (kill && state.skip) resolveSkip();
       broadcast(); render();
       attackTimer = setTimeout(() => { if (!state || !state.attack) return; state.attack = null; afterElimination(); }, atkDur(state.attack) - IMPACT_MS);
     }, IMPACT_MS);
@@ -588,7 +641,7 @@
   function backToLobby() { // everyone returns to the lobby as a spectator
     if (!isHost || !state) return;
     clearTimeout(overTimer); clearTimeout(announceTimer); clearTimeout(turnTimer); clearTimeout(attackTimer); clearTimeout(holdTimer);
-    state.phase = "lobby"; state.holding = false; state.attack = null; state.winnerId = null; clearTimeout(voteTimer); voteTimer = null; state.vote = null;
+    state.phase = "lobby"; state.holding = false; state.attack = null; state.winnerId = null; clearTimeout(voteTimer); voteTimer = null; state.vote = null; clearTimeout(skipTimer); skipTimer = null; state.skip = null;
     state.players = state.players.filter(p => !p.left);
     state.players.forEach(p => { p.lives = state.settings.lives; p.alive = true; p.inMatch = false; p.inRing = false; p.pts = 0; p.segs = []; p.last = null; delete p.eaten; });
     state.announcing = false; state.typing = "";
@@ -683,6 +736,23 @@
     $("voteText").textContent = v.callerName + " wants to give " + (v.target === myId ? "you" : v.targetName) + " an extra life.";
     $("voteCount").textContent = v.yes.length + "/" + v.voters.length + " agreed. Everyone must agree" + (v.target === myId ? ", including you." : ".");
     $("voteBtns").classList.toggle("hidden", !canVote);
+  }
+  function sendCallSkip() {
+    if (isHost) callSkip(myId); else if (hostConn && hostConn.open) hostConn.send({ t: "callSkip" });
+  }
+  function sendSkipVote(yes) {
+    if (isHost) castSkip(myId, yes); else if (hostConn && hostConn.open) hostConn.send({ t: "skipVote", yes });
+  }
+  function renderSkip(game, playing) {
+    const card = $("skipCard"), v = state.skip;
+    card.classList.toggle("hidden", !(game && (playing || v)));
+    if (!game) return;
+    $("skipIdle").classList.toggle("hidden", !!v || !playing);
+    $("skipActive").classList.toggle("hidden", !v);
+    if (!v) { $("skipCallBtn").disabled = !!state.attack || !!state.holding; return; }
+    $("skipText").textContent = v.callerName + " wants to skip this prompt.";
+    $("skipCount").textContent = v.yes.length + "/" + v.voters.length + " agreed. Everyone must agree.";
+    $("skipBtns").classList.toggle("hidden", !(v.voters.includes(myId) && !v.yes.includes(myId)));
   }
   function sendAnswer() {
     const input = $("answerInput");
@@ -973,6 +1043,7 @@
     }
     $("eventLog").textContent = state.event || "";
     renderVote(game, playing);
+    renderSkip(game, playing);
     if (lifeSeen === null) lifeSeen = state.lifeSeq || 0; // don't play for lives gained before we arrived
     else if ((state.lifeSeq || 0) !== lifeSeen) { lifeSeen = state.lifeSeq || 0; playSfx("extralife"); }
     if (ann && state.roundSeq !== lastRoundSeq) { lastRoundSeq = state.roundSeq; playSfx("newprompt"); }
@@ -1063,6 +1134,9 @@
   $("modeInput").addEventListener("change", applySettings);
   $("ringBtn").onclick = toggleRing;
   $("voteCallBtn").onclick = sendCallVote;
+  $("skipCallBtn").onclick = sendCallSkip;
+  $("skipYesBtn").onclick = () => sendSkipVote(true);
+  $("skipNoBtn").onclick = () => sendSkipVote(false);
   $("voteYesBtn").onclick = () => sendVote(true);
   $("voteNoBtn").onclick = () => sendVote(false);
   $("startNowBtn").onclick = () => { if (isHost && state && state.phase === "lobby") startGame(); };

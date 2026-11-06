@@ -128,6 +128,21 @@
           </div>
         </div>
       </div>
+      <div class="settingsCard voteCard hidden" id="skipCard">
+        <h3>Skip prompt vote</h3>
+        <div id="skipIdle">
+          <button id="skipCallBtn" style="width:100%">Vote to skip prompt</button>
+          <div class="sethint">Everyone still in the match must agree.</div>
+        </div>
+        <div id="skipActive" class="hidden">
+          <div id="skipText" class="votetext"></div>
+          <div class="sethint" id="skipCount"></div>
+          <div class="row" id="skipBtns" style="margin-top:10px">
+            <button id="skipYesBtn">Agree</button>
+            <button id="skipNoBtn" class="ghost">Decline</button>
+          </div>
+        </div>
+      </div>
       <div class="settingsCard" id="soundCard">
         <h3>Sound</h3>
         <div class="sfxrow"><label for="sfxVolGame">Sound effects volume</label><span class="sfxpct"></span></div>
