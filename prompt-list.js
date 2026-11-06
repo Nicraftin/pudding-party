@@ -2195,6 +2195,7 @@ GG Gaster EZ (GG EZ Frogfall Version, GG EZ Frogfall PARODY, GG Fucking EZ Frogf
 
 - Deep Cut
 XO Sulka Parody (Record, Re Cord, Xo Sulka Version)
+Burning Men's Soul Nicraftin Version (carpet nicraftin parody, carpet nicraftin version, check it out im in the house like carpet, check it out im in the house like carpet parody, check it out im in the house like carpet nicraftin version, Persona trinity soul PARODY, Burning Men's Soul, Persona trinity soul, Persona trinity soul nicraftin version, Burning Men's Soul parody)
 Raise Up Your Bat Sulka Parody (raise up your bat parody, Raise Up Your Bat Sulka version)
 Glory Days
 Friendly Clanker
