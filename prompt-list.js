@@ -107,70 +107,71 @@ Big Top Breakout
 Dungeons and Duct Tape
 
 # Named locations in Silksong
+sub: Português também funciona
 modes: social
 
 - Spoon
-Moss Grotto
-Bone Bottom
-The Citadel
+Moss Grotto (Gruta Musgosa)
+Bone Bottom (Vale dos Ossos)
+The Citadel (A Cidadela da Canção, A Cidadela, Cidadela, Cidadela da Canção)
 
 - Slice
-Pharloom
-The Marrow
-Deep Docks
-Far Fields
-Greymoor
-Bellhart
-Shellwood
-Blasted Steps
-Hunter's March
-Mount Fay
-The Slab
-The Cradle
-Bilewater
-Wormways
-The Abyss
-Underworks
-Choral Chambers
-Grand Gate
-Sinner's Road
-Cogwork Core
-The Mist (The Mists, Mist)
+Pharloom (Fiarlongo)
+The Marrow (A Medula, Medula)
+Deep Docks (Docas Profundas)
+Far Fields (Campos Longínquos)
+Greymoor (Pântano Cinzento)
+Bellhart (Campânula)
+Shellwood (Cascomadeira)
+Blasted Steps (Degraus Devastados)
+Hunter's March (Trilha de Skarr, Trilha do Caçador)
+Mount Fay (Monte Plumídio)
+The Slab (A Laje, Laje)
+The Cradle (O Berço, Berço)
+Bilewater (Bilebrejo)
+Wormways (Covil dos Vermes, Caminhos dos Vermes)
+The Abyss (O Abismo, Abismo)
+Underworks (Subestruturas)
+Choral Chambers (Salões Harmônicos)
+Grand Gate (Grande Portão)
+Sinner's Road (Caminho dos Pecadores)
+Cogwork Core (Núcleo de Engrenagens)
+The Mist (A Névoa, Névoa)
 
 - Rare
-Sands of Karak
-Weavenest Atla
-Verdania
-Putrified Ducts
-Whiteward
-High Halls
-Memorium (The Memorium)
-Whispering Vaults
-Wisp Thicket
-Fleatopia
+Sands of Karak (Areias de Karak)
+Weavenest Atla (Ninho de Tecelã Atla)
+Verdania (Verdânia, Verdânia Perdida)
+Putrified Ducts (Canais Pestilentos)
+Whiteward (Ala Alva)
+High Halls (Salões Altos)
+Memorium (Memorial)
+Whispering Vaults (Abóbadas Suspirantes)
+Wisp Thicket (Bosque dos Fogos-Fátuos)
+Fleatopia (Pulgotopia)
 
 - Deep Cut
-Bonegrave
-Mosshome
-Pilgrim's Rest
-Craw Lake
-Halfway Home
-Bilehaven
-Brightvein
-The Forum
-Citadel Spa
-The Cauldron (cauldron)
-The Stage (stage)
-The Surface (surface)
-Pale Lake
-Voltnest
-Coral Tower
-Songclave
-Chapel of the Beast
-Exhaust Organ
+Bonegrave (Sepulcro dos Ossos)
+Mosshome (Lar Musgoso)
+Pilgrim's Rest (Descanso dos Peregrinos)
+Craw Lake (Lago das Gralhas)
+Halfway Home (Quase Lar)
+Bilehaven (Bilefúgio)
+Brightvein (Veia Brilhante)
+The Forum (O Fórum, Fórum)
+Citadel Spa (Spa da Cidadela)
+The Cauldron (O Caldeirão, Caldeirão)
+The Stage (O Palco, Palco)
+The Surface (A Superfície, Superfície)
+Pale Lake (Lago Pálido)
+Voltnest (Ninho Voltaico)
+Coral Tower (Torre de Coral)
+Songclave (Cantoclave)
+Chapel of the Beast (Capela da Besta)
+Exhaust Organ (Órgão Exaustor)
 
 - Flan-tastic
-Red Memory
+Red Memory (Memória Vermelha)
 
 # Brainrot Terms 
 sub: No Italian brainrots, basically Gen Alpha slang
@@ -1311,32 +1312,32 @@ Dr. Football (football, average doer)
 # The Amazing Digital Circus Locations
 
 - Spoon
-The Tent (tent)
+The Tent (tent, circus)
 The Grounds (grounds)
 The Void (void)
 
 - Slice
-Candy Canyon Kingdom
-Mildenhall Manor
-Spudsy's
-Digital Lake (Beach)
-Exit Door (Unfinished Exit)
-The Cellar
+Candy Canyon Kingdom (candy kingdom, candy land)
+Mildenhall Manor (manor, mildenhall)
+Spudsy's (restaurant, mcdonalds, fast food, fast food restaurant)
+Digital Lake (Beach, lake)
+Exit Door (Unfinished Exit, exit)
+The Cellar (abstraction hole)
 Caine's Office
 
 - Rare
 The Nest (Gloink Queen's Nest)
 The Aquarium
-Café Cirque (Crow's Nest, Digital Café)
+Café Cirque (Crow's Nest, Digital Café, Café)
 Dorm Hall (dormitories, dorms, hall, corridor, the corridor, the hall)
 The Stage (stage)
 Chinese Room (the chinese room)
-Administrator Zone (admin zone)
-C&A Office (C and A, C&A)
+Administrator Zone (admin zone, admin)
+C&A Office (C and A, C&A, office)
 Snowy Summit (the snowy summit)
 Jax's Mind (mind palace, jax's mind palace)
 Test Level (out of bounds)
-Softball Field
+Softball Field (field, softball, baseball, baseball field)
 
 - Deep Cut
 Looney Tunes Canyon (looney tunes, canyon, wild coyote)
@@ -1348,19 +1349,19 @@ Loser Corner
 Poacher's Paradise (African Safari, safari)
 The White House (white house, President Pomni)
 Anime High School (High School)
-Digital Carnival
+Digital Carnival (carnival)
 Bar (Cocktails)
-Snowy Tundra
-Macroverse
-Mildenhall Manor Trophy Room
-Mildenhall Manor Cellar
+Snowy Tundra (tundra)
+Macroverse (real life)
+Mildenhall Manor Trophy Room (trophy room, manor trophy room)
+Mildenhall Manor Cellar (mildenhall cellar, manor cellar)
 Hell
-Jax's Street (Real life, Street, unnamed street)
+Jax's Street (Street, unnamed street, real life street)
 Dr. Football's Bathroom (bathroom)
-Flooded Fish Room
-Boxing Glove Room
-Golden Carousel Room
-Rows of Doors Hallway
+Flooded Fish Room (Flooded Fish)
+Boxing Glove Room (Boxing Glove)
+Golden Carousel Room (Golden Carousel)
+Rows of Doors Hallway (doors)
 
 - Flan-tastic
 Shrimp Town
