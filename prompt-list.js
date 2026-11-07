@@ -38,6 +38,7 @@ Harness
 Hardened Glass
 
 # Playable characters in Super Smash Bros. Melee
+modes: sulka
 
 - Spoon
 Mario
@@ -172,7 +173,7 @@ Exhaust Organ
 Red Memory
 
 # Brainrot Terms 
-sub: No Italian brainrots
+sub: No Italian brainrots, basically Gen Alpha slang
 
 - Spoon
 Brainrot
@@ -540,46 +541,46 @@ The Block
 # Minecraft crafting recipes that use Iron Ingot
 
 - Spoon
-Iron Pickaxe
-Iron Sword
-Block of Iron (Iron block)
+Iron Pickaxe (pickaxe)
+Iron Sword (sword)
+Block of Iron (Iron block, block)
 
 - Slice
 Bucket
-Iron Chestplate
-Iron Axe
-Iron Shovel
-Iron Hoe
-Iron Helmet
-Iron Leggings
-Iron Boots
-Iron Door
+Iron Chestplate (chestplate)
+Iron Axe (axe)
+Iron Shovel (shovel)
+Iron Hoe (hoe)
+Iron Helmet (helmet)
+Iron Leggings (leggings)
+Iron Boots (boots)
+Iron Door (door)
 Shears
 Flint and Steel
 Minecart
 Anvil
 Compass
-Iron Nugget
+Iron Nugget (nugget)
 Shield
-Hopper
 
 - Rare
-Iron Trapdoor
+Hopper
+Iron Trapdoor (trapdoor)
 Rail
 Blast Furnace
 Piston
 Crossbow
 Cauldron
-Iron Bars
+Iron Bars (bars)
 Smithing Table
 
 - Deep Cut
 Activator Rail
 Detector Rail
-Heavy Weighted Pressure Plate (Heavy Pressure Plate)
+Heavy Weighted Pressure Plate (Heavy Pressure Plate, pressure plate, iron pressure plate, plate, iron plate)
 Iron Chain (Chain)
-Tripwire Hook
-Crafter
+Tripwire Hook (tripwire)
+Crafter (auto crafter, autocrafter)
 Lodestone
 Iron Spear (Spear)
 
@@ -589,32 +590,32 @@ Saddle
 # Minecraft crafting recipes that use Copper Ingot
 
 - Spoon
-Block of Copper (Copper block)
+Block of Copper (Copper block, block)
 Lightning rod
 Spyglass
 
 - Slice
-Copper Pickaxe
-Copper Sword
-Copper Axe
-Copper Shovel
-Copper Hoe
-Copper Chestplate
-Copper Helmet
-Copper Leggins
-Copper Boots
+Copper Pickaxe (pickaxe)
+Copper Sword (sword)
+Copper Axe (axe)
+Copper Shovel (shovel)
+Copper Hoe (hoe)
+Copper Chestplate (chestplate)
+Copper Helmet (helmet)
+Copper Leggings (leggings)
+Copper Boots (boots)
 Brush
-Copper Nugget
+Copper Nugget (nugget)
 
 - Rare
-Copper Spear
-Copper Chest
-Copper Chain
+Copper Spear (spear)
+Copper Chest (chest)
+Copper Chain (chain)
 
 - Deep Cut
-Copper Bars
-Copper Trapdoor
-Copper Door
+Copper Bars (bars)
+Copper Trapdoor (trapdoor)
+Copper Door (door)
 
 - Flan-tastic
 Disc Press
@@ -837,6 +838,7 @@ Wamlu
 Senam
 Aaclock
 Dream
+Neo4
 phpgirl
 Enemti
 Sinj
@@ -967,6 +969,7 @@ sub: Not mod related
 modes: sulka
 
 - Spoon
+Sulka
 Jump
 Corner Jump (cj)
 String (gravity, gravity switch, line)
@@ -980,6 +983,8 @@ Any%
 Route (contains route)
 
 - Slice
+World Record (WR)
+PB (personal best)
 Pause%
 Death%
 Frame perfect
@@ -1614,7 +1619,7 @@ Ex (green haired person, green hair, green haired)
 Carlos (theo's grandfather, theo's grandpa)
 
 # Celeste Chapters
-modes: social
+modes: sulka
 
 - Spoon
 Forsaken City
@@ -1929,6 +1934,8 @@ Triceratops
 Armadillo
 
 # Games Toby Fox worked on
+modes: sulka
+
 - Spoon
 Undertale
 Deltarune
@@ -2161,6 +2168,352 @@ Winged Nosk
 
 - Flan-tastic
 Zote the Mighty (Zote)
+
+# Orbs from Geometry Dash
+modes: newsulka, social
+
+- Spoon
+Yellow orb
+Pink orb
+Blue orb
+
+- Slice
+Green orb
+Red orb
+Black orb
+Dash orb (green dash orb)
+
+- Rare
+Pink dash orb
+Spider orb
+
+- Deep Cut
+Trigger orb
+Teleport orb
+
+- Flan-tastic
+Mana orb
+
+# Minecraft Biomes
+modes: newsulka, social
+
+- Spoon
+Plains
+Forest
+Desert
+Ocean
+Jungle
+
+- Slice
+Taiga
+Swamp
+Savanna
+Birch Forest
+Dark Forest
+Deep Dark
+The End (end)
+Mushroom Fields (mushroom, mushroom island)
+Nether Wastes (nether)
+Crimson Forest
+Warped Forest
+Flower Forest
+Bamboo Jungle
+Badlands (mesa)
+River
+Cherry Grove (cherry blossom, cherry)
+
+- Rare
+Snowy Plains
+Deep Ocean
+Snowy Taiga
+Sunflower Plains
+Ice Spikes
+Mangrove Swamp
+Pale Garden
+Lush Caves
+Dripstone Caves
+Meadow
+Beach
+Basalt Deltas (basalt)
+Soul Sand Valley (soul sand)
+Warm Ocean
+Lukewarm Ocean
+Cold Ocean
+Grove
+Stony Peaks
+Windswept Hills
+Frozen Ocean
+Wooded Badlands (wooded mesa)
+
+- Deep Cut
+Deep Lukewarm Ocean
+Deep Cold Ocean
+Deep Frozen Ocean
+Jagged Peaks
+Frozen Peaks
+Snowy Slopes
+Windswept Gravelly Hills
+Windswept Forest
+Old Growth Pine Taiga
+Old Growth Spruce Taiga
+Old Growth Birch Forest
+Sparse Jungle
+Dappled Forest
+Frozen River
+Snowy Beach
+Stony Shore
+Savanna Plateau
+Windswept Savanna
+Eroded Badlands (eroded mesa)
+Sulfur Caves
+End Barrens
+End Highlands
+End Midlands
+Small End Islands
+Ice Caves
+
+- Flan-tastic
+The Void
+
+# Minecraft Status Effects
+modes: social, newsulka
+
+- Spoon
+Speed
+Haste
+Strength
+Fire Resistance
+
+- Slice
+Poison
+Slowness
+Absorption
+Regeneration
+Jump Boost
+Night Vision
+Invisibility
+Water Breathing
+Hunger
+Mining Fatigue
+Resistance
+Levitation
+
+- Rare
+Instant Damage
+Instant Health
+Wither
+Weakness
+Blindness
+Nausea
+Slow Falling
+Hero of the Village
+Saturation
+Glowing
+Darkness
+
+- Deep Cut
+Health Boost
+Conduit Power
+Dolphin's Grace
+Luck
+Bad Omen
+Raid Omen
+Trial Omen
+Wind Charged
+Weaving
+Oozing
+Infested
+Breath of the Nautilus
+
+- Flan-tastic
+Bad Luck
+
+# Routine events in The Escapists 2
+modes: social
+
+- Spoon
+Roll Call
+Free Time (free)
+
+- Slice
+Lights Out
+Job Time (job)
+Exercise Time (exercise)
+Shower Time (shower)
+
+- Rare
+Breakfast Time (breakfast)
+Dinner Time (dinner)
+Lunch Time (lunch)
+
+- Deep Cut
+Lockdown
+
+- Flan-tastic
+Show Time (show)
+
+# Minecraft Commands
+modes: social, newsulka
+
+- Spoon
+/gamemode (gamemode)
+/give (give)
+/tp (tp, teleport, /teleport)
+/kill (kill)
+
+- Slice
+/time (time)
+/weather (weather)
+/summon (summon)
+/effect (effect)
+/enchant (enchant)
+/clear (clear)
+/fill (fill)
+/setblock (setblock)
+/locate (locate)
+/difficulty (difficulty)
+/seed (seed)
+/gamerule (gamerule)
+/ban (ban)
+/kick (kick)
+
+- Rare
+/execute (execute)
+/xp (xp, experience, /experience)
+/spawnpoint (spawnpoint)
+/setworldspawn (setworldspawn)
+/advancement (advancement)
+/scoreboard (scoreboard)
+/title (title)
+/particle (particle)
+/playsound (playsound)
+/op (op)
+/deop (deop)
+/pardon (pardon)
+/list (list)
+/msg (msg, tell, w, /tell, /w)
+/say (say)
+/help (help)
+/function (function)
+/recipe (recipe)
+/team (team)
+/bossbar (bossbar)
+/loot (loot)
+/tellraw (tellraw)
+/trigger (trigger)
+/worldborder (worldborder)
+
+- Deep Cut
+/clone (clone)
+/banlist (banlist)
+/pardon-ip (pardon-ip)
+/ban-ip (ban-ip)
+/attribute (attribute)
+/compute (compute)
+/damage (damage)
+/data (data)
+/datapack (datapack)
+/debug (debug)
+/defaultgamemode (defaultgamemode)
+/dialog (dialog)
+/fetchprofile (fetchprofile)
+/fillbiome (fillbiome)
+/forceload (forceload)
+/item (item)
+/jfr (jfr)
+/me (me)
+/perf (perf)
+/place (place)
+/posteffect (posteffect)
+/publish (publish)
+/random (random)
+/reload (reload)
+/return (return)
+/ride (ride)
+/rotate (rotate)
+/save-all (save-all)
+/save-off (save-off)
+/save-on (save-on)
+/schedule (schedule)
+/setidletimeout (setidletimeout)
+/spectate (spectate)
+/spreadplayers (spreadplayers)
+/stop (stop)
+/stopsound (stopsound)
+/swing (swing)
+/tag (tag)
+/teammsg (teammsg, tm, /tm)
+/test (test)
+/tick (tick)
+/transfer (transfer)
+/unpublish (unpublish)
+/version (version)
+/waypoint (waypoint)
+/whitelist (whitelist)
+
+- Flan-tastic
+/stopwatch (stopwatch)
+
+# End products of a furnace in Minecraft
+modes: social, newsulka
+
+- Spoon
+Glass
+Iron Ingot (iron)
+Gold Ingot (gold)
+Stone
+Charcoal
+
+- Slice
+Steak (beef)
+Baked Potato (cooked potato)
+Copper Ingot (copper)
+Smooth Stone
+Cooked Porkchop (pork, porkchop)
+Cooked Chicken (chicken)
+Netherite Scrap (netherite, scrap)
+Green Dye
+Brick
+
+- Rare
+Deepslate
+Coal
+Diamond
+Emerald
+Redstone Dust (redstone)
+Lapis Lazuli (lapis)
+Nether Quartz (quartz)
+Cooked Mutton (sheep, mutton)
+Cooked Rabbit (rabbit)
+Cooked Cod (cod)
+Cooked Salmon (salmon)
+Dried Kelp (kelp)
+Iron Nugget
+Gold Nugget
+Sponge (dry sponge)
+Terracotta
+Nether Brick
+Smooth Quartz
+
+- Deep Cut
+Copper Nugget
+Cracked Stone Bricks
+Cracked Deepslate Bricks
+Cracked Deepslate Tiles
+Smooth Sandstone
+Smooth Red Sandstone
+Cracked Nether Bricks
+Smooth Basalt
+Cracked Polished Blackstone Bricks
+Glazed Terracotta (White Glazed Terracotta, Light Gray Glazed Terracotta, Gray Glazed Terracotta, Black Glazed Terracotta, Brown Glazed Terracotta, Red Glazed Terracotta, Orange Glazed Terracotta, Yellow Glazed Terracotta, Lime Glazed Terracotta, Green Glazed Terracotta, Cyan Glazed Terracotta, Light Blue Glazed Terracotta, Blue Glazed Terracotta, Purple Glazed Terracotta, Magenta Glazed Terracotta, Pink Glazed Terracotta)
+Popped Chorus Fruit
+Resin Brick
+
+- Flan-tastic
+Leaf Litter
+Lime Dye
+
+
 
 # Nicraftin Songs
 sub: No mashups
@@ -2793,5 +3146,313 @@ Skin Flute
 
 - Flan-tastic
 Sexcalibur
+
+# Items you can fish in Minecraft
+modes: social, newsulka
+
+- Spoon
+Raw Cod (cod, fish)
+Raw Salmon (salmon)
+Pufferfish
+
+- Slice
+Tropical Fish
+Enchanted Book
+Name Tag
+Bow
+Saddle
+Fishing Rod
+Nautilus Shell
+
+- Rare
+Lily Pad
+Leather Boots
+Bone
+Rotten Flesh
+String
+
+- Deep Cut
+Leather
+Water Bottle
+Bowl
+Tripwire Hook
+Stick
+Bamboo
+
+- Flan-tastic
+Ink Sac (ink sack)
+
+# GTA Games
+modes: social, newsulka
+
+- Spoon
+Grand Theft Auto V (GTA V, GTA 5, Grand Theft Auto 5, GTAV, GTA5, Grand Theft Auto Five, GTA Five)
+Grand Theft Auto VI (GTA VI, GTA 6, Grand Theft Auto 6, GTAVI, GTA6, Grand Theft Auto Six, GTA Six)
+Grand Theft Auto (GTA, GTA 1, GTA I, Grand Theft Auto 1, Grand Theft Auto I, GTA1, GTAI)
+
+- Slice
+Grand Theft Auto: San Andreas (GTA San Andreas, GTA SA, San Andreas, SA, GTASA, GTA: San Andreas, Grand Theft Auto San Andreas)
+Grand Theft Auto: Vice City (GTA Vice City, GTA VC, Vice City, VC, GTAVC, GTA: Vice City, Grand Theft Auto Vice City)
+Grand Theft Auto IV (GTA IV, GTA 4, Grand Theft Auto 4, GTAIV, GTA4, Grand Theft Auto Four, GTA Four)
+Grand Theft Auto III (GTA III, GTA 3, Grand Theft Auto 3, GTAIII, GTA3, Grand Theft Auto Three, GTA Three)
+Grand Theft Auto Online (GTA Online, GTAO, GTA O, GTA V Online, GTA 5 Online, Grand Theft Auto V Online, Grand Theft Auto 5 Online)
+Grand Theft Auto 2 (GTA 2, GTA II, Grand Theft Auto II, GTA2, GTAII)
+
+- Rare
+Grand Theft Auto: Liberty City Stories (GTA Liberty City Stories, GTA LCS, Liberty City Stories, LCS, GTALCS, GTA: Liberty City Stories)
+Grand Theft Auto: Vice City Stories (GTA Vice City Stories, GTA VCS, Vice City Stories, VCS, GTAVCS, GTA: Vice City Stories)
+Grand Theft Auto: Chinatown Wars (GTA Chinatown Wars, GTA CW, Chinatown Wars, CW, GTACW, GTA: Chinatown Wars)
+Grand Theft Auto IV: The Lost and Damned (GTA IV: TLAD, GTA 4: TLAD, GTA IV: The Lost and Damned, GTA 4: The Lost and Damned, TLAD, TLaD, The Lost & Damned, The Lost and Damned, Lost and Damned)
+Grand Theft Auto IV: The Ballad of Gay Tony (GTA IV: TBoGT, GTA 4: TBoGT, GTA IV: TBOGT, GTA 4: TBOGT, GTA IV: The Ballad of Gay Tony, GTA 4: The Ballad of Gay Tony, TBoGT, TBOGT, The Ballad of Gay Tony, Ballad of Gay Tony)
+
+- Deep Cut
+Grand Theft Auto Advance (GTA Advance, GTA A, GTA Advance, GTAA, GTAADV, Advance)
+Grand Theft Auto: Episodes from Liberty City (GTA EFLC, GTA IV: EFLC, GTA 4: EFLC, GTA IV: Episodes from Liberty City, GTA 4: Episodes from Liberty City, EFLC, Episodes from Liberty City)
+Grand Theft Auto: London 1969 (GTA London 1969, GTA London, GTA L69, L69, London 1969, Grand Theft Auto London 1969)
+
+- Flan-tastic
+Grand Theft Auto: London 1961 (GTA London 1961, GTA L61, L61, London 1961, Grand Theft Auto London 1961)
+
+# Among Us Character Colors
+modes: social, newsulka
+
+- Spoon
+Red
+Blue
+Green
+Yellow
+
+- Slice
+Pink
+Orange
+Black
+White
+Purple
+Brown
+Gray (Grey)
+
+- Rare
+Cyan
+Lime
+Banana
+
+- Deep Cut
+Rose
+Maroon
+Tan
+Coral
+
+- Flan-tastic
+Fortegreen
+
+# Among Us Skeld Tasks
+modes: social, newsulka
+
+- Spoon
+Fix Wiring (Wires, Wiring)
+Swipe Card (Card, Swipe, Card Swipe)
+
+- Slice
+Submit Scan (Scan, MedScan, Medbay Scan)
+Clear Asteroids (Asteroids)
+Empty Garbage (Garbage, Trash)
+Download and Upload Data (Upload, Data, Upload Data, download, download data)
+Divert Power (Divert, Power)
+Start Reactor (Reactor, Simon Says)
+
+- Rare
+Fuel Engines (Fuel, Engines)
+Prime Shields (Shields)
+Inspect Sample (Sample, Samples)
+
+- Deep Cut
+Stabilize Steering (Steering)
+Align Engine Output (Align Engines, Engine Alignment)
+Calibrate Distributor (Distributor, Calibration, rotating numbers)
+Chart Course (Course, Chart, ship)
+Clean O2 Filter (O2, O2 Filter, Filter, leaves, leafs, leaf, clean leaves)
+Unlock Manifolds (Manifolds, numbers)
+
+- Flan-tastic
+Clean Vent (Vent, Cleaning Vent)
+
+# Bopl Battle Abilities
+modes: social, newsulka
+
+- Spoon
+Random (question mark, question)
+Bow (bow and arrow, arrow)
+Grenade
+
+- Slice
+Dash
+Rock (stone)
+Missile
+Gust (wind, wind burst, burst, wind gust)
+Time Stop (stop time)
+Engine (rocket, propeller, rocket engine, rocket propeller)
+Black Hole
+Beam (Laser, laser beam)
+
+- Rare
+Blink Gun (disappear, disappear gun, disappear ray, blink)
+Growth Ray (grow gun, grow ray, grow, growth)
+Smoke (smoke grenade)
+Revival (extra life, life, 1up, 1-up, revive)
+Teleport (teleporter)
+Shrink Ray (shrink gun, shrink)
+Spike (ground spike)
+Mine
+Drill
+
+- Deep Cut
+Grappling Hook (Grapple)
+Invisibility (invis)
+Meteor (ground pound)
+Platform
+Roll (sonic)
+Throw (ground throw, ground launch, launch)
+Push (fly, block fly, block flight)
+Tesla Coil (lightning, electric, eletricity line, electric line, lightning line, lightning coil, electric coil, shock, shock line)
+Duplicator (clone gun, clone ray, clone)
+
+- Flan-tastic
+Magnet Gun (magnet)
+
+# Stardew Valley Festivals
+modes: social
+
+- Spoon
+Egg Festival (Egg Hunt, Eggs, Egg Fest, egg)
+Flower Dance (Dance, Flower Festival)
+
+- Slice
+Luau (Beach Luau, Soup Festival, soup)
+Stardew Valley Fair (Fair, Grange Fair)
+Spirit's Eve (Spirits Eve, Halloween)
+Dance of the Moonlight Jellies (Moonlight Jellies, Jellies, Jellyfish Festival, jellyfish)
+Feast of the Winter Star (Winter Star, Winter Feast, feast)
+
+- Rare
+Night Market (Market, Night Market Festival)
+Festival of Ice (Ice Festival, Ice Fishing, fishing, ice)
+Desert Festival (Desert Fest, Calico Desert Festival, desert, calico fest, calico)
+
+- Deep Cut
+Trout Derby (Trout Festival, Fishing Derby, Trout Fishing, trout)
+
+- Flan-tastic
+SquidFest (Squid Fest, Squid Festival, squid)
+
+# The Last of Us Part I Characters
+modes: social
+
+- Spoon
+Joel Miller (Joel, Texas, Old Timer)
+Ellie Williams (Ellie, El)
+
+- Slice
+Sarah Miller (Sarah)
+Tess Servopoulos (Tess, Theresa Servopoulos)
+Tommy Miller (Tommy)
+Bill
+Marlene
+Henry
+Sam
+David
+Riley Abel (Riley)
+Robert
+Maria Miller (Maria)
+James
+
+- Rare
+Buckley
+Callus (Calos)
+Ethan
+Frank
+Earl
+Graham
+Greg
+Hanna
+Houser
+Ish
+Jack Sullivinsky (Jack)
+Jerry Anderson (Jerry)
+Jimmy Cooper (Jimmy)
+Malick
+Mastros
+Rachel
+Reuben
+The Carsons (Carson Family)
+Warren
+
+- Deep Cut
+Andrea
+Anna
+Arthur Munroe (Arthur)
+Atwater
+Bob
+Brad
+Cheryl
+Coolidge
+Danny
+Derek
+Donovan
+Eva
+Ezra
+Gadget
+Heather
+Jeremy
+John
+Jones
+Kara
+Karen
+Kari
+Kathryn McCormack (Kathryn)
+Kyle
+Lev Benioff (Lev)
+Louis
+Lucia
+Mackenzie
+Marc
+Mark
+Maryanne
+Pam
+Ramirez
+Robin
+Roger
+Ronnie
+Rose Graham (Rose)
+Seth
+Shah
+Steve
+Susan
+Tania
+Terrance
+Waters
+Will Livingston (Will)
+
+- Flan-tastic
+Joe Warren (Joe)
+
+# Cores do Arco-íris
+modes: social
+
+- Spoon
+Vermelho
+Amarelo
+Verde
+
+- Slice
+Azul (Ciano)
+Laranja
+Violeta
+
+- Rare
+Anil (índigo)
+
+- Deep Cut
+
+- Flan-tastic
 
 `;
