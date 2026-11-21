@@ -2170,164 +2170,6 @@ Winged Nosk
 - Flan-tastic
 Zote the Mighty (Zote)
 
-# Orbs from Geometry Dash
-modes: newsulka, social
-
-- Spoon
-Yellow orb
-Pink orb
-Blue orb
-
-- Slice
-Green orb
-Red orb
-Black orb
-Dash orb (green dash orb)
-
-- Rare
-Pink dash orb
-Spider orb
-
-- Deep Cut
-Trigger orb
-Teleport orb
-
-- Flan-tastic
-Mana orb
-
-# Minecraft Biomes
-modes: newsulka, social
-
-- Spoon
-Plains
-Forest
-Desert
-Ocean
-Jungle
-
-- Slice
-Taiga
-Swamp
-Savanna
-Birch Forest
-Dark Forest
-Deep Dark
-The End (end)
-Mushroom Fields (mushroom, mushroom island)
-Nether Wastes (nether)
-Crimson Forest
-Warped Forest
-Flower Forest
-Bamboo Jungle
-Badlands (mesa)
-River
-Cherry Grove (cherry blossom, cherry)
-
-- Rare
-Snowy Plains
-Deep Ocean
-Snowy Taiga
-Sunflower Plains
-Ice Spikes
-Mangrove Swamp
-Pale Garden
-Lush Caves
-Dripstone Caves
-Meadow
-Beach
-Basalt Deltas (basalt)
-Soul Sand Valley (soul sand)
-Warm Ocean
-Lukewarm Ocean
-Cold Ocean
-Grove
-Stony Peaks
-Windswept Hills
-Frozen Ocean
-Wooded Badlands (wooded mesa)
-
-- Deep Cut
-Deep Lukewarm Ocean
-Deep Cold Ocean
-Deep Frozen Ocean
-Jagged Peaks
-Frozen Peaks
-Snowy Slopes
-Windswept Gravelly Hills
-Windswept Forest
-Old Growth Pine Taiga
-Old Growth Spruce Taiga
-Old Growth Birch Forest
-Sparse Jungle
-Dappled Forest
-Frozen River
-Snowy Beach
-Stony Shore
-Savanna Plateau
-Windswept Savanna
-Eroded Badlands (eroded mesa)
-Sulfur Caves
-End Barrens
-End Highlands
-End Midlands
-Small End Islands
-Ice Caves
-
-- Flan-tastic
-The Void
-
-# Minecraft Status Effects
-modes: social, newsulka
-
-- Spoon
-Speed
-Haste
-Strength
-Fire Resistance
-
-- Slice
-Poison
-Slowness
-Absorption
-Regeneration
-Jump Boost
-Night Vision
-Invisibility
-Water Breathing
-Hunger
-Mining Fatigue
-Resistance
-Levitation
-
-- Rare
-Instant Damage
-Instant Health
-Wither
-Weakness
-Blindness
-Nausea
-Slow Falling
-Hero of the Village
-Saturation
-Glowing
-Darkness
-
-- Deep Cut
-Health Boost
-Conduit Power
-Dolphin's Grace
-Luck
-Bad Omen
-Raid Omen
-Trial Omen
-Wind Charged
-Weaving
-Oozing
-Infested
-Breath of the Nautilus
-
-- Flan-tastic
-Bad Luck
 
 # Routine events in The Escapists 2
 modes: social
@@ -2352,168 +2194,6 @@ Lockdown
 
 - Flan-tastic
 Show Time (show)
-
-# Minecraft Commands
-modes: social, newsulka
-
-- Spoon
-/gamemode (gamemode)
-/give (give)
-/tp (tp, teleport, /teleport)
-/kill (kill)
-
-- Slice
-/time (time)
-/weather (weather)
-/summon (summon)
-/effect (effect)
-/enchant (enchant)
-/clear (clear)
-/fill (fill)
-/setblock (setblock)
-/locate (locate)
-/difficulty (difficulty)
-/seed (seed)
-/gamerule (gamerule)
-/ban (ban)
-/kick (kick)
-
-- Rare
-/execute (execute)
-/xp (xp, experience, /experience)
-/spawnpoint (spawnpoint)
-/setworldspawn (setworldspawn)
-/advancement (advancement)
-/scoreboard (scoreboard)
-/title (title)
-/particle (particle)
-/playsound (playsound)
-/op (op)
-/deop (deop)
-/pardon (pardon)
-/list (list)
-/msg (msg, tell, w, /tell, /w)
-/say (say)
-/help (help)
-/function (function)
-/recipe (recipe)
-/team (team)
-/bossbar (bossbar)
-/loot (loot)
-/tellraw (tellraw)
-/trigger (trigger)
-/worldborder (worldborder)
-
-- Deep Cut
-/clone (clone)
-/banlist (banlist)
-/pardon-ip (pardon-ip)
-/ban-ip (ban-ip)
-/attribute (attribute)
-/compute (compute)
-/damage (damage)
-/data (data)
-/datapack (datapack)
-/debug (debug)
-/defaultgamemode (defaultgamemode)
-/dialog (dialog)
-/fetchprofile (fetchprofile)
-/fillbiome (fillbiome)
-/forceload (forceload)
-/item (item)
-/jfr (jfr)
-/me (me)
-/perf (perf)
-/place (place)
-/posteffect (posteffect)
-/publish (publish)
-/random (random)
-/reload (reload)
-/return (return)
-/ride (ride)
-/rotate (rotate)
-/save-all (save-all)
-/save-off (save-off)
-/save-on (save-on)
-/schedule (schedule)
-/setidletimeout (setidletimeout)
-/spectate (spectate)
-/spreadplayers (spreadplayers)
-/stop (stop)
-/stopsound (stopsound)
-/swing (swing)
-/tag (tag)
-/teammsg (teammsg, tm, /tm)
-/test (test)
-/tick (tick)
-/transfer (transfer)
-/unpublish (unpublish)
-/version (version)
-/waypoint (waypoint)
-/whitelist (whitelist)
-
-- Flan-tastic
-/stopwatch (stopwatch)
-
-# End products of a furnace in Minecraft
-modes: social, newsulka
-
-- Spoon
-Glass
-Iron Ingot (iron)
-Gold Ingot (gold)
-Stone
-Charcoal
-
-- Slice
-Steak (beef)
-Baked Potato (cooked potato)
-Copper Ingot (copper)
-Smooth Stone
-Cooked Porkchop (pork, porkchop)
-Cooked Chicken (chicken)
-Netherite Scrap (netherite, scrap)
-Green Dye
-Brick
-
-- Rare
-Deepslate
-Coal
-Diamond
-Emerald
-Redstone Dust (redstone)
-Lapis Lazuli (lapis)
-Nether Quartz (quartz)
-Cooked Mutton (sheep, mutton)
-Cooked Rabbit (rabbit)
-Cooked Cod (cod)
-Cooked Salmon (salmon)
-Dried Kelp (kelp)
-Iron Nugget
-Gold Nugget
-Sponge (dry sponge)
-Terracotta
-Nether Brick
-Smooth Quartz
-
-- Deep Cut
-Copper Nugget
-Cracked Stone Bricks
-Cracked Deepslate Bricks
-Cracked Deepslate Tiles
-Smooth Sandstone
-Smooth Red Sandstone
-Cracked Nether Bricks
-Smooth Basalt
-Cracked Polished Blackstone Bricks
-Glazed Terracotta (White Glazed Terracotta, Light Gray Glazed Terracotta, Gray Glazed Terracotta, Black Glazed Terracotta, Brown Glazed Terracotta, Red Glazed Terracotta, Orange Glazed Terracotta, Yellow Glazed Terracotta, Lime Glazed Terracotta, Green Glazed Terracotta, Cyan Glazed Terracotta, Light Blue Glazed Terracotta, Blue Glazed Terracotta, Purple Glazed Terracotta, Magenta Glazed Terracotta, Pink Glazed Terracotta)
-Popped Chorus Fruit
-Resin Brick
-
-- Flan-tastic
-Leaf Litter
-Lime Dye
-
 
 
 # Nicraftin Songs
@@ -3148,177 +2828,6 @@ Skin Flute
 - Flan-tastic
 Sexcalibur
 
-# Items you can fish in Minecraft
-modes: social, newsulka
-
-- Spoon
-Raw Cod (cod, fish)
-Raw Salmon (salmon)
-Pufferfish
-
-- Slice
-Tropical Fish
-Enchanted Book
-Name Tag
-Bow
-Saddle
-Fishing Rod
-Nautilus Shell
-
-- Rare
-Lily Pad
-Leather Boots
-Bone
-Rotten Flesh
-String
-
-- Deep Cut
-Leather
-Water Bottle
-Bowl
-Tripwire Hook
-Stick
-Bamboo
-
-- Flan-tastic
-Ink Sac (ink sack)
-
-# GTA Games
-modes: social, newsulka
-
-- Spoon
-Grand Theft Auto V (GTA V, GTA 5, Grand Theft Auto 5, GTAV, GTA5, Grand Theft Auto Five, GTA Five)
-Grand Theft Auto VI (GTA VI, GTA 6, Grand Theft Auto 6, GTAVI, GTA6, Grand Theft Auto Six, GTA Six)
-Grand Theft Auto (GTA, GTA 1, GTA I, Grand Theft Auto 1, Grand Theft Auto I, GTA1, GTAI)
-
-- Slice
-Grand Theft Auto: San Andreas (GTA San Andreas, GTA SA, San Andreas, SA, GTASA, GTA: San Andreas, Grand Theft Auto San Andreas)
-Grand Theft Auto: Vice City (GTA Vice City, GTA VC, Vice City, VC, GTAVC, GTA: Vice City, Grand Theft Auto Vice City)
-Grand Theft Auto IV (GTA IV, GTA 4, Grand Theft Auto 4, GTAIV, GTA4, Grand Theft Auto Four, GTA Four)
-Grand Theft Auto III (GTA III, GTA 3, Grand Theft Auto 3, GTAIII, GTA3, Grand Theft Auto Three, GTA Three)
-Grand Theft Auto Online (GTA Online, GTAO, GTA O, GTA V Online, GTA 5 Online, Grand Theft Auto V Online, Grand Theft Auto 5 Online)
-Grand Theft Auto 2 (GTA 2, GTA II, Grand Theft Auto II, GTA2, GTAII)
-
-- Rare
-Grand Theft Auto: Liberty City Stories (GTA Liberty City Stories, GTA LCS, Liberty City Stories, LCS, GTALCS, GTA: Liberty City Stories)
-Grand Theft Auto: Vice City Stories (GTA Vice City Stories, GTA VCS, Vice City Stories, VCS, GTAVCS, GTA: Vice City Stories)
-Grand Theft Auto: Chinatown Wars (GTA Chinatown Wars, GTA CW, Chinatown Wars, CW, GTACW, GTA: Chinatown Wars)
-Grand Theft Auto IV: The Lost and Damned (GTA IV: TLAD, GTA 4: TLAD, GTA IV: The Lost and Damned, GTA 4: The Lost and Damned, TLAD, TLaD, The Lost & Damned, The Lost and Damned, Lost and Damned)
-Grand Theft Auto IV: The Ballad of Gay Tony (GTA IV: TBoGT, GTA 4: TBoGT, GTA IV: TBOGT, GTA 4: TBOGT, GTA IV: The Ballad of Gay Tony, GTA 4: The Ballad of Gay Tony, TBoGT, TBOGT, The Ballad of Gay Tony, Ballad of Gay Tony)
-
-- Deep Cut
-Grand Theft Auto Advance (GTA Advance, GTA A, GTA Advance, GTAA, GTAADV, Advance)
-Grand Theft Auto: Episodes from Liberty City (GTA EFLC, GTA IV: EFLC, GTA 4: EFLC, GTA IV: Episodes from Liberty City, GTA 4: Episodes from Liberty City, EFLC, Episodes from Liberty City)
-Grand Theft Auto: London 1969 (GTA London 1969, GTA London, GTA L69, L69, London 1969, Grand Theft Auto London 1969)
-
-- Flan-tastic
-Grand Theft Auto: London 1961 (GTA London 1961, GTA L61, L61, London 1961, Grand Theft Auto London 1961)
-
-# Among Us Character Colors
-modes: social, newsulka
-
-- Spoon
-Red
-Blue
-Green
-Yellow
-
-- Slice
-Pink
-Orange
-Black
-White
-Purple
-Brown
-Gray (Grey)
-
-- Rare
-Cyan
-Lime
-Banana
-
-- Deep Cut
-Rose
-Maroon
-Tan
-Coral
-
-- Flan-tastic
-Fortegreen
-
-# Among Us Skeld Tasks
-modes: social, newsulka
-
-- Spoon
-Fix Wiring (Wires, Wiring)
-Swipe Card (Card, Swipe, Card Swipe)
-
-- Slice
-Submit Scan (Scan, MedScan, Medbay Scan)
-Clear Asteroids (Asteroids)
-Empty Garbage (Garbage, Trash)
-Download and Upload Data (Upload, Data, Upload Data, download, download data)
-Divert Power (Divert, Power)
-Start Reactor (Reactor, Simon Says)
-
-- Rare
-Fuel Engines (Fuel, Engines)
-Prime Shields (Shields)
-Inspect Sample (Sample, Samples)
-
-- Deep Cut
-Stabilize Steering (Steering)
-Align Engine Output (Align Engines, Engine Alignment)
-Calibrate Distributor (Distributor, Calibration, rotating numbers)
-Chart Course (Course, Chart, ship)
-Clean O2 Filter (O2, O2 Filter, Filter, leaves, leafs, leaf, clean leaves)
-Unlock Manifolds (Manifolds, numbers)
-
-- Flan-tastic
-Clean Vent (Vent, Cleaning Vent)
-
-# Bopl Battle Abilities
-modes: social, newsulka
-
-- Spoon
-Random (question mark, question)
-Bow (bow and arrow, arrow)
-Grenade
-
-- Slice
-Dash
-Rock (stone)
-Missile
-Gust (wind, wind burst, burst, wind gust)
-Time Stop (stop time)
-Engine (rocket, propeller, rocket engine, rocket propeller)
-Black Hole
-Beam (Laser, laser beam)
-
-- Rare
-Blink Gun (disappear, disappear gun, disappear ray, blink)
-Growth Ray (grow gun, grow ray, grow, growth)
-Smoke (smoke grenade)
-Revival (extra life, life, 1up, 1-up, revive)
-Teleport (teleporter)
-Shrink Ray (shrink gun, shrink)
-Spike (ground spike)
-Mine
-Drill
-
-- Deep Cut
-Grappling Hook (Grapple)
-Invisibility (invis)
-Meteor (ground pound)
-Platform
-Roll (sonic)
-Throw (ground throw, ground launch, launch)
-Push (fly, block fly, block flight)
-Tesla Coil (lightning, electric, eletricity line, electric line, lightning line, lightning coil, electric coil, shock, shock line)
-Duplicator (clone gun, clone ray, clone)
-
-- Flan-tastic
-Magnet Gun (magnet)
 
 # Stardew Valley Festivals
 modes: social
@@ -3455,5 +2964,1053 @@ Anil (índigo)
 - Deep Cut
 
 - Flan-tastic
+
+
+# Bopl Battle Abilities
+modes: social
+
+- Spoon
+Random (question mark, question)
+Bow (bow and arrow, arrow)
+Grenade
+
+- Slice
+Dash
+Rock (stone)
+Missile
+Gust (wind, wind burst, burst, wind gust)
+Time Stop (stop time)
+Engine (rocket, propeller, rocket engine, rocket propeller)
+Black Hole
+Beam (Laser, laser beam)
+
+- Rare
+Blink Gun (disappear, disappear gun, disappear ray, blink)
+Growth Ray (grow gun, grow ray, grow, growth)
+Smoke (smoke grenade)
+Revival (extra life, life, 1up, 1-up, revive)
+Teleport (teleporter)
+Shrink Ray (shrink gun, shrink)
+Spike (ground spike)
+Mine
+Drill
+
+- Deep Cut
+Grappling Hook (Grapple)
+Invisibility (invis)
+Meteor (ground pound)
+Platform
+Roll (sonic)
+Throw (ground throw, ground launch, launch)
+Push (fly, block fly, block flight)
+Tesla Coil (lightning, electric, eletricity line, electric line, lightning line, lightning coil, electric coil, shock, shock line)
+Duplicator (clone gun, clone ray, clone)
+
+- Flan-tastic
+Magnet Gun (magnet)
+
+
+// NEW SULKA <---------------------------------------------------------------
+
+# Orbs from Geometry Dash
+modes: newsulka, social
+
+- Spoon
+Yellow orb
+Pink orb
+Blue orb
+
+- Slice
+Green orb
+Red orb
+Black orb
+Dash orb (green dash orb)
+
+- Rare
+Pink dash orb
+Spider orb
+
+- Deep Cut
+Trigger orb
+Teleport orb
+
+- Flan-tastic
+Mana orb
+
+
+# Minecraft Biomes
+modes: newsulka, social
+
+- Spoon
+Plains
+Forest
+Desert
+Ocean
+Jungle
+
+- Slice
+Taiga
+Swamp
+Savanna
+Birch Forest
+Dark Forest
+Deep Dark
+The End (end)
+Mushroom Fields (mushroom, mushroom island)
+Nether Wastes (nether)
+Crimson Forest
+Warped Forest
+Flower Forest
+Bamboo Jungle
+Badlands (mesa)
+River
+Cherry Grove (cherry blossom, cherry)
+
+- Rare
+Snowy Plains
+Deep Ocean
+Snowy Taiga
+Sunflower Plains
+Ice Spikes
+Mangrove Swamp
+Pale Garden
+Lush Caves
+Dripstone Caves
+Meadow
+Beach
+Basalt Deltas (basalt)
+Soul Sand Valley (soul sand)
+Warm Ocean
+Lukewarm Ocean
+Cold Ocean
+Grove
+Stony Peaks
+Windswept Hills
+Frozen Ocean
+Wooded Badlands (wooded mesa)
+
+- Deep Cut
+Deep Lukewarm Ocean
+Deep Cold Ocean
+Deep Frozen Ocean
+Jagged Peaks
+Frozen Peaks
+Snowy Slopes
+Windswept Gravelly Hills
+Windswept Forest
+Old Growth Pine Taiga
+Old Growth Spruce Taiga
+Old Growth Birch Forest
+Sparse Jungle
+Dappled Forest
+Frozen River
+Snowy Beach
+Stony Shore
+Savanna Plateau
+Windswept Savanna
+Eroded Badlands (eroded mesa)
+Sulfur Caves
+End Barrens
+End Highlands
+End Midlands
+Small End Islands
+Ice Caves
+
+- Flan-tastic
+The Void
+
+# Minecraft Status Effects
+modes: social, newsulka
+
+- Spoon
+Speed
+Haste
+Strength
+Fire Resistance
+
+- Slice
+Poison
+Slowness
+Absorption
+Regeneration
+Jump Boost
+Night Vision
+Invisibility
+Water Breathing
+Hunger
+Mining Fatigue
+Resistance
+Levitation
+
+- Rare
+Instant Damage
+Instant Health
+Wither
+Weakness
+Blindness
+Nausea
+Slow Falling
+Hero of the Village
+Saturation
+Glowing
+Darkness
+
+- Deep Cut
+Health Boost
+Conduit Power
+Dolphin's Grace
+Luck
+Bad Omen
+Raid Omen
+Trial Omen
+Wind Charged
+Weaving
+Oozing
+Infested
+Breath of the Nautilus
+
+- Flan-tastic
+Bad Luck
+
+# Minecraft Commands
+modes: social, newsulka
+
+- Spoon
+/gamemode (gamemode)
+/give (give)
+/tp (tp, teleport, /teleport)
+/kill (kill)
+
+- Slice
+/time (time)
+/weather (weather)
+/summon (summon)
+/effect (effect)
+/enchant (enchant)
+/clear (clear)
+/fill (fill)
+/setblock (setblock)
+/locate (locate)
+/difficulty (difficulty)
+/seed (seed)
+/gamerule (gamerule)
+/ban (ban)
+/kick (kick)
+
+- Rare
+/execute (execute)
+/xp (xp, experience, /experience)
+/spawnpoint (spawnpoint)
+/setworldspawn (setworldspawn)
+/advancement (advancement)
+/scoreboard (scoreboard)
+/title (title)
+/particle (particle)
+/playsound (playsound)
+/op (op)
+/deop (deop)
+/pardon (pardon)
+/list (list)
+/msg (msg, tell, w, /tell, /w)
+/say (say)
+/help (help)
+/function (function)
+/recipe (recipe)
+/team (team)
+/bossbar (bossbar)
+/loot (loot)
+/tellraw (tellraw)
+/trigger (trigger)
+/worldborder (worldborder)
+
+- Deep Cut
+/clone (clone)
+/banlist (banlist)
+/pardon-ip (pardon-ip)
+/ban-ip (ban-ip)
+/attribute (attribute)
+/compute (compute)
+/damage (damage)
+/data (data)
+/datapack (datapack)
+/debug (debug)
+/defaultgamemode (defaultgamemode)
+/dialog (dialog)
+/fetchprofile (fetchprofile)
+/fillbiome (fillbiome)
+/forceload (forceload)
+/item (item)
+/jfr (jfr)
+/me (me)
+/perf (perf)
+/place (place)
+/posteffect (posteffect)
+/publish (publish)
+/random (random)
+/reload (reload)
+/return (return)
+/ride (ride)
+/rotate (rotate)
+/save-all (save-all)
+/save-off (save-off)
+/save-on (save-on)
+/schedule (schedule)
+/setidletimeout (setidletimeout)
+/spectate (spectate)
+/spreadplayers (spreadplayers)
+/stop (stop)
+/stopsound (stopsound)
+/swing (swing)
+/tag (tag)
+/teammsg (teammsg, tm, /tm)
+/test (test)
+/tick (tick)
+/transfer (transfer)
+/unpublish (unpublish)
+/version (version)
+/waypoint (waypoint)
+/whitelist (whitelist)
+
+- Flan-tastic
+/stopwatch (stopwatch)
+
+# End products of a furnace in Minecraft
+modes: social, newsulka
+
+- Spoon
+Glass
+Iron Ingot (iron)
+Gold Ingot (gold)
+Stone
+Charcoal
+
+- Slice
+Steak (beef)
+Baked Potato (cooked potato)
+Copper Ingot (copper)
+Smooth Stone
+Cooked Porkchop (pork, porkchop)
+Cooked Chicken (chicken)
+Netherite Scrap (netherite, scrap)
+Green Dye
+Brick
+
+- Rare
+Deepslate
+Coal
+Diamond
+Emerald
+Redstone Dust (redstone)
+Lapis Lazuli (lapis)
+Nether Quartz (quartz)
+Cooked Mutton (sheep, mutton)
+Cooked Rabbit (rabbit)
+Cooked Cod (cod)
+Cooked Salmon (salmon)
+Dried Kelp (kelp)
+Iron Nugget
+Gold Nugget
+Sponge (dry sponge)
+Terracotta
+Nether Brick
+Smooth Quartz
+
+- Deep Cut
+Copper Nugget
+Cracked Stone Bricks
+Cracked Deepslate Bricks
+Cracked Deepslate Tiles
+Smooth Sandstone
+Smooth Red Sandstone
+Cracked Nether Bricks
+Smooth Basalt
+Cracked Polished Blackstone Bricks
+Glazed Terracotta (White Glazed Terracotta, Light Gray Glazed Terracotta, Gray Glazed Terracotta, Black Glazed Terracotta, Brown Glazed Terracotta, Red Glazed Terracotta, Orange Glazed Terracotta, Yellow Glazed Terracotta, Lime Glazed Terracotta, Green Glazed Terracotta, Cyan Glazed Terracotta, Light Blue Glazed Terracotta, Blue Glazed Terracotta, Purple Glazed Terracotta, Magenta Glazed Terracotta, Pink Glazed Terracotta)
+Popped Chorus Fruit
+Resin Brick
+
+- Flan-tastic
+Leaf Litter
+Lime Dye
+
+# Items you can fish in Minecraft
+modes: social, newsulka
+
+- Spoon
+Raw Cod (cod, fish)
+Raw Salmon (salmon)
+Pufferfish
+
+- Slice
+Tropical Fish
+Enchanted Book
+Name Tag
+Bow
+Saddle
+Fishing Rod
+Nautilus Shell
+
+- Rare
+Lily Pad
+Leather Boots
+Bone
+Rotten Flesh
+String
+
+- Deep Cut
+Leather
+Water Bottle
+Bowl
+Tripwire Hook
+Stick
+Bamboo
+
+- Flan-tastic
+Ink Sac (ink sack)
+
+# GTA Games
+modes: social, newsulka
+
+- Spoon
+Grand Theft Auto V (GTA V, GTA 5, Grand Theft Auto 5, GTAV, GTA5, Grand Theft Auto Five, GTA Five)
+Grand Theft Auto VI (GTA VI, GTA 6, Grand Theft Auto 6, GTAVI, GTA6, Grand Theft Auto Six, GTA Six)
+Grand Theft Auto (GTA, GTA 1, GTA I, Grand Theft Auto 1, Grand Theft Auto I, GTA1, GTAI)
+
+- Slice
+Grand Theft Auto: San Andreas (GTA San Andreas, GTA SA, San Andreas, SA, GTASA, GTA: San Andreas, Grand Theft Auto San Andreas)
+Grand Theft Auto: Vice City (GTA Vice City, GTA VC, Vice City, VC, GTAVC, GTA: Vice City, Grand Theft Auto Vice City)
+Grand Theft Auto IV (GTA IV, GTA 4, Grand Theft Auto 4, GTAIV, GTA4, Grand Theft Auto Four, GTA Four)
+Grand Theft Auto III (GTA III, GTA 3, Grand Theft Auto 3, GTAIII, GTA3, Grand Theft Auto Three, GTA Three)
+Grand Theft Auto Online (GTA Online, GTAO, GTA O, GTA V Online, GTA 5 Online, Grand Theft Auto V Online, Grand Theft Auto 5 Online)
+Grand Theft Auto 2 (GTA 2, GTA II, Grand Theft Auto II, GTA2, GTAII)
+
+- Rare
+Grand Theft Auto: Liberty City Stories (GTA Liberty City Stories, GTA LCS, Liberty City Stories, LCS, GTALCS, GTA: Liberty City Stories)
+Grand Theft Auto: Vice City Stories (GTA Vice City Stories, GTA VCS, Vice City Stories, VCS, GTAVCS, GTA: Vice City Stories)
+Grand Theft Auto: Chinatown Wars (GTA Chinatown Wars, GTA CW, Chinatown Wars, CW, GTACW, GTA: Chinatown Wars)
+Grand Theft Auto IV: The Lost and Damned (GTA IV: TLAD, GTA 4: TLAD, GTA IV: The Lost and Damned, GTA 4: The Lost and Damned, TLAD, TLaD, The Lost & Damned, The Lost and Damned, Lost and Damned)
+Grand Theft Auto IV: The Ballad of Gay Tony (GTA IV: TBoGT, GTA 4: TBoGT, GTA IV: TBOGT, GTA 4: TBOGT, GTA IV: The Ballad of Gay Tony, GTA 4: The Ballad of Gay Tony, TBoGT, TBOGT, The Ballad of Gay Tony, Ballad of Gay Tony)
+
+- Deep Cut
+Grand Theft Auto Advance (GTA Advance, GTA A, GTA Advance, GTAA, GTAADV, Advance)
+Grand Theft Auto: Episodes from Liberty City (GTA EFLC, GTA IV: EFLC, GTA 4: EFLC, GTA IV: Episodes from Liberty City, GTA 4: Episodes from Liberty City, EFLC, Episodes from Liberty City)
+Grand Theft Auto: London 1969 (GTA London 1969, GTA London, GTA L69, L69, London 1969, Grand Theft Auto London 1969)
+
+- Flan-tastic
+Grand Theft Auto: London 1961 (GTA London 1961, GTA L61, L61, London 1961, Grand Theft Auto London 1961)
+
+# Among Us Character Colors
+modes: social, newsulka
+
+- Spoon
+Red
+Blue
+Green
+Yellow
+
+- Slice
+Pink
+Orange
+Black
+White
+Purple
+Brown
+Gray (Grey)
+
+- Rare
+Cyan
+Lime
+Banana
+
+- Deep Cut
+Rose
+Maroon
+Tan
+Coral
+
+- Flan-tastic
+Fortegreen
+
+# Among Us Skeld Tasks
+modes: social, newsulka
+
+- Spoon
+Fix Wiring (Wires, Wiring)
+Swipe Card (Card, Swipe, Card Swipe)
+
+- Slice
+Submit Scan (Scan, MedScan, Medbay Scan)
+Clear Asteroids (Asteroids)
+Empty Garbage (Garbage, Trash)
+Download and Upload Data (Upload, Data, Upload Data, download, download data)
+Divert Power (Divert, Power)
+Start Reactor (Reactor, Simon Says)
+
+- Rare
+Fuel Engines (Fuel, Engines)
+Prime Shields (Shields)
+Inspect Sample (Sample, Samples)
+
+- Deep Cut
+Stabilize Steering (Steering)
+Align Engine Output (Align Engines, Engine Alignment)
+Calibrate Distributor (Distributor, Calibration, rotating numbers)
+Chart Course (Course, Chart, ship)
+Clean O2 Filter (O2, O2 Filter, Filter, leaves, leafs, leaf, clean leaves)
+Unlock Manifolds (Manifolds, numbers)
+
+- Flan-tastic
+Clean Vent (Vent, Cleaning Vent)
+
+# Things you may plug in a computer
+modes: newsocial, newsulka
+
+- Spoon
+Mouse (Computer Mouse)
+Keyboard
+Monitor (Display, Screen, Second monitor)
+
+- Slice
+Headphones (Headset)
+USB Stick (Thumb Drive, USB Flash Drive, Flash Drive, pendrive, pen drive, stick)
+Speakers
+Microphone (Mic)
+Webcam (Web Camera)
+Controller (Gamepad, Game Controller, PS4 Controller, PS5 Controller, XBox Controller, Switch Controller)
+Phone (Smartphone, Mobile, iphone)
+External Hard Drive (External HDD, Portable HDD, HDD, HD, Hard Drive, Portable Hard Drive)
+Tablet (ipad)
+Ethernet Cable (LAN Cable, Network Cable, ethernet)
+Charging Cable (USB Charging Cable
+Power Cable (power, energy, energy cable)
+
+- Rare
+USB Hub (hub)
+Printer
+Joystick
+Steering Wheel (Racing Wheel, wheel)
+Drawing Tablet (Graphics Tablet)
+MIDI Keyboard (keyboard)
+Audio Interface (audio table)
+Capture Card
+Projector
+Television (TV)
+External SSD (Portable SSD)
+DVD Drive (DVD Player)
+Docking Station (Dock)
+Bluetooth Adapter (Bluetooth Dongle, bluetooth)
+Wi-Fi Adapter (Wireless Adapter)
+USB Modem (modem)
+
+- Deep Cut
+Heart Rate Monitor (USB Heart Rate Monitor)
+3D Printer
+Label Printer
+Receipt Printer (Thermal Printer)
+Memory Card Reader (SD Card Reader, Card Reader)
+Barcode Scanner (Barcode Reader, barcode)
+Blu-ray Drive (Blu-ray Player)
+Scanner
+External Floppy Drive (USB Floppy Drive)
+External Tape Drive
+External GPU Enclosure (eGPU)
+External Sound Card (USB Sound Card)
+Digital-to-Analog Converter (DAC)
+Headphone Amplifier (Headphone Amp, amp, amplifier)
+DJ Controller
+MIDI Controller
+Digital Piano
+Electronic Drum Kit (E-Drum Kit, drums, drum kit)
+Digital Camera
+DSLR Camera (Digital SLR)
+Camcorder (Video Camera)
+Action Camera (GoPro)
+E-reader (Kindle)
+VR Headset (Virtual Reality Headset)
+Motion Tracking Sensor (Motion Tracker)
+Eye Tracker
+Fingerprint Reader (Fingerprint Scanner)
+Smart Card Reader
+RFID Reader
+NFC Reader
+Magnetic Stripe Reader (Magstripe Reader)
+GPS Receiver
+USB Microscope (Digital Microscope, microscope)
+Thermal Camera (Infrared Camera, IR Camera)
+USB Oscilloscope (oscilloscope)
+Logic Analyzer
+Serial Adapter (USB-to-Serial Adapter)
+Parallel Port Adapter
+KVM Switch
+USB Foot Pedal (Foot Switch, foot controller)
+Pen Display (Drawing Monitor)
+Laptop Cooling Pad (Cooling Stand)
+USB Fan (fan)
+Ring Light
+USB Desk Lamp (desk lamp, lamp)
+USB Humidifier (humidifier)
+USB Mug Warmer (mug warmer)
+Payment Terminal (Card Terminal)
+Plotter
+USB Turntable (USB Record Player, turntable, record player)
+TV Tuner (USB TV Tuner)
+USB Security Key (Hardware Security Key, security key)
+USB MIDI Foot Controller (midi Foot Controller)
+
+- Flan-tastic
+USB Geiger Counter (Geiger-Müller Counter, Radiation Detector, geiger counter)
+
+# Actions you can take during a standard chess.com game
+modes: newsulka
+
+- Spoon
+Move (move piece, moving)
+Capture (capture piece, capturing)
+Check (checking, discovered check, discovery check, double checking, double check)
+Checkmate (checkmating)
+
+- Slice
+Castle (queen side castle, queen-side castling, king side castle, king-side castling, castling)
+Premove (pre-move, premoving, pre-moving)
+Promote (promotion, promote pawn, pawn promotion, underpromote, underpromotion, promote to knight, promote to rook, promote to bishop)
+
+- Rare
+En Passant
+Resign (forfeit, forfeit match)
+Ask for a draw (offer draw, draw offer, ask for draw, request draw)
+Accept draw offer (accept draw, draw)
+Decline draw offer (decline draw, reject draw)
+Draw arrows (arrows)
+
+- Deep Cut
+Invert Board (invert)
+Send friend request (friend request)
+Report match (report)
+Go back (return, return moves, back, go back moves)
+Go forward (forward, forward moves, go forward moves)
+Chat (send message, message opponent, message)
+Mark square (red square, mark tile, mark, mark space)
+Toggle theather mode (theather mode, theather, enable theather mode, disable theather mode)
+Toggle focus mode (full screen, focus mode, enable full screen, enable focus mode, disable focus mode)
+Toggle voice control (voice control, activate voice control, deactivate voice control, enable voice control, disable voice control)
+Close tab (close, quit)
+Refresh Page (refresh)
+Accept friend request
+Accept match request
+Toggle chat (disable chat, enable chat)
+Zoom (zoom in, zoom out)
+Inspect element (f12)
+Translate page (translate)
+Bookmark page (bookmark)
+Toggle extension (enable extension, disable extension, browser extension, extension, toggle browser extension, disable browser extension, enable browser extension)
+Change tabs (switch tabs)
+Disable internet (disable wifi)
+Turn off computer (turn off pc, turn off the computer, turn off the pc)
+Restart computer (restart pc, restart the computer, restart the pc)
+Toggle volume (mute page, mute, unmute, unmute page, toggle page volume)
+
+- Flan-tastic
+Wait (waiting, nothing, do nothing, think, thinking)
+
+# Official Among Us roles
+modes: social, newsulka
+
+- Spoon
+Crewmate
+Impostor (Imposter)
+
+- Slice
+Scientist
+Engineer
+Shapeshifter
+Guardian Angel
+
+- Rare
+Tracker
+Noisemaker
+Phantom
+Viper
+
+- Deep Cut
+Detective
+Judge
+
+- Flan-tastic
+Influencer
+
+# Geometry Dash Difficulty Faces
+modes: social, newsulka
+
+- Spoon
+Extreme Demon
+Hard Demon (demon)
+
+- Slice
+Easy Demon
+Easy
+Normal
+Hard
+Insane
+Insane Demon
+
+- Rare
+Medium Demon
+Harder
+
+- Deep Cut
+Auto
+
+- Flan-tastic
+N/A (NA, Not Applicable, Unrated)
+
+# Keyboard keys that do something in Sulka
+modes: newsulka
+
+- Spoon
+w
+a
+d
+up arrow (up)
+left arrow (left)
+right arrow (right)
+
+- Slice
+z
+x
+j
+k
+
+- Rare
+s
+down arrow (down)
+spacebar (space)
+escape (esc)
+
+- Deep Cut
+p
+
+- Flan-tastic
+f10
+
+# Things in the original Donkey Kong
+modes: social, newsulka
+
+- Spoon
+Jumpman (Mario)
+Donkey Kong (Kong, dk)
+Barrel
+
+- Slice
+Lady (Pauline, princess)
+Hammer
+Ladder
+Girder (ground)
+Fireball
+Oil Drum (Oil Can, oil, oil barrel)
+Cement Tub (Cement Pie)
+Rivet (Bolt)
+25m Stage (Barrel Stage)
+Lives
+Score
+
+- Rare
+Highscore
+50m Stage (Pie Factory, Cement Factory)
+75m Stage (Elevator Stage)
+100m Stage (Rivet Stage)
+Blue Barrel (Beam)
+Fire (Firefox)
+Jack
+Conveyor Belt
+Elevator
+Parasol (Umbrella)
+Hat
+Purse (Bag)
+Broken Ladder
+Platform
+
+- Deep Cut
+Bonus Counter (bonus score)
+Construction Site
+Jack's Spring
+
+- Flan-tastic
+Kill Screen (Level 22)
+
+# Official Pac-Man character names
+modes: social, newsulka
+
+- Spoon
+Pac-Man (pacman)
+
+- Slice
+Blinky (Shadow, Akabei, Oikake)
+Pinky (Speedy, Machibuse)
+Inky (Bashful, Aosuke, Kimagure)
+Clyde (Pokey, Guzuta, Otoboke)
+Ms. Pac-Man (Ms Pac-Man, Pac-Mom, Pepper, ms. pacman)
+
+- Rare
+Jr. Pac-Man (Junior Pac-Man, Pac-Jr, Pac-Boy, pac-man jr, pacman jr)
+Baby Pac-Man (Baby Pac, Pac-Sis, baby pacman)
+Sue
+Funky
+Orson
+Toc-Man
+Pooka
+Chomp-Chomp (Pac-Buddy)
+Sour Puss (Sourpuss)
+Professor Pac-Man (Professor Pac)
+Tim
+Spunky
+Spooky
+Erwin
+Mezmaron
+Dinky
+Cylindria (Cyli)
+Spiralton (Spiral)
+
+- Deep Cut
+Pac-Master
+Professor PointyBrains
+President Spheros
+Sir Cumference
+Skeebo
+Betrayus (Lord Betrayus)
+Dr. Buttocks (Dr. A.H. Buttocks)
+Butt-ler
+Spheria Suprema (Aunt Spheria, Spheria)
+Rotunda Spheros
+Zac
+Sunny
+Specter
+Pacinator
+Apex
+Fuzbitz
+Pac-Wizard (Pac-Wiz)
+Pac-Neighbor
+DJ Pac
+Director Pac
+Pac-Mayor
+Pac-Waitress
+
+- Flan-tastic
+Miru
+
+# Rocket League Ranks OR PLL Cases
+modes: newsulka
+
+- Spoon
+Bronze I (Bronze 1, bronze)
+T-Perm (T Perm, T permutation)
+Gold I (Gold 1, gold)
+Platinum I (Platinum 1, platinum, plat 1, plat)
+Silver I (Silver 1, silver)
+Diamond I (Diamond 1, diamond)
+Champion I (Champion 1, Champ 1, champ, champion)
+Ua-Perm (Ua Perm, Ua permutation)
+Grand Champion I (GC I, GC1, Grand Champ 1, GC, Grand Champ, Grand Champion, Grand Champion 1)
+
+- Slice
+Bronze II (Bronze 2)
+H-Perm (H Perm, H permutation)
+Silver II (Silver 2)
+Gold II (Gold 2)
+Ub-Perm (Ub Perm, Ub permutation)
+Diamond III (Diamond 3)
+Platinum II (Platinum 2, plat 2)
+Bronze III (Bronze 3)
+Silver III (Silver 3)
+Gold III (Gold 3)
+Platinum III (Platinum 3, plat 3)
+Diamond II (Diamond 2)
+Champion II (Champion 2, Champ 2)
+Grand Champion II (GC II, GC2, Grand Champ 2, Grand Champion 2)
+Champion III (Champion 3, Champ 3)
+Grand Champion III (GC III, GC3, Grand Champ 3, Grand Champion 3)
+
+- Rare
+Z-Perm (Z Perm, Z permutation)
+Aa-Perm (Aa Perm, Aa permutation)
+Ab-Perm (Ab Perm, Ab permutation)
+Jb-Perm (Jb Perm, Jb permutation)
+Supersonic Legend (SSL)
+Unranked
+
+- Deep Cut
+Prospect I (Prospect 1, Prospect)
+Prospect II (Prospect 2)
+Prospect III (Prospect 3)
+Prospect Elite
+Challenger I (Challenger 1)
+Challenger II (Challenger 2)
+Challenger III (Challenger 3)
+Challenger Elite
+Rising Star
+Shooting Star
+All-Star (All Star)
+Superstar (Super Star)
+Champion
+E-Perm (E Perm, E permutation)
+F-Perm (F Perm, F permutation)
+Ga-Perm (Ga Perm, Ga permutation)
+Gb-Perm (Gb Perm, Gb permutation)
+Gc-Perm (Gc Perm, Gc permutation)
+Ja-Perm (Ja Perm, Ja permutation)
+Na-Perm (Na Perm, Na permutation)
+Nb-Perm (Nb Perm, Nb permutation)
+Ra-Perm (Ra Perm, Ra permutation)
+Rb-Perm (Rb Perm, Rb permutation)
+V-Perm (V Perm, V permutation)
+Y-Perm (Y Perm, Y permutation)
+
+- Flan-tastic
+Super Champion (super champ)
+Gd-Perm (Gd Perm, Gd permutation)
+
+# Existing Discord channels in the Sulka server
+modes: newsulka
+
+- Spoon
+general
+sulka memes (memes)
+Sulkin Time (VC, VC 1)
+
+- Slice
+Alex Time (VC 2)
+Strats
+PBs and Clips
+Announcements
+Rules
+Mods
+Achievements
+Lore
+
+- Rare
+Levels
+Server Stats
+Audit Logs
+Zoo
+VC Notifications
+Chicken Jockie
+Counting
+Deltarune Discussion
+Polls
+Monthly Iso Quote (daily iso quote)
+Tree
+Sulka News (sulky news)
+
+- Deep Cut
+Checklist
+Sleeping
+Discord MSG
+Emoji Story
+Moderators
+Sulky Thing
+
+- Flan-tastic
+? (arg)
+
+# Sulka Discord Achievements
+sub: If you describe it, I'll tell you the actual name
+modes: newsulka
+
+- Spoon
+Sweep
+Sub 2:00 (sub 2, 2:00)
+
+- Slice
+Sub 1:50 (1:50)
+WR Holder (WR)
+Sub 2:15 (2:15)
+Sub 2:30 (2:30)
+Sub 1:45 (1:45)
+Hard
+Albino
+Modder
+Discoverer
+Memer
+Thinker
+Mario
+Lunar
+Astronaut
+FWR
+Recordist
+
+- Rare
+Spooky
+Multi-Runner
+Multi-WR
+Not
+Luigi
+Starling
+Doer 
+Artist
+akluS
+Definitely
+Just Sulka
+NEO
+Reset
+Insanity
+GD
+Icy
+Trial
+Memory
+Blinder
+Bouncy
+Fly
+
+- Deep Cut
+Intended
+Quarter
+Halfed
+Practiced
+Bounciest
+Cauldron
+Right
+Dead
+Participant
+Event Winner
+Dash
+Low Dash
+Forties
+Thirties
+Segmented
+Mini Sweep
+
+- Flan-tastic
+nurdeepS
+
+# Buttons in a PS4 controller
+modes: social, newsulka
+
+- Spoon
+Cross (X)
+Circle (O)
+
+- Slice
+Square
+Triangle
+Up (D-pad Up)
+Down (D-pad Down)
+Left (D-pad Left)
+Right (D-pad Right)
+L1 (Left Bumper)
+R1 (Right Bumper)
+L2 (Left Trigger)
+R2 (Right Trigger)
+
+- Rare
+Share
+Options
+PS Button (PlayStation Button, PS)
+
+- Deep Cut
+L3 (Left Stick Button, Left stick)
+R3 (Right Stick Button, right stick)
+Touch Pad (Touch Pad Button)
+
+- Flan-tastic
+Reset Button (Reset)
 
 `;
