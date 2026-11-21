@@ -4013,4 +4013,173 @@ Touch Pad (Touch Pad Button)
 - Flan-tastic
 Reset Button (Reset)
 
+# Songs in the Undertale OST
+modes: newsulka
+
+- Spoon
+Undertale
+Hopes and Dreams
+MEGALOVANIA
+
+- Slice
+Once Upon a Time
+Your Best Friend
+Fallen Down
+Bonetrousle
+Spear of Justice
+Spider Dance
+Death by Glamour
+Ruins
+Enemy Approaching
+Ghost Fight
+Determination
+Heartache
+sans. (Sans)
+Dogsong
+Snowdin Town
+Undyne
+Waterfall
+Temmie Village
+Alphys
+Metal Crusher
+Another Medium
+ASGORE
+It's Raining Somewhere Else
+Battle Against a True Hero
+Song That Might Play When You Fight Sans
+CORE
+Finale
+
+- Rare
+Snowy
+Your Best Nightmare
+NGAHHH!! (Ngahhh, ngahh, ngah)
+Nyeh Heh Heh! (nyeh heh heh)
+Start Menu
+Home
+Shop
+Dating Start! (dating start)
+Dating Tense! (dating tense)
+Dating Fight! (dating fight)
+Run! (run)
+Dummy! (dummy)
+Thundersnail
+Tem Shop
+Hotel
+Wrong Enemy!? (wrong enemy?, wrong enemy!, wrong enemy)
+Bergentrückung (bergentruckung, bergentruck)
+Don't Give Up
+SAVE the World
+His Theme
+Reunited
+You Idiot
+Uwa!! So Temperate (uwa! so temperate, uwa so temperate)
+Long Elevator
+Spooktune
+Power of NEO
+
+- Deep Cut
+It's Showtime! (it's showtime)
+Unnecessary Tension
+Stronger Monsters
+Anticipation
+Home Music Box
+Uwa!! So Holiday (uwa! so holiday, uwa so holiday)
+Mysterious Place
+Premonition
+Danger Mystery
+Quiet Water
+Memory
+Pathetic House
+Spookwave
+Ghouliday
+Chill
+Ooo
+Uwa!! So HEATS!! (Uwa! so HEATS!, Uwa so heats)
+Confession
+Live Report
+Death Report
+Oh! One True Love (oh one true love, one true love)
+Oh! Dungeon (oh dungeon, dungeon)
+CORE Approach
+Last Episode! (last episode)
+Oh My... (oh my)
+For the Fans
+The Choice
+Small Shock
+Barrier
+An Ending
+She's Playing Piano
+Here We Are
+Amalgam
+Fallen Down Reprise
+Burn in Despair! (burn in despair)
+Final Power
+Menu Full
+Respite
+Bring It In, Guys! (bring it in guys)
+Last Goodbye
+But the Earth Refused to Die
+Good Night
+Dogbass
+
+- Flan-tastic
+Bird That Carries You Over a Disproportionately Small Gap
+Can You Really Call This a Hotel, I Didn't Receive a Mint on My Pillow or Anything
+
+# English words in Sulka
+modes: newsulka
+
+- Spoon
+Speedrun
+Settings
+
+- Slice
+New
+Game
+Size
+Music
+SFX
+Quit
+Levels
+Best
+Full
+Return
+Continue
+Restart
+Skip
+Level
+Menu
+
+- Rare
+Pause
+Halfway
+There
+And
+As
+So
+Found
+A
+Home
+All
+Thanks
+To
+You
+Thank
+You
+For
+Playing
+Was
+Made
+In
+By
+
+- Deep Cut
+Click
+Here
+Focus
+
+- Flan-tastic
+Window
+
 `;
